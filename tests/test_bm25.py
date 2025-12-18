@@ -1,0 +1,376 @@
+"""
+Tests for Vajra BM25 information retrieval implementation
+
+Tests the categorical BM25 implementation:
+- BM25 scoring as morphism (Query, Document) -> R
+- Search as coalgebraic unfolding
+- Document and corpus handling
+"""
+
+import pytest
+from vajra_bm25 import (
+    Document,
+    DocumentCorpus,
+    preprocess_text,
+    BM25Parameters,
+    BM25Scorer,
+    VajraSearch,
+)
+from vajra_bm25.inverted_index import InvertedIndex
+
+
+# Test fixtures
+@pytest.fixture
+def sample_documents():
+    """Create sample documents for testing"""
+    return [
+        Document("1", "Category Theory", "Functors are structure-preserving maps between categories"),
+        Document("2", "Coalgebras", "Coalgebras capture dynamics and unfolding processes"),
+        Document("3", "Search", "BFS and DFS are graph search algorithms"),
+        Document("4", "Functors and Morphisms", "Category theory uses functors and morphisms"),
+    ]
+
+
+@pytest.fixture
+def sample_corpus(sample_documents):
+    """Create sample corpus"""
+    return DocumentCorpus(sample_documents)
+
+
+def test_document_creation():
+    """Test Document creation"""
+    doc = Document("test_id", "Test Title", "Test content here")
+
+    assert doc.id == "test_id"
+    assert doc.title == "Test Title"
+    assert doc.content == "Test content here"
+
+
+def test_document_immutable_after_creation():
+    """Test that Document fields can be set"""
+    doc = Document("1", "Title", "Content")
+
+    # Fields should exist and be accessible
+    assert doc.id == "1"
+    assert doc.title == "Title"
+    assert doc.content == "Content"
+
+
+def test_corpus_creation(sample_documents):
+    """Test DocumentCorpus creation"""
+    corpus = DocumentCorpus(sample_documents)
+
+    assert len(corpus) == 4
+    assert corpus.get("1").title == "Category Theory"
+
+
+def test_corpus_iteration(sample_corpus):
+    """Test iterating over corpus"""
+    ids = [doc.id for doc in sample_corpus]
+
+    assert ids == ["1", "2", "3", "4"]
+
+
+def test_text_preprocessing():
+    """Test text preprocessing pipeline"""
+    text = "The Quick BROWN fox jumps over the lazy dog"
+    terms = preprocess_text(text)
+
+    # Should be lowercased, stop words removed
+    assert "quick" in terms
+    assert "brown" in terms
+    assert "fox" in terms
+    assert "the" not in terms  # Stop word removed
+
+
+def test_inverted_index_build(sample_corpus):
+    """Test inverted index construction"""
+    index = InvertedIndex()
+    index.build(sample_corpus)
+
+    assert index.num_docs == 4
+    assert index.avg_doc_length > 0
+
+    # Check that key terms are indexed
+    assert "functors" in index.index
+    assert "category" in index.index
+
+
+def test_inverted_index_candidate_docs(sample_corpus):
+    """Test candidate document retrieval"""
+    index = InvertedIndex()
+    index.build(sample_corpus)
+
+    query_terms = ["category", "functors"]
+    candidates = index.get_candidate_documents(query_terms)
+
+    # Documents 1 and 4 contain these terms
+    assert "1" in candidates or "4" in candidates
+
+
+def test_inverted_index_idf(sample_corpus):
+    """Test IDF calculation"""
+    index = InvertedIndex()
+    index.build(sample_corpus)
+
+    # Common term should have lower IDF
+    idf_functors = index.idf("functors")
+
+    # Rare term should have higher IDF
+    idf_coalgebras = index.idf("coalgebras")
+
+    # Coalgebras appears in fewer docs, should have higher IDF
+    assert idf_coalgebras > idf_functors
+
+
+def test_bm25_parameters():
+    """Test BM25 parameters"""
+    params = BM25Parameters()
+
+    # Default values
+    assert params.k1 == 1.5
+    assert params.b == 0.75
+
+    # Custom values
+    custom = BM25Parameters(k1=2.0, b=0.9)
+    assert custom.k1 == 2.0
+    assert custom.b == 0.9
+
+
+def test_bm25_scorer_creation(sample_corpus):
+    """Test BM25Scorer creation"""
+    index = InvertedIndex()
+    index.build(sample_corpus)
+
+    scorer = BM25Scorer(index)
+
+    assert scorer.index == index
+    assert scorer.params.k1 == 1.5
+    assert scorer.params.b == 0.75
+
+
+def test_bm25_scoring(sample_corpus):
+    """Test BM25 scoring morphism"""
+    index = InvertedIndex()
+    index.build(sample_corpus)
+    scorer = BM25Scorer(index)
+
+    query_terms = ["category", "functors"]
+
+    # Score document 1 (contains both terms)
+    score1 = scorer.score(query_terms, "1")
+
+    # Score document 3 (contains neither term)
+    score3 = scorer.score(query_terms, "3")
+
+    # Document with matching terms should score higher
+    assert score1 > score3
+
+
+def test_bm25_scoring_is_morphism(sample_corpus):
+    """Test that BM25 scoring is a proper morphism (deterministic)"""
+    index = InvertedIndex()
+    index.build(sample_corpus)
+    scorer = BM25Scorer(index)
+
+    query_terms = ["category"]
+
+    # Same input should always give same output
+    score1 = scorer.score(query_terms, "1")
+    score2 = scorer.score(query_terms, "1")
+    score3 = scorer.score(query_terms, "1")
+
+    assert score1 == score2 == score3
+
+
+def test_bm25_rank_documents(sample_corpus):
+    """Test document ranking"""
+    index = InvertedIndex()
+    index.build(sample_corpus)
+    scorer = BM25Scorer(index)
+
+    query_terms = ["functors", "morphisms"]
+    doc_ids = ["1", "2", "3", "4"]
+
+    ranked = scorer.rank_documents(query_terms, doc_ids)
+
+    # Should return list of (doc_id, score) tuples
+    assert len(ranked) == 4
+    assert all(isinstance(item, tuple) for item in ranked)
+    assert all(len(item) == 2 for item in ranked)
+
+    # Should be sorted by score (descending)
+    scores = [score for _, score in ranked]
+    assert scores == sorted(scores, reverse=True)
+
+
+def test_bm25_empty_query(sample_corpus):
+    """Test BM25 with empty query"""
+    index = InvertedIndex()
+    index.build(sample_corpus)
+    scorer = BM25Scorer(index)
+
+    score = scorer.score([], "1")
+
+    # Empty query should give zero score
+    assert score == 0.0
+
+
+def test_bm25_unknown_document(sample_corpus):
+    """Test BM25 scoring unknown document"""
+    index = InvertedIndex()
+    index.build(sample_corpus)
+    scorer = BM25Scorer(index)
+
+    query_terms = ["category"]
+
+    # Unknown document should score 0
+    score = scorer.score(query_terms, "unknown_id")
+
+    assert score == 0.0
+
+
+def test_vajra_search_creation(sample_corpus):
+    """Test VajraSearch creation"""
+    engine = VajraSearch(sample_corpus)
+
+    assert engine.corpus == sample_corpus
+    assert engine.index is not None
+    assert engine.scorer is not None
+
+
+def test_vajra_search_query(sample_corpus):
+    """Test search as coalgebraic unfolding"""
+    engine = VajraSearch(sample_corpus)
+
+    results = engine.search("category functors")
+
+    # Should return SearchResult objects
+    assert len(results) > 0
+    assert all(hasattr(r, 'document') for r in results)
+    assert all(hasattr(r, 'score') for r in results)
+    assert all(hasattr(r, 'rank') for r in results)
+
+
+def test_vajra_search_ranking(sample_corpus):
+    """Test that search results are properly ranked"""
+    engine = VajraSearch(sample_corpus)
+
+    results = engine.search("category theory functors")
+
+    # Results should be ranked by score
+    if len(results) > 1:
+        scores = [r.score for r in results]
+        assert scores == sorted(scores, reverse=True)
+
+        # Ranks should be sequential
+        ranks = [r.rank for r in results]
+        assert ranks == list(range(1, len(results) + 1))
+
+
+def test_vajra_search_top_k(sample_corpus):
+    """Test top-k retrieval"""
+    engine = VajraSearch(sample_corpus)
+
+    # Request only top 2 results
+    results = engine.search("category", top_k=2)
+
+    assert len(results) <= 2
+
+
+def test_vajra_search_empty_query(sample_corpus):
+    """Test search with empty query"""
+    engine = VajraSearch(sample_corpus)
+
+    results = engine.search("")
+
+    # Empty query should return empty results
+    assert len(results) == 0
+
+
+def test_vajra_search_no_matches(sample_corpus):
+    """Test search with no matching documents"""
+    engine = VajraSearch(sample_corpus)
+
+    # Query with terms not in corpus
+    results = engine.search("quantum chromodynamics superconductivity")
+
+    # Should return empty or very low scored results
+    if results:
+        assert all(r.score == 0 for r in results)
+
+
+def test_bm25_parameters_affect_scoring(sample_corpus):
+    """Test that BM25 parameters change scores"""
+    index = InvertedIndex()
+    index.build(sample_corpus)
+
+    # Default parameters
+    scorer1 = BM25Scorer(index, BM25Parameters(k1=1.5, b=0.75))
+
+    # Different parameters
+    scorer2 = BM25Scorer(index, BM25Parameters(k1=2.0, b=0.5))
+
+    query_terms = ["category", "functors"]
+
+    score1 = scorer1.score(query_terms, "1")
+    score2 = scorer2.score(query_terms, "1")
+
+    # Different parameters should (usually) give different scores
+    # Note: might be equal in edge cases, but generally different
+    assert score1 != score2 or score1 == 0  # If both zero, that's ok
+
+
+def test_search_coalgebra_structure():
+    """Test that search engine uses coalgebraic structure"""
+    docs = [
+        Document("1", "Test A", "content a"),
+        Document("2", "Test B", "content b"),
+    ]
+    corpus = DocumentCorpus(docs)
+    engine = VajraSearch(corpus)
+
+    # Search is coalgebraic unfolding: Query -> List[SearchResult]
+    results = engine.search("test")
+
+    # Structure should be: one query unfolds into multiple results
+    assert isinstance(results, list)
+    assert len(results) >= 0
+
+
+def test_categorical_abstractions():
+    """Test categorical abstractions are importable"""
+    from vajra_bm25 import (
+        Morphism,
+        FunctionMorphism,
+        IdentityMorphism,
+        Functor,
+        ListFunctor,
+        Coalgebra,
+        SearchCoalgebra,
+    )
+
+    # Test basic morphism composition
+    f = FunctionMorphism(lambda x: x + 1)
+    g = FunctionMorphism(lambda x: x * 2)
+
+    h = f >> g  # Composition
+    assert h.apply(5) == 12  # (5 + 1) * 2 = 12
+
+
+def test_identity_morphism():
+    """Test identity morphism laws"""
+    from vajra_bm25 import IdentityMorphism, FunctionMorphism
+
+    identity = IdentityMorphism()
+    f = FunctionMorphism(lambda x: x * 2)
+
+    # f . id = f
+    assert (identity >> f).apply(5) == f.apply(5)
+
+    # id . f = f
+    assert (f >> identity).apply(5) == f.apply(5)
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

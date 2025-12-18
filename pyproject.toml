@@ -1,0 +1,81 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vajra-bm25"
+version = "0.1.0"
+description = "Categorical BM25 search engine using pure category theory"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+authors = [
+    {name = "Rajesh Sampathkumar"}
+]
+keywords = [
+    "bm25",
+    "search",
+    "category-theory",
+    "information-retrieval",
+    "coalgebra",
+    "morphism",
+    "functor",
+    "text-search",
+    "ranking",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Text Processing :: Indexing",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.optional-dependencies]
+optimized = ["numpy>=1.20.0", "scipy>=1.7.0"]
+persistence = ["joblib>=1.0.0"]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "rank-bm25>=0.2.2",
+]
+all = [
+    "numpy>=1.20.0",
+    "scipy>=1.7.0",
+    "joblib>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/aiexplorations/vajra_bm25"
+Documentation = "https://github.com/aiexplorations/vajra_bm25#readme"
+Repository = "https://github.com/aiexplorations/vajra_bm25"
+Issues = "https://github.com/aiexplorations/vajra_bm25/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["vajra_bm25*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v"
+
+[tool.coverage.run]
+source = ["vajra_bm25"]
+omit = ["tests/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]
