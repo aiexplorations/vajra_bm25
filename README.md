@@ -135,6 +135,8 @@ Vajra achieves these speedups through:
 - Partial sort for top-k
 - Thread pool parallelism (VajraSearchParallel)
 
+For detailed benchmark methodology and results, see [docs/benchmarks.md](docs/benchmarks.md).
+
 ## JSONL Format
 
 Vajra uses JSONL for corpus persistence:
