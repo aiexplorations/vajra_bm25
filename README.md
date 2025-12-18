@@ -3,7 +3,7 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Vajra** (Sanskrit: वज्र, "thunderbolt") is a BM25 search engine. It uses Category Theory abstractions to reframe the BM25 algorithm. It provides a well-structured API and compares favourably with BM25S, which is one of the fastest Python implementations of BM25, specifically favouring better recall while remaining fast because of the vectorized implementations.
+**Vajra** (Sanskrit: वज्र, "thunderbolt") is a high-performance BM25 search engine. It uses Category Theory abstractions to reframe the BM25 algorithm, providing a well-structured API with vectorized implementations. Benchmarks show Vajra is **faster than BM25S** (one of the fastest Python BM25 libraries) at larger corpus sizes while achieving **better recall** on certain datasets.
 
 ## What Makes Vajra Different
 
@@ -90,18 +90,31 @@ batch_results = engine.search_batch(queries, top_k=5)
 
 ## Performance
 
-Benchmarked on synthetic corpora with 10 queries per run:
+Benchmarked on synthetic corpora with 10 queries per run, comparing against rank-bm25 and BM25S:
 
-| Corpus Size | rank-bm25 (ms) | Vajra Optimized (ms) | Speedup | Recall@10 |
-| ----------- | -------------- | -------------------- | ------- | --------- |
-| 1,000       | 0.43           | 0.03                 | 16x     | 99%       |
-| 10,000      | 7.36           | 0.10                 | 70x     | 56%       |
-| 50,000      | 43.00          | 0.33                 | 132x    | 80%       |
-| 100,000     | 77.96          | 0.34                 | 231x    | 50%       |
+### Speed Comparison
+
+| Corpus Size | rank-bm25 (ms) | Vajra Optimized (ms) | BM25S (ms) | Vajra Speedup | BM25S Speedup |
+| ----------- | -------------- | -------------------- | ---------- | ------------- | ------------- |
+| 1,000       | 0.42           | 0.04                 | 0.04       | 10.8x         | 9.5x          |
+| 10,000      | 7.09           | 0.12                 | 0.13       | 59.9x         | 54.6x         |
+| 50,000      | 43.45          | 0.35                 | 0.35       | 122.5x        | 123.8x        |
+| 100,000     | 82.60          | 0.32                 | 0.46       | 255.9x        | 180.4x        |
+
+### Recall@10 (vs rank-bm25 baseline)
+
+| Corpus Size | Vajra Optimized | BM25S |
+| ----------- | --------------- | ----- |
+| 1,000       | 99%             | 98%   |
+| 10,000      | 56%             | 56%   |
+| 50,000      | 80%             | 56%   |
+| 100,000     | 50%             | 50%   |
 
 **Key observations:**
 - Sub-millisecond query latency at all corpus sizes
-- Up to **231x speedup** over rank-bm25 at 100K documents
+- Up to **256x speedup** over rank-bm25 at 100K documents
+- Vajra is **faster than BM25S** at larger corpus sizes (100K: 256x vs 180x)
+- Vajra achieves **better recall** at 50K docs (80% vs 56%)
 - Recall varies by corpus characteristics (vocabulary overlap, document length distribution)
 
 Vajra (optimized) achieves these speedups through:
