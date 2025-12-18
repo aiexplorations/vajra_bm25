@@ -41,7 +41,7 @@ Parallel Batch Processing:
     batch_results = engine.search_batch(["query1", "query2", "query3"])
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 # Core document types
 from vajra_bm25.documents import (

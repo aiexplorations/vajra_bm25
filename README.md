@@ -103,12 +103,12 @@ Benchmarked on synthetic corpora with 10 queries per run, comparing against rank
 
 ### Speedup vs rank-bm25
 
-| Corpus Size | Vajra Optimized | Vajra Parallel | BM25S  | BM25S parallel |
-| ----------- | --------------- | -------------- | ------ | -------------- |
-| 1,000       | 17x             | 30x            | 4x     | 2x             |
-| 10,000      | 69x             | 119x           | 28x    | 25x            |
-| 50,000      | 101x            | 122x           | 68x    | 64x            |
-| 100,000     | 230x            | **291x**       | 120x   | 114x           |
+| Corpus Size | Vajra Optimized | Vajra Parallel | BM25S | BM25S parallel |
+| ----------- | --------------- | -------------- | ----- | -------------- |
+| 1,000       | 17x             | 30x            | 4x    | 2x             |
+| 10,000      | 69x             | 119x           | 28x   | 25x            |
+| 50,000      | 101x            | 122x           | 68x   | 64x            |
+| 100,000     | 230x            | **291x**       | 120x  | 114x           |
 
 ### Recall@10 (vs rank-bm25 baseline)
 
@@ -120,6 +120,7 @@ Benchmarked on synthetic corpora with 10 queries per run, comparing against rank
 | 100,000     | 50%             | 50%            | 50%   | 50%            |
 
 **Key observations:**
+
 - Sub-millisecond query latency at all corpus sizes
 - Up to **291x speedup** over rank-bm25 at 100K documents with Vajra Parallel
 - Vajra is **faster than both BM25S variants** at all corpus sizes
@@ -131,10 +132,10 @@ Benchmarked on synthetic corpora with 10 queries per run, comparing against rank
 
 Validated on standard information retrieval datasets from the [BEIR benchmark suite](https://github.com/beir-cellar/beir):
 
-| Dataset | Docs | Queries | Vajra NDCG@10 | rank-bm25 NDCG@10 | Vajra Speedup | BM25S NDCG@10 |
-|---------|------|---------|---------------|-------------------|---------------|---------------|
-| SciFact | 5,183 | 300 | **67.0%** | 66.7% | **49x** (0.18ms) | 66.2% (0.16ms) |
-| NFCorpus | 3,633 | 323 | **30.9%** | 30.9% | **33x** (0.06ms) | 30.7% (0.14ms) |
+| Dataset  | Docs  | Queries | Vajra NDCG@10 | rank-bm25 NDCG@10 | Vajra Speedup    | BM25S NDCG@10  |
+| -------- | ----- | ------- | ------------- | ----------------- | ---------------- | -------------- |
+| SciFact  | 5,183 | 300     | **67.0%**     | 66.7%             | **49x** (0.18ms) | 66.2% (0.16ms) |
+| NFCorpus | 3,633 | 323     | **30.9%**     | 30.9%             | **33x** (0.06ms) | 30.7% (0.14ms) |
 
 With 8 workers, Vajra Parallel achieves **equal or better retrieval quality** than rank-bm25 while being **33-49x faster**. Vajra also outperforms BM25S on **both speed and accuracy** on NFCorpus.
 
@@ -284,6 +285,35 @@ pytest tests/ -v
 # Run with coverage
 pytest --cov=vajra_bm25 --cov-report=html
 ```
+
+## Publishing to PyPI
+
+To build and publish a new version of Vajra BM25:
+
+1. **Install build tools**:
+
+   ```bash
+   pip install build twine
+   ```
+
+2. **Clean previous builds**:
+
+   ```bash
+   rm -rf dist/ build/ *.egg-info
+   ```
+
+3. **Build the package**:
+
+   ```bash
+   python -m build
+   ```
+
+   This generates a `.whl` and a `.tar.gz` in the `dist/` directory.
+
+4. **Upload to PyPI**:
+   ```bash
+   python -m twine upload dist/*
+   ```
 
 ## License
 
