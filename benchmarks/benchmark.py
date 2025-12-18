@@ -26,6 +26,7 @@ from vajra_bm25 import (
     DocumentCorpus,
     VajraSearch,
     VajraSearchOptimized,
+    VajraSearchParallel,
     preprocess_text,
     BM25Parameters,
 )
@@ -145,6 +146,11 @@ def run_benchmark(corpus_path: Path, queries: List[str], num_runs: int = 3) -> D
     vajra_opt = VajraSearchOptimized(corpus)
     vajra_opt_build = time.time() - start
 
+    # Vajra parallel (uses optimized internally)
+    start = time.time()
+    vajra_parallel = VajraSearchParallel(corpus, max_workers=4)
+    vajra_parallel_build = time.time() - start
+
     # rank-bm25
     start = time.time()
     rank_bm25 = RankBM25Wrapper(corpus)
@@ -161,6 +167,7 @@ def run_benchmark(corpus_path: Path, queries: List[str], num_runs: int = 3) -> D
     print(f"\nBuild times:")
     print(f"  Vajra (base):      {vajra_base_build*1000:.1f}ms")
     print(f"  Vajra (optimized): {vajra_opt_build*1000:.1f}ms")
+    print(f"  Vajra (parallel):  {vajra_parallel_build*1000:.1f}ms")
     print(f"  rank-bm25:         {rank_bm25_build*1000:.1f}ms")
     if BM25S_AVAILABLE:
         print(f"  BM25S:             {bm25s_build*1000:.1f}ms")
@@ -170,10 +177,12 @@ def run_benchmark(corpus_path: Path, queries: List[str], num_runs: int = 3) -> D
 
     vajra_base_times = []
     vajra_opt_times = []
+    vajra_parallel_times = []
     rank_bm25_times = []
     bm25s_times = []
     recalls_base = []
     recalls_opt = []
+    recalls_parallel = []
     recalls_bm25s = []
 
     for query in queries:
@@ -193,6 +202,11 @@ def run_benchmark(corpus_path: Path, queries: List[str], num_runs: int = 3) -> D
             vajra_opt_results = vajra_opt.search(query, top_k=10)
             vajra_opt_times.append(time.time() - start)
 
+            # Vajra parallel (single query - uses same optimized backend)
+            start = time.time()
+            vajra_parallel_results = vajra_parallel.search(query, top_k=10)
+            vajra_parallel_times.append(time.time() - start)
+
             # BM25S
             if BM25S_AVAILABLE and bm25s_engine:
                 start = time.time()
@@ -203,6 +217,7 @@ def run_benchmark(corpus_path: Path, queries: List[str], num_runs: int = 3) -> D
             # Calculate recall
             recalls_base.append(calculate_recall_at_k_vajra(vajra_base_results, baseline_results, 10))
             recalls_opt.append(calculate_recall_at_k_vajra(vajra_opt_results, baseline_results, 10))
+            recalls_parallel.append(calculate_recall_at_k_vajra(vajra_parallel_results, baseline_results, 10))
 
     # Calculate statistics
     results = {
@@ -226,6 +241,13 @@ def run_benchmark(corpus_path: Path, queries: List[str], num_runs: int = 3) -> D
             'p95_latency_ms': sorted(vajra_opt_times)[int(len(vajra_opt_times) * 0.95)] * 1000,
             'recall_at_10': statistics.mean(recalls_opt) * 100,
             'speedup': statistics.mean(rank_bm25_times) / statistics.mean(vajra_opt_times) if vajra_opt_times else 0,
+        },
+        'vajra_parallel': {
+            'avg_latency_ms': statistics.mean(vajra_parallel_times) * 1000,
+            'p50_latency_ms': statistics.median(vajra_parallel_times) * 1000,
+            'p95_latency_ms': sorted(vajra_parallel_times)[int(len(vajra_parallel_times) * 0.95)] * 1000,
+            'recall_at_10': statistics.mean(recalls_parallel) * 100,
+            'speedup': statistics.mean(rank_bm25_times) / statistics.mean(vajra_parallel_times) if vajra_parallel_times else 0,
         },
     }
 
@@ -251,6 +273,9 @@ def run_benchmark(corpus_path: Path, queries: List[str], num_runs: int = 3) -> D
 
     vo = results['vajra_optimized']
     print(f"{'Vajra (optimized)':<20} {vo['avg_latency_ms']:<12.2f} {vo['p50_latency_ms']:<12.2f} {vo['speedup']:.1f}x{'':<8} {vo['recall_at_10']:.1f}%")
+
+    vp = results['vajra_parallel']
+    print(f"{'Vajra (parallel)':<20} {vp['avg_latency_ms']:<12.2f} {vp['p50_latency_ms']:<12.2f} {vp['speedup']:.1f}x{'':<8} {vp['recall_at_10']:.1f}%")
 
     if 'bm25s' in results:
         bs = results['bm25s']
@@ -309,52 +334,143 @@ def main():
     has_bm25s = any('bm25s' in r for r in all_results)
 
     if has_bm25s:
-        print(f"\n{'Corpus':<10} {'rank-bm25':<12} {'Vajra Opt':<12} {'BM25S':<12} {'Vajra Speedup':<15} {'BM25S Speedup':<15}")
+        print(f"\n{'Corpus':<10} {'rank-bm25':<12} {'Vajra Opt':<12} {'Vajra Par':<12} {'BM25S':<12} {'Opt Speedup':<12} {'Par Speedup':<12}")
+        print("-" * 100)
+
+        for r in all_results:
+            corpus_label = f"{r['corpus_size']//1000}K" if r['corpus_size'] >= 1000 else str(r['corpus_size'])
+            rb_ms = r['rank_bm25']['avg_latency_ms']
+            vo_ms = r['vajra_optimized']['avg_latency_ms']
+            vp_ms = r['vajra_parallel']['avg_latency_ms']
+            vo_speedup = r['vajra_optimized']['speedup']
+            vp_speedup = r['vajra_parallel']['speedup']
+
+            if 'bm25s' in r:
+                bs_ms = r['bm25s']['avg_latency_ms']
+                print(f"{corpus_label:<10} {rb_ms:<12.2f} {vo_ms:<12.2f} {vp_ms:<12.2f} {bs_ms:<12.2f} {vo_speedup:.1f}x{'':<7} {vp_speedup:.1f}x")
+            else:
+                print(f"{corpus_label:<10} {rb_ms:<12.2f} {vo_ms:<12.2f} {vp_ms:<12.2f} {'N/A':<12} {vo_speedup:.1f}x{'':<7} {vp_speedup:.1f}x")
+    else:
+        print(f"\n{'Corpus':<12} {'rank-bm25 (ms)':<15} {'Vajra Opt (ms)':<15} {'Vajra Par (ms)':<15} {'Opt Speedup':<12} {'Par Speedup':<12}")
         print("-" * 90)
 
         for r in all_results:
             corpus_label = f"{r['corpus_size']//1000}K" if r['corpus_size'] >= 1000 else str(r['corpus_size'])
             rb_ms = r['rank_bm25']['avg_latency_ms']
             vo_ms = r['vajra_optimized']['avg_latency_ms']
+            vp_ms = r['vajra_parallel']['avg_latency_ms']
             vo_speedup = r['vajra_optimized']['speedup']
-
-            if 'bm25s' in r:
-                bs_ms = r['bm25s']['avg_latency_ms']
-                bs_speedup = r['bm25s']['speedup']
-                print(f"{corpus_label:<10} {rb_ms:<12.2f} {vo_ms:<12.2f} {bs_ms:<12.2f} {vo_speedup:.1f}x{'':<10} {bs_speedup:.1f}x")
-            else:
-                print(f"{corpus_label:<10} {rb_ms:<12.2f} {vo_ms:<12.2f} {'N/A':<12} {vo_speedup:.1f}x{'':<10} {'N/A':<15}")
-    else:
-        print(f"\n{'Corpus':<12} {'rank-bm25 (ms)':<15} {'Vajra Opt (ms)':<15} {'Speedup':<10} {'Recall@10':<10}")
-        print("-" * 70)
-
-        for r in all_results:
-            corpus_label = f"{r['corpus_size']//1000}K" if r['corpus_size'] >= 1000 else str(r['corpus_size'])
-            rb_ms = r['rank_bm25']['avg_latency_ms']
-            vo_ms = r['vajra_optimized']['avg_latency_ms']
-            speedup = r['vajra_optimized']['speedup']
-            recall = r['vajra_optimized']['recall_at_10']
-            print(f"{corpus_label:<12} {rb_ms:<15.2f} {vo_ms:<15.2f} {speedup:<10.1f}x {recall:<10.1f}%")
+            vp_speedup = r['vajra_parallel']['speedup']
+            print(f"{corpus_label:<12} {rb_ms:<15.2f} {vo_ms:<15.2f} {vp_ms:<15.2f} {vo_speedup:.1f}x{'':<7} {vp_speedup:.1f}x")
 
     # Detailed comparison
     print("\n" + "=" * 80)
     print("DETAILED COMPARISON (Recall@10 vs rank-bm25 baseline)")
     print("=" * 80)
 
-    print(f"\n{'Corpus':<10} {'Vajra Base':<15} {'Vajra Opt':<15} {'BM25S':<15}")
-    print("-" * 60)
+    print(f"\n{'Corpus':<10} {'Vajra Base':<15} {'Vajra Opt':<15} {'Vajra Par':<15} {'BM25S':<15}")
+    print("-" * 75)
 
     for r in all_results:
         corpus_label = f"{r['corpus_size']//1000}K" if r['corpus_size'] >= 1000 else str(r['corpus_size'])
         vb_recall = r['vajra_base']['recall_at_10']
         vo_recall = r['vajra_optimized']['recall_at_10']
+        vp_recall = r['vajra_parallel']['recall_at_10']
         bs_recall = r.get('bm25s', {}).get('recall_at_10', 0)
 
         if bs_recall > 0:
-            print(f"{corpus_label:<10} {vb_recall:<15.1f}% {vo_recall:<15.1f}% {bs_recall:<15.1f}%")
+            print(f"{corpus_label:<10} {vb_recall:.1f}%{'':<9} {vo_recall:.1f}%{'':<9} {vp_recall:.1f}%{'':<9} {bs_recall:.1f}%")
         else:
-            print(f"{corpus_label:<10} {vb_recall:<15.1f}% {vo_recall:<15.1f}% {'N/A':<15}")
+            print(f"{corpus_label:<10} {vb_recall:.1f}%{'':<9} {vo_recall:.1f}%{'':<9} {vp_recall:.1f}%{'':<9} {'N/A':<15}")
+
+
+def run_batch_benchmark(corpus_path: Path, queries: List[str], num_runs: int = 3) -> Dict[str, Any]:
+    """Run batch processing benchmark."""
+
+    print(f"\n{'='*80}")
+    print(f"BATCH BENCHMARK: {corpus_path.name}")
+    print(f"{'='*80}")
+
+    corpus = DocumentCorpus.load_jsonl(corpus_path)
+    print(f"Corpus size: {len(corpus)} documents")
+    print(f"Batch size: {len(queries)} queries")
+
+    # Build engines
+    vajra_opt = VajraSearchOptimized(corpus)
+    vajra_parallel = VajraSearchParallel(corpus, max_workers=4)
+
+    # Sequential processing (optimized)
+    seq_times = []
+    for _ in range(num_runs):
+        start = time.time()
+        for query in queries:
+            vajra_opt.search(query, top_k=10)
+        seq_times.append(time.time() - start)
+
+    # Batch parallel processing
+    batch_times = []
+    for _ in range(num_runs):
+        start = time.time()
+        vajra_parallel.search_batch(queries, top_k=10)
+        batch_times.append(time.time() - start)
+
+    seq_avg = statistics.mean(seq_times)
+    batch_avg = statistics.mean(batch_times)
+    speedup = seq_avg / batch_avg if batch_avg > 0 else 0
+
+    print(f"\nResults ({len(queries)} queries):")
+    print(f"  Sequential:     {seq_avg*1000:.1f}ms total ({seq_avg*1000/len(queries):.2f}ms per query)")
+    print(f"  Parallel batch: {batch_avg*1000:.1f}ms total ({batch_avg*1000/len(queries):.2f}ms per query)")
+    print(f"  Batch speedup:  {speedup:.1f}x")
+    print(f"  Throughput:     {len(queries)/batch_avg:.1f} queries/sec")
+
+    return {
+        'corpus_size': len(corpus),
+        'batch_size': len(queries),
+        'sequential_ms': seq_avg * 1000,
+        'parallel_ms': batch_avg * 1000,
+        'batch_speedup': speedup,
+        'throughput_qps': len(queries) / batch_avg,
+    }
 
 
 if __name__ == "__main__":
     main()
+
+    # Run batch benchmarks
+    print("\n" + "=" * 80)
+    print("BATCH PROCESSING BENCHMARKS")
+    print("=" * 80)
+
+    data_dir = Path("/Users/rajesh/Github/state_dynamic_modeling/data")
+    queries = [
+        "hypothesis testing statistical significance",
+        "neural networks deep learning backpropagation",
+        "matrix eigenvalues linear algebra",
+        "database indexing query optimization",
+        "sorting algorithm time complexity",
+        "regression analysis machine learning",
+        "gradient descent optimization",
+        "data preprocessing normalization",
+        "probability distribution sampling",
+        "classification clustering algorithms",
+    ] * 5  # 50 queries for batch test
+
+    batch_results = []
+    for corpus_file in ["corpus_10k.jsonl", "corpus_50k.jsonl", "corpus_100k.jsonl"]:
+        corpus_path = data_dir / corpus_file
+        if corpus_path.exists():
+            result = run_batch_benchmark(corpus_path, queries)
+            batch_results.append(result)
+
+    # Batch summary
+    if batch_results:
+        print("\n" + "=" * 80)
+        print("BATCH PROCESSING SUMMARY")
+        print("=" * 80)
+        print(f"\n{'Corpus':<12} {'Sequential':<15} {'Parallel':<15} {'Batch Speedup':<15} {'Throughput':<15}")
+        print("-" * 75)
+
+        for r in batch_results:
+            corpus_label = f"{r['corpus_size']//1000}K" if r['corpus_size'] >= 1000 else str(r['corpus_size'])
+            print(f"{corpus_label:<12} {r['sequential_ms']:.1f}ms{'':<8} {r['parallel_ms']:.1f}ms{'':<8} {r['batch_speedup']:.1f}x{'':<10} {r['throughput_qps']:.0f} q/s")

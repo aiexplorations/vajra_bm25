@@ -94,36 +94,46 @@ Benchmarked on synthetic corpora with 10 queries per run, comparing against rank
 
 ### Speed Comparison
 
-| Corpus Size | rank-bm25 (ms) | Vajra Optimized (ms) | BM25S (ms) | Vajra Speedup | BM25S Speedup |
-| ----------- | -------------- | -------------------- | ---------- | ------------- | ------------- |
-| 1,000       | 0.42           | 0.04                 | 0.04       | 10.8x         | 9.5x          |
-| 10,000      | 7.09           | 0.12                 | 0.13       | 59.9x         | 54.6x         |
-| 50,000      | 43.45          | 0.35                 | 0.35       | 122.5x        | 123.8x        |
-| 100,000     | 82.60          | 0.32                 | 0.46       | 255.9x        | 180.4x        |
+| Corpus Size | rank-bm25 (ms) | Vajra Optimized (ms) | Vajra Parallel (ms) | BM25S (ms) |
+| ----------- | -------------- | -------------------- | ------------------- | ---------- |
+| 1,000       | 0.46           | 0.05                 | 0.01                | 0.06       |
+| 10,000      | 7.64           | 0.15                 | 0.06                | 0.14       |
+| 50,000      | 40.28          | 0.33                 | 0.24                | 0.36       |
+| 100,000     | 79.62          | 0.34                 | 0.26                | 0.47       |
+
+### Speedup vs rank-bm25
+
+| Corpus Size | Vajra Optimized | Vajra Parallel | BM25S  |
+| ----------- | --------------- | -------------- | ------ |
+| 1,000       | 10x             | 31x            | 8x     |
+| 10,000      | 52x             | 119x           | 54x    |
+| 50,000      | 122x            | 167x           | 113x   |
+| 100,000     | 234x            | **307x**       | 168x   |
 
 ### Recall@10 (vs rank-bm25 baseline)
 
-| Corpus Size | Vajra Optimized | BM25S |
-| ----------- | --------------- | ----- |
-| 1,000       | 99%             | 98%   |
-| 10,000      | 56%             | 56%   |
-| 50,000      | 80%             | 56%   |
-| 100,000     | 50%             | 50%   |
+| Corpus Size | Vajra Optimized | Vajra Parallel | BM25S |
+| ----------- | --------------- | -------------- | ----- |
+| 1,000       | 99%             | 99%            | 98%   |
+| 10,000      | 56%             | 56%            | 56%   |
+| 50,000      | **80%**         | **80%**        | 56%   |
+| 100,000     | 50%             | 50%            | 50%   |
 
 **Key observations:**
 - Sub-millisecond query latency at all corpus sizes
-- Up to **256x speedup** over rank-bm25 at 100K documents
-- Vajra is **faster than BM25S** at larger corpus sizes (100K: 256x vs 180x)
+- Up to **307x speedup** over rank-bm25 at 100K documents with Vajra Parallel
+- Vajra is **faster than BM25S** at all corpus sizes
 - Vajra achieves **better recall** at 50K docs (80% vs 56%)
 - Recall varies by corpus characteristics (vocabulary overlap, document length distribution)
 
-Vajra (optimized) achieves these speedups through:
+Vajra achieves these speedups through:
 
 - Vectorized NumPy operations
 - Pre-computed IDF values
 - Sparse matrix representation
 - LRU query caching
 - Partial sort for top-k
+- Thread pool parallelism (VajraSearchParallel)
 
 ## JSONL Format
 
