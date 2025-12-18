@@ -3,7 +3,7 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Vajra** (Sanskrit: वज्र, "thunderbolt/diamond") is a BM25 search engine. It uses Category Theory abstractions to reframe the BM25 algorithm. It provides a well-structured API and compares favourably with BM25S, which is one of the fastest Python implementations of BM25, specifically favouring better recall while remaining fast because of the vectorized implementations.
+**Vajra** (Sanskrit: वज्र, "thunderbolt") is a BM25 search engine. It uses Category Theory abstractions to reframe the BM25 algorithm. It provides a well-structured API and compares favourably with BM25S, which is one of the fastest Python implementations of BM25, specifically favouring better recall while remaining fast because of the vectorized implementations.
 
 ## What Makes Vajra Different
 
