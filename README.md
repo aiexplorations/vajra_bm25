@@ -90,15 +90,21 @@ batch_results = engine.search_batch(queries, top_k=5)
 
 ## Performance
 
-At 100,000 documents:
+Benchmarked on synthetic corpora with 10 queries per run:
 
-| Implementation    | Query Latency | Recall@10 |
-| ----------------- | ------------- | --------- |
-| rank-bm25         | 133.54 ms     | baseline  |
-| Vajra (base)      | 59.14 ms      | 65.0%     |
-| Vajra (optimized) | 1.39 ms       | 66.5%     |
+| Corpus Size | rank-bm25 (ms) | Vajra Optimized (ms) | Speedup | Recall@10 |
+| ----------- | -------------- | -------------------- | ------- | --------- |
+| 1,000       | 0.43           | 0.03                 | 16x     | 99%       |
+| 10,000      | 7.36           | 0.10                 | 70x     | 56%       |
+| 50,000      | 43.00          | 0.33                 | 132x    | 80%       |
+| 100,000     | 77.96          | 0.34                 | 231x    | 50%       |
 
-Vajra (optimized) achieves **96x speedup** over rank-bm25 through:
+**Key observations:**
+- Sub-millisecond query latency at all corpus sizes
+- Up to **231x speedup** over rank-bm25 at 100K documents
+- Recall varies by corpus characteristics (vocabulary overlap, document length distribution)
+
+Vajra (optimized) achieves these speedups through:
 
 - Vectorized NumPy operations
 - Pre-computed IDF values
