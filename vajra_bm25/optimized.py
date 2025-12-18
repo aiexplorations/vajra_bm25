@@ -32,6 +32,10 @@ from pathlib import Path
 
 from vajra_bm25.documents import Document, DocumentCorpus
 from vajra_bm25.text_processing import preprocess_text
+from vajra_bm25.logging_config import get_logger
+
+# Initialize logger for this module
+logger = get_logger("optimized")
 
 
 # ============================================================================
@@ -639,35 +643,38 @@ class VajraSearchOptimized:
         # Automatically use sparse for large corpora if scipy available
         if use_sparse or (SCIPY_AVAILABLE and len(corpus) >= 10000):
             if not SCIPY_AVAILABLE:
-                print("Warning: scipy not available, falling back to dense matrices")
-                print("   Install with: pip install scipy")
+                logger.warning("scipy not available, falling back to dense matrices. Install with: pip install scipy")
                 use_sparse_actual = False
             else:
                 use_sparse_actual = True
+                logger.info(f"Using sparse matrices for corpus of {len(corpus)} documents")
         else:
             use_sparse_actual = False
+            logger.info(f"Using dense matrices for corpus of {len(corpus)} documents")
 
         # Build index (sparse or dense)
         if use_sparse_actual:
-            print("Building optimized SPARSE vectorized index...")
+            logger.info("Building optimized SPARSE vectorized index...")
             start = time.time()
             self.index = VectorizedIndexSparse()
             self.index.build(corpus)
             build_time = time.time() - start
-            print(f"Built sparse index in {build_time:.3f}s")
+            logger.info(f"Built sparse index in {build_time:.3f}s ({self.index.num_terms} terms, {self.index.num_docs} docs)")
 
             # Create sparse scorer
             self.scorer = SparseBM25Scorer(self.index, k1, b)
         else:
-            print("Building optimized vectorized index...")
+            logger.info("Building optimized vectorized index...")
             start = time.time()
             self.index = VectorizedIndex()
             self.index.build(corpus)
             build_time = time.time() - start
-            print(f"Built dense index in {build_time:.3f}s")
+            logger.info(f"Built dense index in {build_time:.3f}s ({self.index.num_terms} terms, {self.index.num_docs} docs)")
 
             # Create vectorized scorer
             self.scorer = VectorizedBM25Scorer(self.index, k1, b)
+
+        logger.debug(f"Average document length: {self.index.avg_doc_length:.2f}")
 
     def save_index(self, filepath: Path):
         """
@@ -694,7 +701,7 @@ class VajraSearchOptimized:
 
         joblib.dump(index_data, filepath, compress=3)
         file_size_mb = filepath.stat().st_size / (1024 * 1024)
-        print(f"Index saved to {filepath} ({file_size_mb:.2f} MB)")
+        logger.info(f"Index saved to {filepath} ({file_size_mb:.2f} MB)")
 
     @classmethod
     def load_index(cls, filepath: Path, corpus: DocumentCorpus):
@@ -712,7 +719,7 @@ class VajraSearchOptimized:
         if not filepath.exists():
             raise FileNotFoundError(f"Index file not found: {filepath}")
 
-        print(f"Loading index from {filepath}...")
+        logger.info(f"Loading index from {filepath}...")
         index_data = joblib.load(filepath)
 
         # Create instance without rebuilding index
@@ -726,7 +733,7 @@ class VajraSearchOptimized:
         cache_size = index_data.get('cache_size', 1000)
         instance.query_cache = LRUCache(capacity=cache_size) if cache_size > 0 else None
 
-        print(f"Index loaded ({index_data.get('corpus_size', 'unknown')} documents)")
+        logger.info(f"Index loaded ({index_data.get('corpus_size', 'unknown')} documents)")
 
         return instance
 
@@ -810,7 +817,7 @@ class VajraSearchOptimized:
 
         # Rebuild index (for now - could be optimized further)
         # This is still categorical: same morphism, just recomputed
-        print(f"Adding document {doc.id} (rebuilding index)...")
+        logger.info(f"Adding document {doc.id} (rebuilding index)...")
         start = time.time()
 
         if isinstance(self.index, VectorizedIndexSparse):
@@ -823,7 +830,7 @@ class VajraSearchOptimized:
             self.scorer = VectorizedBM25Scorer(self.index, self.scorer.k1, self.scorer.b)
 
         rebuild_time = time.time() - start
-        print(f"Index rebuilt in {rebuild_time:.3f}s")
+        logger.info(f"Index rebuilt in {rebuild_time:.3f}s")
 
     def remove_document(self, doc_id: str):
         """
@@ -850,7 +857,7 @@ class VajraSearchOptimized:
         self.corpus = DocumentCorpus(remaining_docs)
 
         # Rebuild index
-        print(f"Removing document {doc_id} (rebuilding index)...")
+        logger.info(f"Removing document {doc_id} (rebuilding index)...")
         start = time.time()
 
         if isinstance(self.index, VectorizedIndexSparse):
@@ -863,7 +870,7 @@ class VajraSearchOptimized:
             self.scorer = VectorizedBM25Scorer(self.index, self.scorer.k1, self.scorer.b)
 
         rebuild_time = time.time() - start
-        print(f"Index rebuilt in {rebuild_time:.3f}s")
+        logger.info(f"Index rebuilt in {rebuild_time:.3f}s")
 
     def batch_add_documents(self, docs: List[Document]):
         """
@@ -887,7 +894,7 @@ class VajraSearchOptimized:
         self.corpus = DocumentCorpus(list(self.corpus.documents) + docs)
 
         # Single rebuild
-        print(f"Adding {len(docs)} documents (rebuilding index)...")
+        logger.info(f"Adding {len(docs)} documents (rebuilding index)...")
         start = time.time()
 
         if isinstance(self.index, VectorizedIndexSparse):
@@ -900,26 +907,26 @@ class VajraSearchOptimized:
             self.scorer = VectorizedBM25Scorer(self.index, self.scorer.k1, self.scorer.b)
 
         rebuild_time = time.time() - start
-        print(f"Index rebuilt in {rebuild_time:.3f}s ({len(self.corpus)} total documents)")
+        logger.info(f"Index rebuilt in {rebuild_time:.3f}s ({len(self.corpus)} total documents)")
 
 
 if __name__ == "__main__":
     from vajra_bm25.documents import DocumentCorpus
     from pathlib import Path
 
-    print("="*70)
-    print("OPTIMIZED CATEGORICAL BM25")
-    print("="*70)
+    logger.info("="*70)
+    logger.info("OPTIMIZED CATEGORICAL BM25")
+    logger.info("="*70)
 
     # Load corpus
     corpus_path = Path("large_corpus.jsonl")
     if not corpus_path.exists():
-        print("Run generate_corpus.py first!")
+        logger.error("Run generate_corpus.py first!")
         exit(1)
 
-    print(f"\nLoading corpus...")
+    logger.info("Loading corpus...")
     corpus = DocumentCorpus.load_jsonl(corpus_path)
-    print(f"Loaded {len(corpus)} documents")
+    logger.info(f"Loaded {len(corpus)} documents")
 
     # Build optimized engine
     engine = VajraSearchOptimized(corpus)
@@ -931,16 +938,16 @@ if __name__ == "__main__":
         "matrix eigenvalues",
     ]
 
-    print(f"\n{'Query':<40} {'Time (ms)':<12} {'Results':<10}")
-    print("-" * 70)
+    logger.info(f"{'Query':<40} {'Time (ms)':<12} {'Results':<10}")
+    logger.info("-" * 70)
 
     for query in test_queries:
         start = time.time()
         results = engine.search(query, top_k=5)
         elapsed = (time.time() - start) * 1000
 
-        print(f"{query[:38]:<40} {elapsed:<12.3f} {len(results):<10}")
+        logger.info(f"{query[:38]:<40} {elapsed:<12.3f} {len(results):<10}")
 
         if results:
-            print(f"  Top result: {results[0].document.title[:50]}")
-            print(f"  Score: {results[0].score:.3f}")
+            logger.info(f"  Top result: {results[0].document.title[:50]}")
+            logger.info(f"  Score: {results[0].score:.3f}")

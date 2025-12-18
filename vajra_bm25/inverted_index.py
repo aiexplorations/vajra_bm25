@@ -14,6 +14,10 @@ from dataclasses import dataclass
 
 from vajra_bm25.documents import Document, DocumentCorpus
 from vajra_bm25.text_processing import preprocess_text
+from vajra_bm25.logging_config import get_logger
+
+# Initialize logger for this module
+logger = get_logger("inverted_index")
 
 
 @dataclass
@@ -154,32 +158,32 @@ if __name__ == "__main__":
 
     # Create corpus
     corpus = create_sample_corpus()
-    print(f"Created corpus with {len(corpus)} documents\n")
+    logger.info(f"Created corpus with {len(corpus)} documents")
 
     # Build index
-    print("Building inverted index...")
+    logger.info("Building inverted index...")
     index = InvertedIndex()
     index.build(corpus)
-    print(f"{index}\n")
+    logger.info(f"{index}")
 
     # Test queries
     test_terms = ["category", "functor", "search", "programming"]
 
-    print("Term statistics:")
-    print(f"{'Term':<15} {'Doc Freq':<10} {'IDF':<10}")
-    print("-" * 35)
+    logger.info("Term statistics:")
+    logger.info(f"{'Term':<15} {'Doc Freq':<10} {'IDF':<10}")
+    logger.info("-" * 35)
     for term in test_terms:
         df = index.get_document_frequency(term)
         idf = index.idf(term)
-        print(f"{term:<15} {df:<10} {idf:<10.3f}")
+        logger.info(f"{term:<15} {df:<10} {idf:<10.3f}")
 
     # Test candidate retrieval
-    print("\n" + "="*50)
+    logger.info("="*50)
     query = "category theory functors"
     query_terms = preprocess_text(query)
-    print(f"Query: '{query}'")
-    print(f"Preprocessed terms: {query_terms}")
+    logger.info(f"Query: '{query}'")
+    logger.info(f"Preprocessed terms: {query_terms}")
 
     candidates = index.get_candidate_documents(query_terms)
-    print(f"\nCandidate documents: {candidates}")
-    print(f"Found {len(candidates)} candidates")
+    logger.info(f"Candidate documents: {candidates}")
+    logger.info(f"Found {len(candidates)} candidates")

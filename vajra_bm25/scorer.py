@@ -18,6 +18,10 @@ from dataclasses import dataclass
 
 from vajra_bm25.documents import Document
 from vajra_bm25.inverted_index import InvertedIndex
+from vajra_bm25.logging_config import get_logger
+
+# Initialize logger for this module
+logger = get_logger("scorer")
 from vajra_bm25.text_processing import preprocess_text
 
 
@@ -154,33 +158,33 @@ if __name__ == "__main__":
 
     # Create BM25 scorer
     scorer = BM25Scorer(index)
-    print(f"BM25 Scorer initialized with {scorer.params}\n")
+    logger.info(f"BM25 Scorer initialized with {scorer.params}")
 
     # Test query
     query = "category theory functors"
     query_terms = preprocess_text(query)
 
-    print(f"Query: '{query}'")
-    print(f"Query terms: {query_terms}\n")
+    logger.info(f"Query: '{query}'")
+    logger.info(f"Query terms: {query_terms}")
 
     # Get candidates and rank
     candidates = index.get_candidate_documents(query_terms)
     ranked = scorer.rank_documents(query_terms, list(candidates))
 
-    print(f"Top 5 results:")
-    print(f"{'Rank':<6} {'Doc ID':<10} {'Score':<10} {'Title':<40}")
-    print("-" * 70)
+    logger.info(f"Top 5 results:")
+    logger.info(f"{'Rank':<6} {'Doc ID':<10} {'Score':<10} {'Title':<40}")
+    logger.info("-" * 70)
 
     for i, (doc_id, score) in enumerate(ranked[:5], 1):
         doc = corpus.get(doc_id)
         title = doc.title if doc else "Unknown"
-        print(f"{i:<6} {doc_id:<10} {score:<10.3f} {title:<40}")
+        logger.info(f"{i:<6} {doc_id:<10} {score:<10.3f} {title:<40}")
 
     # Explain top result
     if ranked:
         top_doc_id = ranked[0][0]
-        print(f"\nScore breakdown for top document ({top_doc_id}):")
+        logger.info(f"Score breakdown for top document ({top_doc_id}):")
         explanation = scorer.explain_score(query_terms, top_doc_id)
 
         for term, term_score in sorted(explanation.items(), key=lambda x: x[1], reverse=True):
-            print(f"  {term}: {term_score:.3f}")
+            logger.info(f"  {term}: {term_score:.3f}")

@@ -12,6 +12,11 @@ import re
 from typing import List, Set
 from dataclasses import dataclass
 
+from vajra_bm25.logging_config import get_logger
+
+# Initialize logger for this module
+logger = get_logger("text_processing")
+
 
 # Common English stop words
 STOP_WORDS = {
@@ -113,20 +118,20 @@ if __name__ == "__main__":
     sample_text = """Category theory is a general theory of mathematical structures.
     Functors are structure-preserving maps between categories."""
 
-    print("Original text:")
-    print(sample_text)
+    logger.info("Original text:")
+    logger.info(sample_text)
 
-    print("\nTokens:")
+    logger.info("Tokens:")
     tokens = tokenize(sample_text)
-    print([t.text for t in tokens])
+    logger.info([t.text for t in tokens])
 
-    print("\nAfter removing stop words:")
+    logger.info("After removing stop words:")
     filtered = remove_stop_words(tokens)
-    print([t.text for t in filtered])
+    logger.info([t.text for t in filtered])
 
-    print("\nPreprocessed terms:")
+    logger.info("Preprocessed terms:")
     terms = preprocess_text(sample_text)
-    print(terms)
+    logger.info(terms)
 
-    print("\nUnique terms:")
-    print(get_unique_terms(tokenize(sample_text)))
+    logger.info("Unique terms:")
+    logger.info(get_unique_terms(tokenize(sample_text)))

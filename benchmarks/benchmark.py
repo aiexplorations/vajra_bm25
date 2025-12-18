@@ -22,6 +22,7 @@ try:
 except ImportError:
     BM25S_AVAILABLE = False
 
+
 from vajra_bm25 import (
     DocumentCorpus,
     VajraSearch,
@@ -63,9 +64,10 @@ class RankBM25Wrapper:
 class BM25SWrapper:
     """Wrapper around BM25S for fair comparison."""
 
-    def __init__(self, corpus: DocumentCorpus):
+    def __init__(self, corpus: DocumentCorpus, n_threads: int = 0):
         self.corpus = corpus
         self.doc_ids = [doc.id for doc in corpus]
+        self.n_threads = n_threads
 
         # Tokenize documents
         corpus_texts = []
@@ -84,8 +86,10 @@ class BM25SWrapper:
         # Tokenize query
         query_tokens = bm25s.tokenize(query, stopwords="en")
 
-        # Retrieve
-        results_obj, scores = self.retriever.retrieve(query_tokens, k=top_k)
+        # Retrieve with threading support
+        results_obj, scores = self.retriever.retrieve(
+            query_tokens, k=top_k, n_threads=self.n_threads, show_progress=False
+        )
 
         results = []
         for rank, (idx, score) in enumerate(zip(results_obj[0], scores[0]), 1):
@@ -156,13 +160,21 @@ def run_benchmark(corpus_path: Path, queries: List[str], num_runs: int = 3) -> D
     rank_bm25 = RankBM25Wrapper(corpus)
     rank_bm25_build = time.time() - start
 
-    # BM25S
+    # BM25S (single-threaded)
     bm25s_engine = None
     bm25s_build = 0
     if BM25S_AVAILABLE:
         start = time.time()
-        bm25s_engine = BM25SWrapper(corpus)
+        bm25s_engine = BM25SWrapper(corpus, n_threads=0)
         bm25s_build = time.time() - start
+
+    # BM25S parallel (all cores)
+    bm25s_parallel_engine = None
+    bm25s_parallel_build = 0
+    if BM25S_AVAILABLE:
+        start = time.time()
+        bm25s_parallel_engine = BM25SWrapper(corpus, n_threads=-1)
+        bm25s_parallel_build = time.time() - start
 
     print(f"\nBuild times:")
     print(f"  Vajra (base):      {vajra_base_build*1000:.1f}ms")
@@ -171,6 +183,7 @@ def run_benchmark(corpus_path: Path, queries: List[str], num_runs: int = 3) -> D
     print(f"  rank-bm25:         {rank_bm25_build*1000:.1f}ms")
     if BM25S_AVAILABLE:
         print(f"  BM25S:             {bm25s_build*1000:.1f}ms")
+        print(f"  BM25S (parallel):  {bm25s_parallel_build*1000:.1f}ms")
 
     # Run queries
     print(f"\nRunning {len(queries)} queries x {num_runs} runs each...")
@@ -180,10 +193,12 @@ def run_benchmark(corpus_path: Path, queries: List[str], num_runs: int = 3) -> D
     vajra_parallel_times = []
     rank_bm25_times = []
     bm25s_times = []
+    bm25s_parallel_times = []
     recalls_base = []
     recalls_opt = []
     recalls_parallel = []
     recalls_bm25s = []
+    recalls_bm25s_parallel = []
 
     for query in queries:
         for _ in range(num_runs):
@@ -207,12 +222,19 @@ def run_benchmark(corpus_path: Path, queries: List[str], num_runs: int = 3) -> D
             vajra_parallel_results = vajra_parallel.search(query, top_k=10)
             vajra_parallel_times.append(time.time() - start)
 
-            # BM25S
+            # BM25S (single-threaded)
             if BM25S_AVAILABLE and bm25s_engine:
                 start = time.time()
                 bm25s_results = bm25s_engine.search(query, top_k=10)
                 bm25s_times.append(time.time() - start)
                 recalls_bm25s.append(calculate_recall_at_k_dict(bm25s_results, baseline_results, 10))
+
+            # BM25S parallel
+            if BM25S_AVAILABLE and bm25s_parallel_engine:
+                start = time.time()
+                bm25s_parallel_results = bm25s_parallel_engine.search(query, top_k=10)
+                bm25s_parallel_times.append(time.time() - start)
+                recalls_bm25s_parallel.append(calculate_recall_at_k_dict(bm25s_parallel_results, baseline_results, 10))
 
             # Calculate recall
             recalls_base.append(calculate_recall_at_k_vajra(vajra_base_results, baseline_results, 10))
@@ -260,6 +282,15 @@ def run_benchmark(corpus_path: Path, queries: List[str], num_runs: int = 3) -> D
             'speedup': statistics.mean(rank_bm25_times) / statistics.mean(bm25s_times) if bm25s_times else 0,
         }
 
+    if BM25S_AVAILABLE and bm25s_parallel_times:
+        results['bm25s_parallel'] = {
+            'avg_latency_ms': statistics.mean(bm25s_parallel_times) * 1000,
+            'p50_latency_ms': statistics.median(bm25s_parallel_times) * 1000,
+            'p95_latency_ms': sorted(bm25s_parallel_times)[int(len(bm25s_parallel_times) * 0.95)] * 1000,
+            'recall_at_10': statistics.mean(recalls_bm25s_parallel) * 100,
+            'speedup': statistics.mean(rank_bm25_times) / statistics.mean(bm25s_parallel_times) if bm25s_parallel_times else 0,
+        }
+
     # Print results
     print(f"\nResults:")
     print(f"{'Engine':<20} {'Avg (ms)':<12} {'P50 (ms)':<12} {'Speedup':<12} {'Recall@10':<10}")
@@ -281,13 +312,17 @@ def run_benchmark(corpus_path: Path, queries: List[str], num_runs: int = 3) -> D
         bs = results['bm25s']
         print(f"{'BM25S':<20} {bs['avg_latency_ms']:<12.2f} {bs['p50_latency_ms']:<12.2f} {bs['speedup']:.1f}x{'':<8} {bs['recall_at_10']:.1f}%")
 
+    if 'bm25s_parallel' in results:
+        bsp = results['bm25s_parallel']
+        print(f"{'BM25S (parallel)':<20} {bsp['avg_latency_ms']:<12.2f} {bsp['p50_latency_ms']:<12.2f} {bsp['speedup']:.1f}x{'':<8} {bsp['recall_at_10']:.1f}%")
+
     return results
 
 
 def main():
     print("=" * 80)
     print("VAJRA BM25 BENCHMARK")
-    print("Comparing: rank-bm25, Vajra, BM25S")
+    print("Comparing: rank-bm25, Vajra, BM25S, BM25S (parallel)")
     print("=" * 80)
 
     if not RANK_BM25_AVAILABLE:
@@ -328,60 +363,100 @@ def main():
 
     # Summary table
     print("\n" + "=" * 80)
-    print("SUMMARY TABLE")
+    print("SUMMARY TABLE (Latency in ms)")
     print("=" * 80)
 
     has_bm25s = any('bm25s' in r for r in all_results)
+    has_bm25s_parallel = any('bm25s_parallel' in r for r in all_results)
 
+    # Print header based on available engines
+    header = f"{'Corpus':<8} {'rank-bm25':<11} {'Vajra Opt':<11} {'Vajra Par':<11}"
     if has_bm25s:
-        print(f"\n{'Corpus':<10} {'rank-bm25':<12} {'Vajra Opt':<12} {'Vajra Par':<12} {'BM25S':<12} {'Opt Speedup':<12} {'Par Speedup':<12}")
-        print("-" * 100)
+        header += f" {'BM25S':<11}"
+    if has_bm25s_parallel:
+        header += f" {'BM25S Par':<11}"
+    print(f"\n{header}")
+    print("-" * len(header))
 
-        for r in all_results:
-            corpus_label = f"{r['corpus_size']//1000}K" if r['corpus_size'] >= 1000 else str(r['corpus_size'])
-            rb_ms = r['rank_bm25']['avg_latency_ms']
-            vo_ms = r['vajra_optimized']['avg_latency_ms']
-            vp_ms = r['vajra_parallel']['avg_latency_ms']
-            vo_speedup = r['vajra_optimized']['speedup']
-            vp_speedup = r['vajra_parallel']['speedup']
+    for r in all_results:
+        corpus_label = f"{r['corpus_size']//1000}K" if r['corpus_size'] >= 1000 else str(r['corpus_size'])
+        rb_ms = r['rank_bm25']['avg_latency_ms']
+        vo_ms = r['vajra_optimized']['avg_latency_ms']
+        vp_ms = r['vajra_parallel']['avg_latency_ms']
 
-            if 'bm25s' in r:
-                bs_ms = r['bm25s']['avg_latency_ms']
-                print(f"{corpus_label:<10} {rb_ms:<12.2f} {vo_ms:<12.2f} {vp_ms:<12.2f} {bs_ms:<12.2f} {vo_speedup:.1f}x{'':<7} {vp_speedup:.1f}x")
-            else:
-                print(f"{corpus_label:<10} {rb_ms:<12.2f} {vo_ms:<12.2f} {vp_ms:<12.2f} {'N/A':<12} {vo_speedup:.1f}x{'':<7} {vp_speedup:.1f}x")
-    else:
-        print(f"\n{'Corpus':<12} {'rank-bm25 (ms)':<15} {'Vajra Opt (ms)':<15} {'Vajra Par (ms)':<15} {'Opt Speedup':<12} {'Par Speedup':<12}")
-        print("-" * 90)
+        line = f"{corpus_label:<8} {rb_ms:<11.2f} {vo_ms:<11.2f} {vp_ms:<11.2f}"
 
-        for r in all_results:
-            corpus_label = f"{r['corpus_size']//1000}K" if r['corpus_size'] >= 1000 else str(r['corpus_size'])
-            rb_ms = r['rank_bm25']['avg_latency_ms']
-            vo_ms = r['vajra_optimized']['avg_latency_ms']
-            vp_ms = r['vajra_parallel']['avg_latency_ms']
-            vo_speedup = r['vajra_optimized']['speedup']
-            vp_speedup = r['vajra_parallel']['speedup']
-            print(f"{corpus_label:<12} {rb_ms:<15.2f} {vo_ms:<15.2f} {vp_ms:<15.2f} {vo_speedup:.1f}x{'':<7} {vp_speedup:.1f}x")
+        if has_bm25s:
+            bs_ms = r.get('bm25s', {}).get('avg_latency_ms', 0)
+            line += f" {bs_ms:<11.2f}" if bs_ms else f" {'N/A':<11}"
+
+        if has_bm25s_parallel:
+            bsp_ms = r.get('bm25s_parallel', {}).get('avg_latency_ms', 0)
+            line += f" {bsp_ms:<11.2f}" if bsp_ms else f" {'N/A':<11}"
+
+        print(line)
+
+    # Speedup table
+    print("\n" + "=" * 80)
+    print("SPEEDUP vs rank-bm25")
+    print("=" * 80)
+
+    header2 = f"{'Corpus':<8} {'Vajra Opt':<12} {'Vajra Par':<12}"
+    if has_bm25s:
+        header2 += f" {'BM25S':<12}"
+    if has_bm25s_parallel:
+        header2 += f" {'BM25S Par':<12}"
+    print(f"\n{header2}")
+    print("-" * len(header2))
+
+    for r in all_results:
+        corpus_label = f"{r['corpus_size']//1000}K" if r['corpus_size'] >= 1000 else str(r['corpus_size'])
+        vo_speedup = r['vajra_optimized']['speedup']
+        vp_speedup = r['vajra_parallel']['speedup']
+
+        line = f"{corpus_label:<8} {vo_speedup:.1f}x{'':<7} {vp_speedup:.1f}x{'':<7}"
+
+        if has_bm25s:
+            bs_speedup = r.get('bm25s', {}).get('speedup', 0)
+            line += f" {bs_speedup:.1f}x{'':<7}" if bs_speedup else f" {'N/A':<12}"
+
+        if has_bm25s_parallel:
+            bsp_speedup = r.get('bm25s_parallel', {}).get('speedup', 0)
+            line += f" {bsp_speedup:.1f}x{'':<7}" if bsp_speedup else f" {'N/A':<12}"
+
+        print(line)
 
     # Detailed comparison
     print("\n" + "=" * 80)
     print("DETAILED COMPARISON (Recall@10 vs rank-bm25 baseline)")
     print("=" * 80)
 
-    print(f"\n{'Corpus':<10} {'Vajra Base':<15} {'Vajra Opt':<15} {'Vajra Par':<15} {'BM25S':<15}")
-    print("-" * 75)
+    # Build header dynamically
+    header3 = f"{'Corpus':<8} {'Vajra Base':<12} {'Vajra Opt':<12} {'Vajra Par':<12}"
+    if has_bm25s:
+        header3 += f" {'BM25S':<12}"
+    if has_bm25s_parallel:
+        header3 += f" {'BM25S Par':<12}"
+    print(f"\n{header3}")
+    print("-" * len(header3))
 
     for r in all_results:
         corpus_label = f"{r['corpus_size']//1000}K" if r['corpus_size'] >= 1000 else str(r['corpus_size'])
         vb_recall = r['vajra_base']['recall_at_10']
         vo_recall = r['vajra_optimized']['recall_at_10']
         vp_recall = r['vajra_parallel']['recall_at_10']
-        bs_recall = r.get('bm25s', {}).get('recall_at_10', 0)
 
-        if bs_recall > 0:
-            print(f"{corpus_label:<10} {vb_recall:.1f}%{'':<9} {vo_recall:.1f}%{'':<9} {vp_recall:.1f}%{'':<9} {bs_recall:.1f}%")
-        else:
-            print(f"{corpus_label:<10} {vb_recall:.1f}%{'':<9} {vo_recall:.1f}%{'':<9} {vp_recall:.1f}%{'':<9} {'N/A':<15}")
+        line = f"{corpus_label:<8} {vb_recall:.1f}%{'':<6} {vo_recall:.1f}%{'':<6} {vp_recall:.1f}%{'':<6}"
+
+        if has_bm25s:
+            bs_recall = r.get('bm25s', {}).get('recall_at_10', 0)
+            line += f" {bs_recall:.1f}%{'':<6}" if bs_recall else f" {'N/A':<12}"
+
+        if has_bm25s_parallel:
+            bsp_recall = r.get('bm25s_parallel', {}).get('recall_at_10', 0)
+            line += f" {bsp_recall:.1f}%{'':<6}" if bsp_recall else f" {'N/A':<12}"
+
+        print(line)
 
 
 def run_batch_benchmark(corpus_path: Path, queries: List[str], num_runs: int = 3) -> Dict[str, Any]:

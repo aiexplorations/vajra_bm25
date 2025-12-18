@@ -18,6 +18,10 @@ from vajra_bm25.optimized import (
     VectorizedBM25Scorer
 )
 from vajra_bm25.text_processing import preprocess_text
+from vajra_bm25.logging_config import get_logger
+
+# Initialize logger for this module
+logger = get_logger("parallel")
 
 
 class VajraSearchParallel(VajraSearchOptimized):
@@ -67,18 +71,18 @@ if __name__ == "__main__":
     from vajra_bm25.documents import DocumentCorpus
     from pathlib import Path
 
-    print("="*70)
-    print("PARALLEL OPTIMIZED CATEGORICAL BM25")
-    print("="*70)
+    logger.info("="*70)
+    logger.info("PARALLEL OPTIMIZED CATEGORICAL BM25")
+    logger.info("="*70)
 
     corpus_path = Path("large_corpus.jsonl")
     if corpus_path.exists():
         corpus = DocumentCorpus.load_jsonl(corpus_path)
-        print(f"\nLoaded {len(corpus)} documents")
+        logger.info(f"Loaded {len(corpus)} documents")
     else:
         from vajra_bm25.documents import create_sample_corpus
         corpus = create_sample_corpus()
-        print(f"\nUsing sample corpus with {len(corpus)} documents")
+        logger.info(f"Using sample corpus with {len(corpus)} documents")
 
     # Build parallel engine
     engine = VajraSearchParallel(corpus, max_workers=4)
@@ -92,12 +96,12 @@ if __name__ == "__main__":
         "gradient descent",
     ] * 4  # 20 queries total
 
-    print(f"\nBatch processing {len(queries)} queries...")
+    logger.info(f"Batch processing {len(queries)} queries...")
 
     start = time.time()
     results = engine.search_batch(queries, top_k=5)
     elapsed = time.time() - start
 
-    print(f"Completed in {elapsed:.3f}s")
-    print(f"  Throughput: {len(queries)/elapsed:.1f} queries/second")
-    print(f"  Avg per query: {elapsed*1000/len(queries):.2f}ms")
+    logger.info(f"Completed in {elapsed:.3f}s")
+    logger.info(f"  Throughput: {len(queries)/elapsed:.1f} queries/second")
+    logger.info(f"  Avg per query: {elapsed*1000/len(queries):.2f}ms")

@@ -10,6 +10,11 @@ from typing import List, Dict, Any, Optional
 import json
 from pathlib import Path
 
+from vajra_bm25.logging_config import get_logger
+
+# Initialize logger for this module
+logger = get_logger("documents")
+
 
 @dataclass(frozen=True)
 class Document:
@@ -202,14 +207,14 @@ if __name__ == "__main__":
     # Save to JSONL
     output_path = Path("sample_corpus.jsonl")
     corpus.save_jsonl(output_path)
-    print(f"Saved {len(corpus)} documents to {output_path}")
+    logger.info(f"Saved {len(corpus)} documents to {output_path}")
 
     # Load back
     loaded = DocumentCorpus.load_jsonl(output_path)
-    print(f"Loaded {len(loaded)} documents from {output_path}")
+    logger.info(f"Loaded {len(loaded)} documents from {output_path}")
 
     # Display sample
-    print("\nSample documents:")
+    logger.info("Sample documents:")
     for doc in list(loaded)[:3]:
-        print(f"\n[{doc.id}] {doc.title}")
-        print(f"  {doc.content[:100]}...")
+        logger.info(f"[{doc.id}] {doc.title}")
+        logger.info(f"  {doc.content[:100]}...")

@@ -22,6 +22,10 @@ from vajra_bm25.documents import Document, DocumentCorpus
 from vajra_bm25.inverted_index import InvertedIndex
 from vajra_bm25.scorer import BM25Scorer, BM25Parameters
 from vajra_bm25.text_processing import preprocess_text
+from vajra_bm25.logging_config import get_logger
+
+# Initialize logger for this module
+logger = get_logger("search")
 
 
 @dataclass(frozen=True)
@@ -140,14 +144,14 @@ class VajraSearch:
         self.corpus = corpus
 
         # Build index
-        print("Building inverted index...")
+        logger.info("Building inverted index...")
         self.index = InvertedIndex()
         self.index.build(corpus)
 
         # Create scorer
         self.scorer = BM25Scorer(self.index, params or BM25Parameters())
 
-        print(f"Index built: {self.index}")
+        logger.info(f"Index built: {self.index}")
 
     def search(self, query: str, top_k: int = 10) -> List[SearchResult]:
         """
@@ -204,11 +208,10 @@ if __name__ == "__main__":
 
     # Create corpus
     corpus = create_sample_corpus()
-    print(f"Created corpus with {len(corpus)} documents\n")
+    logger.info(f"Created corpus with {len(corpus)} documents")
 
     # Create search system
     search_engine = VajraSearch(corpus)
-    print()
 
     # Test queries
     test_queries = [
@@ -219,31 +222,29 @@ if __name__ == "__main__":
     ]
 
     for query in test_queries:
-        print("=" * 70)
-        print(f"Query: '{query}'")
-        print("=" * 70)
+        logger.info("=" * 70)
+        logger.info(f"Query: '{query}'")
+        logger.info("=" * 70)
 
         results = search_engine.search(query, top_k=5)
 
         if not results:
-            print("No results found.\n")
+            logger.info("No results found.")
             continue
 
-        print(f"\nFound {len(results)} results:\n")
+        logger.info(f"Found {len(results)} results:")
 
         for result in results:
-            print(f"{result.rank}. [{result.document.id}] {result.document.title}")
-            print(f"   Score: {result.score:.3f}")
-            print(f"   {result.document.content[:120]}...")
-            print()
+            logger.info(f"{result.rank}. [{result.document.id}] {result.document.title}")
+            logger.info(f"   Score: {result.score:.3f}")
+            logger.info(f"   {result.document.content[:120]}...")
 
         # Explain top result
         if results:
             top_result = results[0]
-            print(f"Score breakdown for top result:")
+            logger.info(f"Score breakdown for top result:")
             explanation = search_engine.explain_result(query, top_result.document.id)
             for term, score in sorted(explanation['term_scores'].items(),
                                      key=lambda x: x[1], reverse=True):
                 if score > 0:
-                    print(f"  '{term}': {score:.3f}")
-            print()
+                    logger.info(f"  '{term}': {score:.3f}")

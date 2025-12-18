@@ -154,3 +154,8 @@ Thumbs.db
 *.pkl
 large_corpus.jsonl
 sample_corpus.jsonl
+
+
+#datasets used for testing and benchmarking
+
+datasets/
