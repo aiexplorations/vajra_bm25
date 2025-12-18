@@ -3,7 +3,7 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Vajra** (Sanskrit: वज्र, "thunderbolt/diamond") is a BM25 search engine built on pure category theory.
+**Vajra** (Sanskrit: वज्र, "thunderbolt/diamond") is a BM25 search engine. It uses Category Theory abstractions to reframe the BM25 algorithm. It provides a well-structured API and compares favourably with BM25S, which is one of the fastest Python implementations of BM25, specifically favouring better recall while remaining fast because of the vectorized implementations.
 
 ## What Makes Vajra Different
 
@@ -13,7 +13,7 @@ Vajra implements the standard BM25 ranking algorithm using rigorous mathematical
 - **Coalgebras**: Search as state unfolding `QueryState → List[SearchResult]`
 - **Functors**: The List functor captures multiple-results semantics
 
-The same math, different vocabulary. The core BM25 formula is identical to other implementations—category theory provides the organizational structure, not runtime magic.
+While Vajra BM25 uses the same underlying mathematics of BM25, it uses different vocabulary to describe the search process, and the abstractions are more amenable to experimentation and improvement. The core BM25 formula is identical to other implementations—category theory provides the organizational structure.
 
 ## Installation
 
@@ -32,6 +32,8 @@ pip install vajra-bm25[all]
 ```
 
 ## Quick Start
+
+The Python API for using Vajra BM25 is quite straightforward, and there's currently support for using JSONL document corpuses via the `DocumentCorpus` class.
 
 ```python
 from vajra_bm25 import VajraSearch, Document, DocumentCorpus
@@ -56,7 +58,7 @@ for r in results:
 
 ## Optimized Usage
 
-For larger corpora (1000+ documents), use the optimized version:
+For larger corpora (1000+ documents), use the optimized version. This optimized version is much faster.
 
 ```python
 from vajra_bm25 import VajraSearchOptimized, DocumentCorpus
@@ -74,7 +76,7 @@ results = engine.search("neural networks", top_k=10)
 
 ## Parallel Batch Processing
 
-For high-throughput scenarios:
+For high-throughput scenarios, use the parallel batch processing version. This version is much faster and able to return results for multiple queries in parallel. There's obviously the overhead due to parallelism, which may work against the search algorithm, but in cases where we have memory limitations, this may work better than Vajra Search Optimized.
 
 ```python
 from vajra_bm25 import VajraSearchParallel
@@ -90,13 +92,14 @@ batch_results = engine.search_batch(queries, top_k=5)
 
 At 100,000 documents:
 
-| Implementation | Query Latency | Recall@10 |
-|----------------|---------------|-----------|
-| rank-bm25 | 133.54 ms | baseline |
-| Vajra (base) | 59.14 ms | 65.0% |
-| Vajra (optimized) | 1.39 ms | 66.5% |
+| Implementation    | Query Latency | Recall@10 |
+| ----------------- | ------------- | --------- |
+| rank-bm25         | 133.54 ms     | baseline  |
+| Vajra (base)      | 59.14 ms      | 65.0%     |
+| Vajra (optimized) | 1.39 ms       | 66.5%     |
 
 Vajra (optimized) achieves **96x speedup** over rank-bm25 through:
+
 - Vectorized NumPy operations
 - Pre-computed IDF values
 - Sparse matrix representation
@@ -158,6 +161,8 @@ assert (f >> identity).apply(5) == f.apply(5)  # f . id = f
 assert (identity >> f).apply(5) == f.apply(5)  # id . f = f
 ```
 
+There's a better, more rigorous treatment of the concepts of Category Theory by Bartosz Milewski [here](https://www.youtube.com/watch?v=I8LbkfSSR58&list=PLbgaMIhjbmEnaH_LTkxLI7FMa2HsnawM_).
+
 ## API Reference
 
 ### Core Classes
@@ -187,6 +192,7 @@ Category theory provides:
 3. **Composable pipelines** - `preprocess >> score >> rank` as morphism composition
 
 What it doesn't provide:
+
 - Performance improvements (those come from NumPy/sparse matrices)
 - Novel algorithms (BM25 is BM25)
 - Runtime machinery (it's just well-organized code)
@@ -218,4 +224,5 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 - BM25 algorithm: Robertson & Zaragoza, "The Probabilistic Relevance Framework"
 - Category theory foundations: Rutten, "Universal Coalgebra: A Theory of Systems"
-- Inspired by the [State Dynamic Modeling](https://github.com/aiexplorations/state_dynamic_modeling) project
+- Built and explored in the [State Dynamic Modeling](https://github.com/aiexplorations/state_dynamic_modeling) project
+- Inspired by the Category Theory lectures by [Bartosz Milewski](https://bartoszmilewski.com/) which are [here on YouTube](https://www.youtube.com/watch?v=I8LbkfSSR58&list=PLbgaMIhjbmEnaH_LTkxLI7FMa2HsnawM_).
