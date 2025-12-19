@@ -13,11 +13,12 @@ from typing import List, Dict, Set, Tuple, Callable, Optional
 from dataclasses import dataclass
 import numpy as np
 from functools import lru_cache, wraps
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 import time
+from multiprocessing import Pool, cpu_count
 
 try:
-    from scipy.sparse import csr_matrix, lil_matrix
+    from scipy.sparse import csr_matrix, lil_matrix, coo_matrix
     SCIPY_AVAILABLE = True
 except ImportError:
     SCIPY_AVAILABLE = False
@@ -36,6 +37,23 @@ from vajra_bm25.logging_config import get_logger
 
 # Initialize logger for this module
 logger = get_logger("optimized")
+
+
+# ============================================================================
+# Helper: Parallel tokenization
+# ============================================================================
+
+def _tokenize_document(doc: Document) -> Tuple[str, Dict[str, int], int]:
+    """
+    Tokenize a single document (for parallel processing).
+
+    Returns:
+        (doc_id, term_counts, doc_length)
+    """
+    full_text = doc.title + " " + doc.content
+    terms = preprocess_text(full_text)
+    term_counts = Counter(terms)
+    return doc.id, term_counts, len(terms)
 
 
 # ============================================================================
@@ -359,49 +377,76 @@ class VectorizedIndexSparse:
 
     def build(self, corpus: DocumentCorpus):
         """
-        Build sparse vectorized index.
+        Build sparse vectorized index with optimizations.
+
+        Optimizations:
+        - Parallel tokenization (uses multiprocessing)
+        - COO format construction (3-5x faster than LIL)
+        - Single-pass vocabulary building
 
         Morphism: Corpus -> SparseVectorizedIndex
         """
-        # Build term and doc vocabularies
-        term_set = set()
+        n_jobs = min(cpu_count(), len(corpus) // 100 + 1)  # At least 100 docs per worker
+        logger.info(f"Building sparse index with {n_jobs} workers...")
+
+        # ====================================================================
+        # OPTIMIZATION: Parallel tokenization
+        # ====================================================================
+        with Pool(processes=n_jobs) as pool:
+            results = pool.map(_tokenize_document, corpus.documents)
+
+        # Extract results
+        doc_ids = []
         doc_term_counts = []
+        doc_lengths_list = []
 
-        for doc_idx, doc in enumerate(corpus):
-            self.doc_to_id[doc.id] = doc_idx
-            self.id_to_doc[doc_idx] = doc.id
-
-            full_text = doc.title + " " + doc.content
-            terms = preprocess_text(full_text)
-
-            term_counts = {}
-            for term in terms:
-                term_set.add(term)
-                term_counts[term] = term_counts.get(term, 0) + 1
-
+        for doc_id, term_counts, doc_len in results:
+            doc_ids.append(doc_id)
             doc_term_counts.append(term_counts)
+            doc_lengths_list.append(doc_len)
 
-        # Assign term IDs
-        for term_id, term in enumerate(sorted(term_set)):
-            self.term_to_id[term] = term_id
-            self.id_to_term[term_id] = term
+        # Build vocabularies
+        term_set = set()
+        for term_counts in doc_term_counts:
+            term_set.update(term_counts.keys())
+
+        # Assign term IDs (use insertion order for speed - no sorting)
+        self.term_to_id = {term: idx for idx, term in enumerate(term_set)}
+        self.id_to_term = {idx: term for term, idx in self.term_to_id.items()}
+        self.doc_to_id = {doc_id: idx for idx, doc_id in enumerate(doc_ids)}
+        self.id_to_doc = {idx: doc_id for doc_id, idx in self.doc_to_id.items()}
 
         self.num_docs = len(corpus)
         self.num_terms = len(term_set)
+        self.doc_lengths = np.array(doc_lengths_list, dtype=np.int32)
 
-        # Build sparse term-document matrix using LIL (efficient for construction)
-        # Then convert to CSR (efficient for arithmetic operations)
-        lil = lil_matrix((self.num_terms, self.num_docs), dtype=np.float32)
-        self.doc_lengths = np.zeros(self.num_docs, dtype=np.int32)
+        # ====================================================================
+        # OPTIMIZATION: COO format construction (batch inserts)
+        # ====================================================================
+        # Prepare COO format data
+        rows = []
+        cols = []
+        data = []
 
         for doc_idx, term_counts in enumerate(doc_term_counts):
             for term, count in term_counts.items():
                 term_id = self.term_to_id[term]
-                lil[term_id, doc_idx] = count
-                self.doc_lengths[doc_idx] += count
+                rows.append(term_id)
+                cols.append(doc_idx)
+                data.append(count)
+
+        # Build COO matrix (fast batch construction)
+        coo = coo_matrix(
+            (data, (rows, cols)),
+            shape=(self.num_terms, self.num_docs),
+            dtype=np.float32
+        )
 
         # Convert to CSR for efficient row slicing and arithmetic
-        self.term_doc_matrix = lil.tocsr()
+        self.term_doc_matrix = coo.tocsr()
+
+        logger.info(f"  Built sparse matrix: {self.num_terms:,} terms × {self.num_docs:,} docs")
+        logger.info(f"  Non-zero entries: {coo.nnz:,} ({(1.0 - coo.nnz/(self.num_terms*self.num_docs))*100:.2f}% sparse)")
 
         # Pre-compute document frequencies (DF)
         # Number of non-zero entries per row

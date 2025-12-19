@@ -638,7 +638,7 @@ def main():
     parser.add_argument(
         '--datasets',
         nargs='+',
-        choices=['beir-scifact', 'beir-nfcorpus', 'wiki-100k', 'wiki-1m', 'wiki-5m', 'msmarco', 'nq', 'all'],
+        choices=['beir-scifact', 'beir-nfcorpus', 'wiki-100k', 'wiki-200k', 'wiki-500k', 'wiki-1m', 'wiki-5m', 'msmarco', 'nq', 'all'],
         default=['beir-scifact'],
         help="Datasets to benchmark (default: beir-scifact)"
     )
@@ -653,7 +653,7 @@ def main():
 
     # Expand 'all' option
     if 'all' in args.datasets:
-        args.datasets = ['beir-scifact', 'beir-nfcorpus', 'wiki-100k', 'wiki-1m', 'wiki-5m']
+        args.datasets = ['beir-scifact', 'beir-nfcorpus', 'wiki-100k', 'wiki-200k', 'wiki-500k', 'wiki-1m']
 
     logger.info("=" * 80)
     logger.info("VAJRA BM25 BENCHMARK ON STANDARD IR DATASETS")
@@ -692,6 +692,28 @@ def main():
             all_results["Wikipedia/100K"] = run_benchmark("Wikipedia/100K", corpus, queries)
         except Exception as e:
             logger.error(f"Error loading Wikipedia 100K: {e}")
+            import traceback
+            traceback.print_exc()
+
+    if 'wiki-200k' in args.datasets and WIKIPEDIA_DOWNLOADER_AVAILABLE:
+        try:
+            logger.info("\n" + "=" * 80)
+            logger.info("Loading Wikipedia 200K...")
+            corpus, queries = load_wikipedia(max_docs=200000, cache_dir=args.cache_dir)
+            all_results["Wikipedia/200K"] = run_benchmark("Wikipedia/200K", corpus, queries)
+        except Exception as e:
+            logger.error(f"Error loading Wikipedia 200K: {e}")
+            import traceback
+            traceback.print_exc()
+
+    if 'wiki-500k' in args.datasets and WIKIPEDIA_DOWNLOADER_AVAILABLE:
+        try:
+            logger.info("\n" + "=" * 80)
+            logger.info("Loading Wikipedia 500K...")
+            corpus, queries = load_wikipedia(max_docs=500000, cache_dir=args.cache_dir)
+            all_results["Wikipedia/500K"] = run_benchmark("Wikipedia/500K", corpus, queries)
+        except Exception as e:
+            logger.error(f"Error loading Wikipedia 500K: {e}")
             import traceback
             traceback.print_exc()
 
