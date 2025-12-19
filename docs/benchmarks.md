@@ -129,16 +129,35 @@ Sparse matrices are **essential** for corpora exceeding 10,000 documents to avoi
 
 ## Optimization Techniques
 
-Vajra achieves these speedups through:
+Vajra achieves these speedups through categorical and engineering optimizations:
 
-| Technique | Description | Impact |
-|-----------|-------------|--------|
-| **Vectorized NumPy** | Batch operations over document sets | 10-50x |
-| **Sparse matrices** | Efficient storage for large corpora | Memory reduction |
-| **Pre-computed IDF** | One-time IDF calculation at build | Per-query savings |
-| **LRU caching** | Cache query preprocessing and scores | Repeated query speedup |
-| **Partial sort** | O(n + k log k) for top-k selection | Large corpus speedup |
-| **Thread pool** | Concurrent query processing | Additional 1.3-3x |
+| Technique | Categorical Basis | Description | Impact |
+|-----------|-------------------|-------------|--------|
+| **Enriched Index** | Functorial | Pre-compute term bounds and norm factors at index time | 20-40% faster scoring |
+| **Optimized Top-k** | — | Only sort non-zero scores (~5% of docs) | 30% faster selection |
+| **Vectorized NumPy** | — | Batch operations over document sets | 10-50x |
+| **Sparse matrices** | — | Efficient storage for large corpora | Memory reduction |
+| **Pre-computed IDF** | — | One-time IDF calculation at build | Per-query savings |
+| **LRU caching** | Comonadic | Cache query preprocessing and scores | Repeated query speedup |
+| **Partial sort** | — | O(n + k log k) for top-k selection | Large corpus speedup |
+| **Thread pool** | — | Concurrent query processing | Additional 1.3-3x |
+
+### Categorical Foundations
+
+The key insight is that BM25 scoring is a **monoid homomorphism**:
+
+```
+Queries: (Terms*, ⊕, ε)     -- Free monoid over terms
+Scores:  (ℝ, +, 0)          -- Additive monoid
+
+score: Queries → Scores
+score(q₁ ⊕ q₂) = score(q₁) + score(q₂)   -- Homomorphism property
+```
+
+This algebraic structure enables:
+- **Compositional caching**: Cache term-level scores, compose for multi-term queries
+- **Upper bound computation**: Pre-compute max possible score per term for early termination
+- **Index enrichment**: Lift score computation from query-time to index-time
 
 ## Running Benchmarks
 

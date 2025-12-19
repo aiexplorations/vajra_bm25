@@ -351,12 +351,16 @@ class VectorizedIndexSparse:
     Sparse matrix vectorized index using scipy.sparse.csr_matrix.
 
     Categorical interpretation:
-    - Still a functor: Term -> PostingList
-    - Still morphisms over vector spaces
+    - Functor: Term -> PostingList (enriched with max scores)
+    - Morphisms over vector spaces with pre-computed bounds
     - Sparse representation = optimization without changing math
 
+    The index is ENRICHED with:
+    - max_term_score: Maximum BM25 contribution per term (for coalgebraic guards)
+    - This enables early termination in the MaxScore algorithm
+
     Memory savings: ~100x smaller than dense for typical text corpus
-    Speed improvement: 2-5x on sparse operations
+    Speed improvement: 2-5x on sparse operations, plus algorithmic speedup
     """
 
     def __init__(self):
@@ -370,6 +374,10 @@ class VectorizedIndexSparse:
         self.doc_lengths: Optional[np.ndarray] = None
         self.doc_freqs: Optional[np.ndarray] = None
         self.idf_cache: Optional[np.ndarray] = None
+
+        # ENRICHED: Pre-computed bounds for coalgebraic early termination
+        self.max_term_score: Optional[np.ndarray] = None  # Max BM25 score per term
+        self.norm_factors: Optional[np.ndarray] = None    # Pre-computed doc length norms
 
         self.num_docs: int = 0
         self.avg_doc_length: float = 0.0
@@ -456,10 +464,63 @@ class VectorizedIndexSparse:
         # IDF(term) = log((N - df + 0.5) / (df + 0.5) + 1)
         self.idf_cache = np.log(
             (self.num_docs - self.doc_freqs + 0.5) / (self.doc_freqs + 0.5) + 1.0
-        )
+        ).astype(np.float32)
 
         # Average document length
-        self.avg_doc_length = self.doc_lengths.mean()
+        self.avg_doc_length = float(self.doc_lengths.mean())
+
+        # ====================================================================
+        # ENRICHED INDEX: Pre-compute bounds for coalgebraic early termination
+        # ====================================================================
+        self._compute_term_bounds(k1=1.5, b=0.75)
+
+    def _compute_term_bounds(self, k1: float = 1.5, b: float = 0.75):
+        """
+        Compute maximum possible BM25 score for each term.
+
+        This is the FUNCTORIAL ENRICHMENT: we lift score bounds from
+        query-time to index-time, enabling coalgebraic early termination.
+
+        For term t, max_term_score[t] = IDF[t] * max_d(TF_component[t,d])
+        where TF_component = (tf * (k1+1)) / (tf + k1 * norm)
+        """
+        logger.info("  Computing term bounds for coalgebraic scoring...")
+
+        # Pre-compute document length normalization factors
+        # norm[d] = 1 - b + b * (doc_len[d] / avg_doc_len)
+        self.norm_factors = (
+            1.0 - b + b * (self.doc_lengths / self.avg_doc_length)
+        ).astype(np.float32)
+
+        # For each term, find the maximum TF component across all documents
+        # TF_component = (tf * (k1+1)) / (tf + k1 * norm)
+        self.max_term_score = np.zeros(self.num_terms, dtype=np.float32)
+
+        # Iterate through CSR matrix rows (terms)
+        indptr = self.term_doc_matrix.indptr
+        indices = self.term_doc_matrix.indices
+        data = self.term_doc_matrix.data
+
+        for term_id in range(self.num_terms):
+            row_start = indptr[term_id]
+            row_end = indptr[term_id + 1]
+
+            if row_start == row_end:
+                continue  # Term not in any document
+
+            # Get TF values and doc indices for this term
+            doc_indices = indices[row_start:row_end]
+            tf_values = data[row_start:row_end]
+
+            # Compute TF component for each doc containing this term
+            norms = self.norm_factors[doc_indices]
+            tf_components = (tf_values * (k1 + 1)) / (tf_values + k1 * norms)
+
+            # Max TF component × IDF = max possible score for this term
+            self.max_term_score[term_id] = self.idf_cache[term_id] * tf_components.max()
+
+        logger.info(f"  Term bounds computed: max={self.max_term_score.max():.3f}, "
+                    f"mean={self.max_term_score.mean():.3f}")
 
     @memoized_morphism
     def get_term_id(self, term: str) -> Optional[int]:
@@ -506,6 +567,11 @@ class SparseBM25Scorer:
         """
         Score multiple documents at once (vectorized with sparse matrices).
 
+        OPTIMIZED:
+        - Uses pre-computed norm factors from enriched index
+        - Consistent float32 dtype throughout
+        - Efficient numpy operations
+
         Morphism: (Query, DocumentSet) -> R^n
         """
         # Get term IDs for query
@@ -514,38 +580,32 @@ class SparseBM25Scorer:
         if not term_ids:
             return np.zeros(self.index.num_docs, dtype=np.float32)
 
-        # Get IDF values for query terms (pre-cached!)
-        query_idfs = self.index.idf_cache[term_ids]  # Shape: (num_query_terms,)
+        # Get IDF values for query terms (pre-cached, float32)
+        query_idfs = self.index.idf_cache[term_ids]
 
-        # Get term frequencies for all docs (sparse matrix slice)
-        # Shape: (num_query_terms, num_docs) but sparse!
-        tf_matrix = self.index.term_doc_matrix[term_ids, :]
+        # Get term frequencies (sparse -> dense, only query term rows)
+        tf_dense = self.index.term_doc_matrix[term_ids, :].toarray()
 
-        # Convert to dense for arithmetic (only query term rows, not entire matrix!)
-        tf_dense = tf_matrix.toarray()
+        # Pre-computed norm factors (float32)
+        norm_factors = self.index.norm_factors
 
-        # BM25 normalization factor (vectorized)
-        # norm = 1 - b + b * (doc_length / avg_doc_length)
-        norm_factors = 1.0 - self.b + self.b * (self.index.doc_lengths / self.index.avg_doc_length)
-
-        # BM25 formula (fully vectorized!)
+        # BM25 formula (optimized for float32)
         # score = IDF * (TF * (k1 + 1)) / (TF + k1 * norm)
-        numerator = tf_dense * (self.k1 + 1)
-        denominator = tf_dense + self.k1 * norm_factors
+        k1_plus_1 = np.float32(self.k1 + 1)
+        k1 = np.float32(self.k1)
 
-        # Avoid division by zero
-        denominator = np.where(denominator == 0, 1e-10, denominator)
+        numerator = tf_dense * k1_plus_1
+        denominator = tf_dense + k1 * norm_factors
+        np.maximum(denominator, 1e-10, out=denominator)  # In-place, avoid division by zero
 
-        # Broadcast IDF across documents
-        # Shape: (num_query_terms, num_docs)
-        term_scores = query_idfs[:, np.newaxis] * (numerator / denominator)
+        # Compute scores in-place where possible
+        term_scores = numerator
+        np.divide(numerator, denominator, out=term_scores)
+        term_scores *= query_idfs[:, np.newaxis]
 
-        # Sum across query terms
-        # Shape: (num_docs,)
-        doc_scores = term_scores.sum(axis=0)
-
-        # Apply document mask (only score candidates)
-        doc_scores = doc_scores * doc_mask
+        # Sum and apply mask
+        doc_scores = term_scores.sum(axis=0, dtype=np.float32)
+        doc_scores *= doc_mask
 
         return doc_scores
 
@@ -553,25 +613,162 @@ class SparseBM25Scorer:
         """
         Get top-k documents by score.
 
+        OPTIMIZED: Only considers non-zero scores (much smaller set than 200K).
+
         Morphism: R^n -> List[(DocID, Score)]
-
-        Uses partial sort for efficiency (O(n + k log k) vs O(n log n))
         """
-        # Get indices of top-k scores (argpartition is O(n))
-        if k >= len(scores):
-            top_indices = np.argsort(scores)[::-1]
+        # OPTIMIZATION: Only work with non-zero scores
+        nonzero_mask = scores > 0
+        nonzero_indices = np.flatnonzero(nonzero_mask)
+
+        if len(nonzero_indices) == 0:
+            return []
+
+        nonzero_scores = scores[nonzero_indices]
+
+        # Get top-k from non-zero scores only
+        if k >= len(nonzero_scores):
+            sorted_order = np.argsort(nonzero_scores)[::-1]
         else:
-            # Partial sort: only sort top-k
-            top_indices = np.argpartition(scores, -k)[-k:]
-            top_indices = top_indices[np.argsort(scores[top_indices])[::-1]]
+            # Partial sort on small array
+            sorted_order = np.argpartition(nonzero_scores, -k)[-k:]
+            sorted_order = sorted_order[np.argsort(nonzero_scores[sorted_order])[::-1]]
 
-        # Filter out zero scores
-        result = []
-        for idx in top_indices:
-            if scores[idx] > 0:
-                result.append((int(idx), float(scores[idx])))
+        # Map back to original indices
+        return [(int(nonzero_indices[i]), float(nonzero_scores[i])) for i in sorted_order]
 
-        return result
+
+# ============================================================================
+# COALGEBRAIC SCORER: MaxScore with Early Termination
+# ============================================================================
+
+class MaxScoreBM25Scorer:
+    """
+    Coalgebraic BM25 scorer with early termination (MaxScore algorithm).
+
+    Categorical interpretation:
+    - This is an ANAMORPHISM (unfold) with GUARDS
+    - The guard checks: can this document make it to top-k?
+    - If not, we skip it (coalgebraic "stop" branch)
+
+    The key insight is that BM25 is a MONOID HOMOMORPHISM:
+    - score(q1 ⊕ q2) = score(q1) + score(q2)
+    - This additivity lets us compute upper bounds
+
+    For each document, we track:
+    - current_score: sum of scores from processed terms
+    - upper_bound: max possible contribution from remaining terms
+
+    If current_score + upper_bound < threshold, skip the document.
+
+    OPTIMIZATION: Uses NumPy arrays instead of dicts for O(1) access.
+    """
+
+    def __init__(self, index: VectorizedIndexSparse, k1: float = 1.5, b: float = 0.75):
+        self.index = index
+        self.k1 = k1
+        self.b = b
+
+    def search_top_k(self, query_terms: List[str], top_k: int = 10) -> List[Tuple[int, float]]:
+        """
+        MaxScore algorithm: coalgebraic search with early termination.
+
+        Returns list of (doc_idx, score) tuples, sorted by score descending.
+        """
+        import heapq
+
+        # Get term IDs and filter to known terms
+        term_data = []
+        for term in query_terms:
+            if term in self.index.term_to_id:
+                term_id = self.index.term_to_id[term]
+                max_score = self.index.max_term_score[term_id]
+                idf = self.index.idf_cache[term_id]
+                term_data.append((term_id, max_score, idf))
+
+        if not term_data:
+            return []
+
+        # Sort terms by max_score DESCENDING (essential terms first)
+        term_data.sort(key=lambda x: x[1], reverse=True)
+        term_ids = np.array([t[0] for t in term_data], dtype=np.int32)
+        term_idfs = np.array([t[2] for t in term_data], dtype=np.float32)
+        term_max_scores = np.array([t[1] for t in term_data], dtype=np.float32)
+
+        # Compute cumulative upper bounds (remaining potential from each position)
+        upper_bounds = np.zeros(len(term_ids) + 1, dtype=np.float32)
+        for i in range(len(term_ids) - 1, -1, -1):
+            upper_bounds[i] = upper_bounds[i + 1] + term_max_scores[i]
+
+        # OPTIMIZATION: Use numpy array for scores (O(1) access)
+        scores = np.zeros(self.index.num_docs, dtype=np.float32)
+        touched = np.zeros(self.index.num_docs, dtype=bool)  # Track which docs were touched
+
+        # Use min-heap for efficient top-k tracking (stores negative scores)
+        top_k_heap = []  # (neg_score, doc_idx)
+        threshold = 0.0
+
+        # CSR matrix data for direct access
+        indptr = self.index.term_doc_matrix.indptr
+        indices = self.index.term_doc_matrix.indices
+        data = self.index.term_doc_matrix.data
+        norm_factors = self.index.norm_factors
+        k1 = self.k1
+
+        # Process terms in order of decreasing max contribution
+        for t_idx in range(len(term_ids)):
+            term_id = term_ids[t_idx]
+            idf = term_idfs[t_idx]
+            remaining_upper = upper_bounds[t_idx + 1]
+            current_term_max = term_max_scores[t_idx]
+
+            # Get posting list for this term
+            row_start = indptr[term_id]
+            row_end = indptr[term_id + 1]
+
+            # Process posting list
+            for j in range(row_start, row_end):
+                doc_idx = indices[j]
+
+                # ============================================================
+                # COALGEBRAIC GUARD: Can this document make it to top-k?
+                # ============================================================
+                max_possible = scores[doc_idx] + remaining_upper + current_term_max
+                if max_possible < threshold:
+                    continue  # Skip - can't make top-k
+
+                # Score this term-document pair
+                tf = data[j]
+                norm = norm_factors[doc_idx]
+                term_score = idf * (tf * (k1 + 1)) / (tf + k1 * norm)
+                scores[doc_idx] += term_score
+                touched[doc_idx] = True
+
+                # Update heap if this doc might be in top-k
+                new_score = scores[doc_idx]
+                if len(top_k_heap) < top_k:
+                    heapq.heappush(top_k_heap, (new_score, doc_idx))
+                    if len(top_k_heap) == top_k:
+                        threshold = top_k_heap[0][0]  # Smallest in heap
+                elif new_score > top_k_heap[0][0]:
+                    heapq.heapreplace(top_k_heap, (new_score, doc_idx))
+                    threshold = top_k_heap[0][0]
+
+        # Extract top-k results from touched documents
+        if not touched.any():
+            return []
+
+        # Get final top-k from all touched documents
+        touched_indices = np.where(touched)[0]
+        touched_scores = scores[touched_indices]
+
+        if len(touched_indices) <= top_k:
+            sorted_order = np.argsort(touched_scores)[::-1]
+        else:
+            top_k_order = np.argpartition(touched_scores, -top_k)[-top_k:]
+            sorted_order = top_k_order[np.argsort(touched_scores[top_k_order])[::-1]]
+
+        return [(int(touched_indices[i]), float(touched_scores[i])) for i in sorted_order]
 
 
 # ============================================================================
@@ -662,7 +859,7 @@ class OptimizedBM25SearchCoalgebra:
 
 class VajraSearchOptimized:
     """
-    High-performance Vajra BM25 search.
+    High-performance Vajra BM25 search with coalgebraic optimization.
 
     Vajra (Sanskrit: vajra, "thunderbolt/diamond") optimized implementation.
 
@@ -672,14 +869,28 @@ class VajraSearchOptimized:
     - Efficient data structures
     - Batch processing (functorial composition)
     - Sparse matrices (optional, for 100K+ documents)
+    - MaxScore algorithm (coalgebraic early termination)
 
-    74.6x faster than rank-bm25 at 100K documents while preserving
-    mathematical correctness guarantees.
+    The MaxScore algorithm exploits BM25's monoid homomorphism property:
+    - score(q1 ⊕ q2) = score(q1) + score(q2)
+    - Pre-computed term bounds enable early termination
+    - Only documents that CAN make top-k are fully scored
     """
 
-    def __init__(self, corpus: DocumentCorpus, k1: float = 1.5, b: float = 0.75, use_sparse: bool = False, cache_size: int = 1000):
+    def __init__(
+        self,
+        corpus: DocumentCorpus,
+        k1: float = 1.5,
+        b: float = 0.75,
+        use_sparse: bool = False,
+        cache_size: int = 1000,
+        use_maxscore: bool = False  # MaxScore disabled by default (Python too slow)
+    ):
         self.corpus = corpus
         self.use_sparse = use_sparse
+        self.use_maxscore = use_maxscore
+        self.k1 = k1
+        self.b = b
 
         # Initialize multi-level caching
         self.query_cache = LRUCache(capacity=cache_size) if cache_size > 0 else None
@@ -697,6 +908,8 @@ class VajraSearchOptimized:
             use_sparse_actual = False
             logger.info(f"Using dense matrices for corpus of {len(corpus)} documents")
 
+        self._use_sparse_actual = use_sparse_actual
+
         # Build index (sparse or dense)
         if use_sparse_actual:
             logger.info("Building optimized SPARSE vectorized index...")
@@ -706,8 +919,9 @@ class VajraSearchOptimized:
             build_time = time.time() - start
             logger.info(f"Built sparse index in {build_time:.3f}s ({self.index.num_terms} terms, {self.index.num_docs} docs)")
 
-            # Create sparse scorer
+            # Create scorers - both traditional and MaxScore
             self.scorer = SparseBM25Scorer(self.index, k1, b)
+            self.maxscore_scorer = MaxScoreBM25Scorer(self.index, k1, b)
         else:
             logger.info("Building optimized vectorized index...")
             start = time.time()
@@ -716,8 +930,9 @@ class VajraSearchOptimized:
             build_time = time.time() - start
             logger.info(f"Built dense index in {build_time:.3f}s ({self.index.num_terms} terms, {self.index.num_docs} docs)")
 
-            # Create vectorized scorer
+            # Create vectorized scorer (MaxScore not available for dense)
             self.scorer = VectorizedBM25Scorer(self.index, k1, b)
+            self.maxscore_scorer = None
 
         logger.debug(f"Average document length: {self.index.avg_doc_length:.2f}")
 
@@ -786,8 +1001,12 @@ class VajraSearchOptimized:
         """
         Execute optimized search with multi-level caching.
 
+        Uses MaxScore algorithm (coalgebraic early termination) when available.
+
         Same categorical structure: Query -> List[SearchResult]
-        But much faster due to vectorization and caching.
+        But much faster due to:
+        - Vectorization and caching
+        - Early termination via coalgebraic guards
         """
         # Check cache first (comonadic extract)
         if self.query_cache:
@@ -802,22 +1021,37 @@ class VajraSearchOptimized:
         if not query_terms:
             return []
 
-        # Create query state
-        state = QueryState(
-            query=query,
-            query_terms=tuple(query_terms)
-        )
+        # Use MaxScore algorithm if available (coalgebraic early termination)
+        if self.use_maxscore and self.maxscore_scorer is not None:
+            # MaxScore returns (doc_idx, score) tuples
+            top_docs = self.maxscore_scorer.search_top_k(query_terms, top_k)
 
-        # Create coalgebra
-        coalgebra = OptimizedBM25SearchCoalgebra(
-            corpus=self.corpus,
-            index=self.index,
-            scorer=self.scorer,
-            top_k=top_k
-        )
+            # Convert to SearchResult objects
+            results = []
+            for rank, (doc_idx, score) in enumerate(top_docs, 1):
+                doc_id = self.index.id_to_doc[doc_idx]
+                doc = self.corpus.get(doc_id)
+                if doc:
+                    results.append(SearchResult(
+                        document=doc,
+                        score=score,
+                        rank=rank
+                    ))
+        else:
+            # Fallback to traditional coalgebra approach
+            state = QueryState(
+                query=query,
+                query_terms=tuple(query_terms)
+            )
 
-        # Unfold (apply structure map)
-        results = coalgebra.structure_map(state)
+            coalgebra = OptimizedBM25SearchCoalgebra(
+                corpus=self.corpus,
+                index=self.index,
+                scorer=self.scorer,
+                top_k=top_k
+            )
+
+            results = coalgebra.structure_map(state)
 
         # Cache results (comonadic duplication)
         if self.query_cache:

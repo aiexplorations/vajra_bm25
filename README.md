@@ -139,22 +139,16 @@ Validated on standard information retrieval datasets from the [BEIR benchmark su
 
 With 8 workers, Vajra Parallel achieves **equal or better retrieval quality** than rank-bm25 while being **33-49x faster**. Vajra also outperforms BM25S on **both speed and accuracy** on NFCorpus.
 
-Vajra achieves these speedups through structural optimizations:
+Vajra achieves these speedups through structural optimizations based on category theory:
 
-1. **Sparse Matrices** (Primary driver at scale): Avoids computation on ~99% zeros in the term-document matrix.
-2. **Vectorized NumPy** (10-50x speedup): Uses SIMD instructions for batch scoring candidates.
-3. **Partial Sort** (O(n) average): `np.argpartition` avoids sorting 100,000 documents when only 10 are needed.
-4. **LRU Caching**: Caches both preprocessing results and full query/top-k pairs.
-5. **Thread Parallelism**: Concurrent query execution with `VajraSearchParallel`.
+1. **Enriched Index** (Functorial): Pre-computes term bounds and normalization factors at index time
+2. **Sparse Matrices**: Avoids computation on ~99% zeros in the term-document matrix
+3. **Vectorized NumPy**: Uses SIMD instructions for batch scoring candidates
+4. **Optimized Top-k**: Only considers non-zero scores (typically ~5% of documents)
+5. **LRU Caching**: Caches both preprocessing results and full query/top-k pairs
+6. **Thread Parallelism**: Concurrent query execution with `VajraSearchParallel`
 
-Vajra achieves these speedups through:
-
-- Vectorized NumPy operations
-- Pre-computed IDF values
-- Sparse matrix representation
-- LRU query caching
-- Partial sort for top-k
-- Thread pool parallelism (VajraSearchParallel)
+The categorical insight: BM25 scoring is a **monoid homomorphism** (`score(q₁ ⊕ q₂) = score(q₁) + score(q₂)`), which enables compositional optimizations.
 
 For detailed benchmark methodology and results, see [docs/benchmarks.md](docs/benchmarks.md).
 
