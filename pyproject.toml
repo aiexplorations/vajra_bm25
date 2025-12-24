@@ -62,11 +62,18 @@ benchmark-full = [
     "tantivy>=0.20.0",
     "pyserini>=0.20.0",  # Requires Java 11+
 ]
+cli = [
+    "rich>=13.0.0",
+    "beir>=1.0.0",
+]
 all = [
     "numpy>=1.20.0",
     "scipy>=1.7.0",
     "joblib>=1.0.0",
 ]
+
+[project.scripts]
+vajra-search = "vajra_bm25.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/aiexplorations/vajra_bm25"

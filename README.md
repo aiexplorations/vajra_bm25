@@ -27,9 +27,32 @@ pip install vajra-bm25[optimized]
 # With index persistence (save/load indices)
 pip install vajra-bm25[persistence]
 
+# With CLI (interactive search)
+pip install vajra-bm25[cli]
+
 # Everything
 pip install vajra-bm25[all]
 ```
+
+## Interactive CLI
+
+Vajra includes a rich interactive CLI for exploring search:
+
+```bash
+# Interactive mode with BEIR SciFact dataset
+vajra-search
+
+# Single query mode
+vajra-search -q "machine learning algorithms"
+
+# Use custom corpus
+vajra-search --corpus my_documents.jsonl
+
+# Show options
+vajra-search --help
+```
+
+In interactive mode, use `:help` for commands, `:stats` for index info, and `:quit` to exit.
 
 ## Quick Start
 
@@ -119,6 +142,18 @@ Benchmarked against 5 BM25 implementations across BEIR and Wikipedia datasets (D
 - Sub-millisecond latency even at 500K documents
 - Competitive accuracy: within 2% NDCG of best performers
 - Pyserini leads on BEIR accuracy; Tantivy leads on Wikipedia accuracy
+
+### Understanding Latency Numbers
+
+The reported latencies (0.001-0.006ms) are **averages after warmup with LRU caching**:
+
+| Scenario | Typical Latency | Explanation |
+|----------|-----------------|-------------|
+| **First query (cold)** | ~0.5ms | No cache, full BM25 computation |
+| **Repeated query** | ~0.001ms | LRU cache hit, near-instant |
+| **Benchmark average** | 0.001-0.006ms | 300 queries averaged, most cached |
+
+**For best performance**: Keep the `VajraSearchOptimized` instance alive across queries. The LRU cache (default 1000 entries) dramatically speeds up repeated and similar queries.
 
 Vajra achieves these speedups through structural optimizations based on category theory:
 
@@ -252,19 +287,28 @@ class SearchResult:
 
 ## Why Category Theory?
 
-Category theory provides:
+Category theory did not make Vajra fast. The speed comes from NumPy, sparse matrices, and caching. But it gave the code a clean organizational structure.
 
-1. **Unified abstractions** - Same `Coalgebra.structure_map()` interface for graph search and document retrieval
-2. **Explicit type signatures** - `BM25: (Query, Document) → ℝ` makes inputs/outputs clear
-3. **Composable pipelines** - `preprocess >> score >> rank` as morphism composition
+### How the Abstractions Help
 
-What it doesn't provide:
+The `categorical/` module provides base classes that derived implementations extend:
 
-- Performance improvements (those come from NumPy/sparse matrices)
-- Novel algorithms (BM25 is BM25)
-- Runtime machinery (it's just well-organized code)
+- **`Morphism[A, B]`**: Composable transformations with `apply()` and `>>` operator for chaining (`preprocess >> tokenize >> score`)
+- **`Coalgebra[X, FX]`**: The "unfolding" pattern via `structure_map()`. BM25 search extends this as `QueryState → List[SearchResult]`
+- **`Functor[A, FA]`**: Lifts operations to containers. `ListFunctor` handles multiple results; `MaybeFunctor` handles failure
 
-The honest summary: **category theory is a design vocabulary, not a runtime mechanism**.
+This creates clear separation: data types, transformations, and search dynamics each have their place. Adding a new scorer or search strategy means implementing a known interface.
+
+### Where Speed Actually Comes From
+
+| Technique | Impact |
+|-----------|--------|
+| Sparse matrices (CSR) | 6-8x memory reduction |
+| Vectorized NumPy | 10-50x speedup |
+| Eager pre-computed scores | Sub-millisecond queries |
+| LRU query caching | Near-instant repeated queries |
+
+These are engineering techniques. The categorical structure organizes the code; NumPy and SciPy deliver the performance.
 
 ## Development
 
