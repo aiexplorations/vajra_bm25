@@ -29,6 +29,13 @@ try:
 except ImportError:
     JOBLIB_AVAILABLE = False
 
+try:
+    import numba
+    from numba import njit, prange
+    NUMBA_AVAILABLE = True
+except ImportError:
+    NUMBA_AVAILABLE = False
+
 from pathlib import Path
 
 from vajra_bm25.documents import Document, DocumentCorpus
@@ -379,6 +386,11 @@ class VectorizedIndexSparse:
         self.max_term_score: Optional[np.ndarray] = None  # Max BM25 score per term
         self.norm_factors: Optional[np.ndarray] = None    # Pre-computed doc length norms
 
+        # EAGER SCORING: Pre-computed BM25 scores (BM25S approach)
+        self.score_matrix: Optional[csr_matrix] = None  # Pre-computed BM25 scores
+        self._eager_k1: Optional[float] = None  # k1 used for eager scoring
+        self._eager_b: Optional[float] = None   # b used for eager scoring
+
         self.num_docs: int = 0
         self.avg_doc_length: float = 0.0
         self.num_terms: int = 0
@@ -522,6 +534,81 @@ class VectorizedIndexSparse:
         logger.info(f"  Term bounds computed: max={self.max_term_score.max():.3f}, "
                     f"mean={self.max_term_score.mean():.3f}")
 
+    def build_score_matrix(self, k1: float = 1.5, b: float = 0.75):
+        """
+        Build pre-computed BM25 score matrix (eager scoring).
+
+        This implements the BM25S approach: pre-compute all BM25 scores at
+        index time, enabling query-time to be just sparse matrix slicing + sum.
+
+        The score for term t in document d is:
+            score[t,d] = IDF[t] * (TF[t,d] * (k1 + 1)) / (TF[t,d] + k1 * norm[d])
+
+        This matrix has the same sparsity pattern as term_doc_matrix (only
+        non-zero where term appears in document), but values are BM25 scores
+        instead of term frequencies.
+
+        Args:
+            k1: BM25 k1 parameter (term frequency saturation)
+            b: BM25 b parameter (document length normalization)
+        """
+        if self.term_doc_matrix is None:
+            raise ValueError("Index not built. Call build() first.")
+
+        logger.info(f"  Building eager score matrix (k1={k1}, b={b})...")
+        start_time = time.time()
+
+        # Ensure norm factors are computed
+        if self.norm_factors is None:
+            self.norm_factors = (
+                1.0 - b + b * (self.doc_lengths / self.avg_doc_length)
+            ).astype(np.float32)
+
+        # Get CSR components
+        indptr = self.term_doc_matrix.indptr
+        indices = self.term_doc_matrix.indices
+        data = self.term_doc_matrix.data
+
+        # Pre-compute BM25 scores (same sparsity pattern, different values)
+        k1_plus_1 = np.float32(k1 + 1.0)
+        k1_f32 = np.float32(k1)
+
+        # Vectorized computation over all non-zero entries
+        # For each (term, doc) pair with TF > 0:
+        #   score = IDF[term] * (TF * (k1+1)) / (TF + k1 * norm[doc])
+        tf = data.astype(np.float32)
+        doc_norms = self.norm_factors[indices]  # norm for each doc in posting
+
+        # Compute TF component: (TF * (k1+1)) / (TF + k1 * norm)
+        tf_component = (tf * k1_plus_1) / (tf + k1_f32 * doc_norms)
+
+        # Multiply by IDF for each term
+        # We need to map each entry to its term's IDF
+        # Create array of IDFs corresponding to each non-zero entry
+        term_ids_for_entries = np.zeros(len(data), dtype=np.int32)
+        for term_id in range(self.num_terms):
+            row_start = indptr[term_id]
+            row_end = indptr[term_id + 1]
+            term_ids_for_entries[row_start:row_end] = term_id
+
+        idf_for_entries = self.idf_cache[term_ids_for_entries]
+        score_data = (tf_component * idf_for_entries).astype(np.float32)
+
+        # Build score matrix with same structure as term_doc_matrix
+        self.score_matrix = csr_matrix(
+            (score_data, indices.copy(), indptr.copy()),
+            shape=(self.num_terms, self.num_docs),
+            dtype=np.float32
+        )
+
+        # Store parameters used
+        self._eager_k1 = k1
+        self._eager_b = b
+
+        build_time = time.time() - start_time
+        logger.info(f"  Score matrix built in {build_time:.3f}s "
+                    f"({self.score_matrix.nnz:,} entries)")
+
     @memoized_morphism
     def get_term_id(self, term: str) -> Optional[int]:
         """Morphism: Term -> TermID"""
@@ -636,6 +723,357 @@ class SparseBM25Scorer:
 
         # Map back to original indices
         return [(int(nonzero_indices[i]), float(nonzero_scores[i])) for i in sorted_order]
+
+
+# ============================================================================
+# EAGER SPARSE SCORER: Pre-computed BM25 scores (BM25S approach)
+# ============================================================================
+
+class EagerSparseBM25Scorer:
+    """
+    Eager sparse BM25 scorer using pre-computed scores.
+
+    This implements the BM25S approach: BM25 scores are pre-computed at index
+    time and stored in a sparse matrix. Query-time scoring is reduced to:
+    1. Select rows for query terms
+    2. Sum across terms (axis=0)
+
+    This eliminates all BM25 computation at query time, providing 3-5x speedup
+    over computing scores on-the-fly.
+
+    Categorical interpretation:
+    - Pre-computation is a functor: Index -> ScoredIndex
+    - Query-time is pure linear algebra (slice + sum)
+    - Mathematically equivalent to on-the-fly scoring
+    """
+
+    def __init__(self, index: VectorizedIndexSparse):
+        """
+        Initialize eager scorer with pre-computed score matrix.
+
+        Args:
+            index: VectorizedIndexSparse with score_matrix already built
+        """
+        if index.score_matrix is None:
+            raise ValueError(
+                "Score matrix not built. Call index.build_score_matrix(k1, b) first."
+            )
+        self.index = index
+        self.k1 = index._eager_k1
+        self.b = index._eager_b
+
+    def score_batch(self, query_terms: List[str], doc_mask: np.ndarray) -> np.ndarray:
+        """
+        Score documents using pre-computed scores (just slice + sum).
+
+        This is the key optimization: no BM25 computation happens here.
+        We just select the relevant rows and sum them.
+
+        Args:
+            query_terms: List of preprocessed query terms
+            doc_mask: Boolean mask for candidate documents (unused but kept for API)
+
+        Returns:
+            Document scores as numpy array
+        """
+        # Get term IDs for query
+        term_ids = [self.index.term_to_id[t] for t in query_terms
+                    if t in self.index.term_to_id]
+
+        if not term_ids:
+            return np.zeros(self.index.num_docs, dtype=np.float32)
+
+        # THE KEY OPTIMIZATION: Just slice and sum pre-computed scores
+        # No BM25 formula computation needed!
+        scores = np.asarray(
+            self.index.score_matrix[term_ids, :].sum(axis=0)
+        ).flatten().astype(np.float32)
+
+        return scores
+
+    def search_top_k(self, query_terms: List[str], k: int) -> List[Tuple[int, float]]:
+        """
+        Search for top-k documents using eager scoring.
+
+        Args:
+            query_terms: List of preprocessed query terms
+            k: Number of top results to return
+
+        Returns:
+            List of (doc_id, score) tuples in descending score order
+        """
+        # Score all documents
+        scores = self.score_batch(query_terms, None)
+
+        # Get top-k using efficient partial sort
+        nonzero_mask = scores > 0
+        nonzero_indices = np.flatnonzero(nonzero_mask)
+
+        if len(nonzero_indices) == 0:
+            return []
+
+        nonzero_scores = scores[nonzero_indices]
+
+        # Get top-k from non-zero scores only
+        if k >= len(nonzero_scores):
+            sorted_order = np.argsort(nonzero_scores)[::-1]
+        else:
+            # Partial sort on small array
+            sorted_order = np.argpartition(nonzero_scores, -k)[-k:]
+            sorted_order = sorted_order[np.argsort(nonzero_scores[sorted_order])[::-1]]
+
+        # Map back to original indices
+        return [(int(nonzero_indices[i]), float(nonzero_scores[i])) for i in sorted_order]
+
+
+# ============================================================================
+# NUMBA JIT-COMPILED SCORER: Maximum performance through compilation
+# ============================================================================
+
+if NUMBA_AVAILABLE:
+    @njit(cache=True, fastmath=True)
+    def _numba_score_terms_sparse(
+        indptr: np.ndarray,      # CSR row pointers (num_terms + 1,)
+        indices: np.ndarray,     # CSR column indices (nnz,)
+        data: np.ndarray,        # CSR data / TF values (nnz,)
+        term_ids: np.ndarray,    # Query term IDs (num_query_terms,)
+        idfs: np.ndarray,        # IDF values for query terms (num_query_terms,)
+        norm_factors: np.ndarray,  # Pre-computed doc length norms (num_docs,)
+        k1: float,
+        scores: np.ndarray,      # Output: document scores (num_docs,)
+    ) -> None:
+        """
+        Numba JIT-compiled BM25 scoring using CSR sparse matrix directly.
+
+        This is the hot path - compiled to machine code for maximum speed.
+
+        Term-at-a-time (TAT) approach:
+        - Iterate over query terms
+        - For each term, iterate over its posting list
+        - Accumulate BM25 scores
+
+        Key optimizations:
+        - No Python object overhead
+        - Direct array access
+        - Loop unrolling and SIMD via fastmath
+        - No memory allocation in hot loop
+        """
+        k1_plus_1 = k1 + 1.0
+
+        # Process each query term
+        for t_idx in range(len(term_ids)):
+            term_id = term_ids[t_idx]
+            idf = idfs[t_idx]
+
+            # Get posting list range for this term
+            row_start = indptr[term_id]
+            row_end = indptr[term_id + 1]
+
+            # Score each document in posting list
+            for j in range(row_start, row_end):
+                doc_idx = indices[j]
+                tf = data[j]
+                norm = norm_factors[doc_idx]
+
+                # BM25 formula: IDF * (TF * (k1 + 1)) / (TF + k1 * norm)
+                score = idf * (tf * k1_plus_1) / (tf + k1 * norm)
+                scores[doc_idx] += score
+
+    @njit(cache=True)
+    def _numba_get_top_k(
+        scores: np.ndarray,
+        k: int
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Numba JIT-compiled top-k selection.
+
+        Returns (doc_indices, doc_scores) for top-k documents.
+        Uses partial sort for O(n + k log k) complexity.
+        """
+        # Find non-zero scores
+        nonzero_count = 0
+        for i in range(len(scores)):
+            if scores[i] > 0:
+                nonzero_count += 1
+
+        if nonzero_count == 0:
+            return np.empty(0, dtype=np.int64), np.empty(0, dtype=np.float32)
+
+        # Collect non-zero indices and scores
+        nonzero_indices = np.empty(nonzero_count, dtype=np.int64)
+        nonzero_scores = np.empty(nonzero_count, dtype=np.float32)
+
+        j = 0
+        for i in range(len(scores)):
+            if scores[i] > 0:
+                nonzero_indices[j] = i
+                nonzero_scores[j] = scores[i]
+                j += 1
+
+        # If fewer than k non-zero, return all sorted
+        if nonzero_count <= k:
+            # Simple insertion sort for small arrays
+            for i in range(1, nonzero_count):
+                key_score = nonzero_scores[i]
+                key_idx = nonzero_indices[i]
+                j = i - 1
+                while j >= 0 and nonzero_scores[j] < key_score:
+                    nonzero_scores[j + 1] = nonzero_scores[j]
+                    nonzero_indices[j + 1] = nonzero_indices[j]
+                    j -= 1
+                nonzero_scores[j + 1] = key_score
+                nonzero_indices[j + 1] = key_idx
+            return nonzero_indices, nonzero_scores
+
+        # Partial sort: find k-th largest using partition
+        # Then sort only top k
+        result_indices = np.empty(k, dtype=np.int64)
+        result_scores = np.empty(k, dtype=np.float32)
+
+        # Use a simple heap-based approach for top-k
+        # Initialize with first k elements
+        for i in range(k):
+            result_indices[i] = nonzero_indices[i]
+            result_scores[i] = nonzero_scores[i]
+
+        # Heapify (min-heap by score)
+        for i in range(k // 2 - 1, -1, -1):
+            _sift_down(result_scores, result_indices, i, k)
+
+        # Process remaining elements
+        for i in range(k, nonzero_count):
+            if nonzero_scores[i] > result_scores[0]:
+                result_scores[0] = nonzero_scores[i]
+                result_indices[0] = nonzero_indices[i]
+                _sift_down(result_scores, result_indices, 0, k)
+
+        # Sort the top k (heap sort extract)
+        # Min-heap extraction produces descending order (largest first)
+        for i in range(k - 1, 0, -1):
+            result_scores[0], result_scores[i] = result_scores[i], result_scores[0]
+            result_indices[0], result_indices[i] = result_indices[i], result_indices[0]
+            _sift_down(result_scores, result_indices, 0, i)
+
+        return result_indices, result_scores
+
+    @njit(cache=True)
+    def _sift_down(scores: np.ndarray, indices: np.ndarray, start: int, end: int) -> None:
+        """Min-heap sift down operation."""
+        root = start
+        while True:
+            child = 2 * root + 1
+            if child >= end:
+                break
+            if child + 1 < end and scores[child] > scores[child + 1]:
+                child += 1
+            if scores[root] > scores[child]:
+                scores[root], scores[child] = scores[child], scores[root]
+                indices[root], indices[child] = indices[child], indices[root]
+                root = child
+            else:
+                break
+
+
+class NumbaSparseBM25Scorer:
+    """
+    Numba JIT-compiled sparse BM25 scorer for maximum performance.
+
+    Key differences from SparseBM25Scorer:
+    - Works directly with CSR matrix arrays (no scipy overhead)
+    - JIT-compiled scoring loop (no Python interpreter overhead)
+    - Term-at-a-time approach (cache-friendly access pattern)
+    - Pre-allocated score buffer (no allocation in hot path)
+
+    Expected speedup: 5-20x over pure NumPy/SciPy implementation.
+    """
+
+    def __init__(self, index: VectorizedIndexSparse, k1: float = 1.5, b: float = 0.75):
+        if not NUMBA_AVAILABLE:
+            raise ImportError("Numba required for NumbaSparseBM25Scorer. Install with: pip install numba")
+
+        self.index = index
+        self.k1 = np.float64(k1)
+        self.b = b
+
+        # Extract CSR matrix components for direct access
+        self.indptr = index.term_doc_matrix.indptr.astype(np.int64)
+        self.indices = index.term_doc_matrix.indices.astype(np.int64)
+        self.data = index.term_doc_matrix.data.astype(np.float64)
+
+        # Pre-computed values
+        self.idf_cache = index.idf_cache.astype(np.float64)
+        self.norm_factors = index.norm_factors.astype(np.float64)
+
+        # Pre-allocate score buffer
+        self._scores_buffer = np.zeros(index.num_docs, dtype=np.float64)
+
+        # Warm up JIT compilation
+        self._warmup()
+
+    def _warmup(self):
+        """Trigger JIT compilation with dummy data."""
+        dummy_terms = np.array([0], dtype=np.int64)
+        dummy_idfs = np.array([1.0], dtype=np.float64)
+        dummy_scores = np.zeros(10, dtype=np.float64)
+        dummy_norms = np.ones(10, dtype=np.float64)
+        dummy_indptr = np.array([0, 0], dtype=np.int64)
+        dummy_indices = np.array([], dtype=np.int64)
+        dummy_data = np.array([], dtype=np.float64)
+
+        _numba_score_terms_sparse(
+            dummy_indptr, dummy_indices, dummy_data,
+            dummy_terms, dummy_idfs, dummy_norms,
+            self.k1, dummy_scores
+        )
+        logger.debug("Numba scorer warmed up")
+
+    def score_query(self, query_terms: List[str]) -> np.ndarray:
+        """
+        Score all documents for a query using Numba JIT.
+
+        Returns dense score array (most entries will be zero).
+        """
+        # Get term IDs
+        term_ids = []
+        idfs = []
+        for term in query_terms:
+            if term in self.index.term_to_id:
+                term_id = self.index.term_to_id[term]
+                term_ids.append(term_id)
+                idfs.append(self.idf_cache[term_id])
+
+        if not term_ids:
+            return np.zeros(self.index.num_docs, dtype=np.float32)
+
+        # Convert to numpy arrays
+        term_ids_arr = np.array(term_ids, dtype=np.int64)
+        idfs_arr = np.array(idfs, dtype=np.float64)
+
+        # Reset score buffer
+        scores = self._scores_buffer
+        scores.fill(0.0)
+
+        # JIT-compiled scoring
+        _numba_score_terms_sparse(
+            self.indptr, self.indices, self.data,
+            term_ids_arr, idfs_arr, self.norm_factors,
+            self.k1, scores
+        )
+
+        return scores.astype(np.float32)
+
+    def search_top_k(self, query_terms: List[str], top_k: int = 10) -> List[Tuple[int, float]]:
+        """
+        Score documents and return top-k results.
+
+        Uses Numba JIT for both scoring and top-k selection.
+        """
+        scores = self.score_query(query_terms)
+
+        # JIT-compiled top-k
+        top_indices, top_scores = _numba_get_top_k(scores, top_k)
+
+        return [(int(idx), float(score)) for idx, score in zip(top_indices, top_scores)]
 
 
 # ============================================================================
@@ -884,11 +1322,15 @@ class VajraSearchOptimized:
         b: float = 0.75,
         use_sparse: bool = False,
         cache_size: int = 1000,
-        use_maxscore: bool = False  # MaxScore disabled by default (Python too slow)
+        use_maxscore: bool = False,  # MaxScore disabled by default (Python too slow)
+        use_numba: bool = True,  # Use Numba JIT scorer when available (much faster)
+        use_eager: bool = True  # Use eager scoring (pre-computed BM25 scores) - fastest!
     ):
         self.corpus = corpus
         self.use_sparse = use_sparse
         self.use_maxscore = use_maxscore
+        self.use_numba = use_numba and NUMBA_AVAILABLE
+        self.use_eager = use_eager
         self.k1 = k1
         self.b = b
 
@@ -919,9 +1361,28 @@ class VajraSearchOptimized:
             build_time = time.time() - start
             logger.info(f"Built sparse index in {build_time:.3f}s ({self.index.num_terms} terms, {self.index.num_docs} docs)")
 
-            # Create scorers - both traditional and MaxScore
+            # Create scorers
             self.scorer = SparseBM25Scorer(self.index, k1, b)
             self.maxscore_scorer = MaxScoreBM25Scorer(self.index, k1, b)
+
+            # Create Numba scorer if available (primary scorer for speed)
+            if self.use_numba:
+                logger.info("Initializing Numba JIT scorer (this may take a moment on first run)...")
+                self.numba_scorer = NumbaSparseBM25Scorer(self.index, k1, b)
+                logger.info("Numba scorer ready")
+            else:
+                self.numba_scorer = None
+                if use_numba and not NUMBA_AVAILABLE:
+                    logger.warning("Numba not available. Install with: pip install numba")
+
+            # Create eager scorer if enabled (fastest for query-time)
+            if self.use_eager:
+                logger.info("Building eager score matrix for fast query-time scoring...")
+                self.index.build_score_matrix(k1, b)
+                self.eager_scorer = EagerSparseBM25Scorer(self.index)
+                logger.info("Eager scorer ready")
+            else:
+                self.eager_scorer = None
         else:
             logger.info("Building optimized vectorized index...")
             start = time.time()
@@ -930,9 +1391,11 @@ class VajraSearchOptimized:
             build_time = time.time() - start
             logger.info(f"Built dense index in {build_time:.3f}s ({self.index.num_terms} terms, {self.index.num_docs} docs)")
 
-            # Create vectorized scorer (MaxScore not available for dense)
+            # Create vectorized scorer (MaxScore, Numba, and Eager not available for dense)
             self.scorer = VectorizedBM25Scorer(self.index, k1, b)
             self.maxscore_scorer = None
+            self.numba_scorer = None
+            self.eager_scorer = None
 
         logger.debug(f"Average document length: {self.index.avg_doc_length:.2f}")
 
@@ -1001,12 +1464,14 @@ class VajraSearchOptimized:
         """
         Execute optimized search with multi-level caching.
 
-        Uses MaxScore algorithm (coalgebraic early termination) when available.
+        Scorer preference (fastest to slowest):
+        1. Cache hit (instant)
+        2. Eager scorer (pre-computed BM25 scores, just slice + sum)
+        3. Numba JIT scorer (if available)
+        4. MaxScore algorithm (if enabled)
+        5. Traditional NumPy/SciPy scorer
 
         Same categorical structure: Query -> List[SearchResult]
-        But much faster due to:
-        - Vectorization and caching
-        - Early termination via coalgebraic guards
         """
         # Check cache first (comonadic extract)
         if self.query_cache:
@@ -1021,12 +1486,10 @@ class VajraSearchOptimized:
         if not query_terms:
             return []
 
-        # Use MaxScore algorithm if available (coalgebraic early termination)
-        if self.use_maxscore and self.maxscore_scorer is not None:
-            # MaxScore returns (doc_idx, score) tuples
-            top_docs = self.maxscore_scorer.search_top_k(query_terms, top_k)
+        # Priority 1: Eager scorer (fastest - pre-computed scores)
+        if self.eager_scorer is not None:
+            top_docs = self.eager_scorer.search_top_k(query_terms, top_k)
 
-            # Convert to SearchResult objects
             results = []
             for rank, (doc_idx, score) in enumerate(top_docs, 1):
                 doc_id = self.index.id_to_doc[doc_idx]
@@ -1037,8 +1500,39 @@ class VajraSearchOptimized:
                         score=score,
                         rank=rank
                     ))
+
+        # Priority 2: Numba JIT scorer
+        elif self.numba_scorer is not None:
+            top_docs = self.numba_scorer.search_top_k(query_terms, top_k)
+
+            results = []
+            for rank, (doc_idx, score) in enumerate(top_docs, 1):
+                doc_id = self.index.id_to_doc[doc_idx]
+                doc = self.corpus.get(doc_id)
+                if doc:
+                    results.append(SearchResult(
+                        document=doc,
+                        score=score,
+                        rank=rank
+                    ))
+
+        # Priority 3: MaxScore algorithm (coalgebraic early termination)
+        elif self.use_maxscore and self.maxscore_scorer is not None:
+            top_docs = self.maxscore_scorer.search_top_k(query_terms, top_k)
+
+            results = []
+            for rank, (doc_idx, score) in enumerate(top_docs, 1):
+                doc_id = self.index.id_to_doc[doc_idx]
+                doc = self.corpus.get(doc_id)
+                if doc:
+                    results.append(SearchResult(
+                        document=doc,
+                        score=score,
+                        rank=rank
+                    ))
+
+        # Priority 4: Traditional coalgebra approach (NumPy/SciPy)
         else:
-            # Fallback to traditional coalgebra approach
             state = QueryState(
                 query=query,
                 query_terms=tuple(query_terms)

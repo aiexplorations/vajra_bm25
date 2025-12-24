@@ -372,5 +372,195 @@ def test_identity_morphism():
     assert (f >> identity).apply(5) == f.apply(5)
 
 
+# ============================================================================
+# EAGER SCORING TESTS
+# ============================================================================
+
+@pytest.fixture
+def larger_corpus():
+    """Create a larger corpus for testing eager scoring (requires sparse matrices)."""
+    docs = [
+        Document(f"doc_{i}", f"Title {i}", f"Content about topic {i % 10} with some common words")
+        for i in range(100)
+    ]
+    # Add some documents with specific terms for testing
+    docs.extend([
+        Document("search_doc", "Search Algorithms", "BFS DFS graph search traversal"),
+        Document("ml_doc", "Machine Learning", "neural networks deep learning AI"),
+        Document("cat_doc", "Category Theory", "functors morphisms categories monads"),
+    ])
+    return DocumentCorpus(docs)
+
+
+def test_eager_scoring_score_matrix_built(larger_corpus):
+    """Test that eager scoring builds the score matrix correctly."""
+    from vajra_bm25.optimized import VajraSearchOptimized
+
+    # Create engine with eager scoring enabled (force sparse for small corpus)
+    engine = VajraSearchOptimized(larger_corpus, use_eager=True, use_sparse=True)
+
+    # Score matrix should be built
+    assert engine.index.score_matrix is not None
+    assert engine.eager_scorer is not None
+
+    # Score matrix should have same sparsity pattern as term_doc_matrix
+    assert engine.index.score_matrix.shape == engine.index.term_doc_matrix.shape
+    assert engine.index.score_matrix.nnz == engine.index.term_doc_matrix.nnz
+
+
+def test_eager_scoring_produces_correct_scores(larger_corpus):
+    """Test that eager scoring produces same scores as traditional scoring."""
+    from vajra_bm25.optimized import VajraSearchOptimized
+    import numpy as np
+
+    # Create engine with eager scoring disabled first (force sparse for testing)
+    engine_traditional = VajraSearchOptimized(
+        larger_corpus, use_eager=False, use_numba=False, use_sparse=True
+    )
+
+    # Create engine with eager scoring enabled (force sparse for testing)
+    engine_eager = VajraSearchOptimized(larger_corpus, use_eager=True, use_sparse=True)
+
+    # Test several queries
+    queries = [
+        "graph search",
+        "machine learning neural",
+        "category functors",
+        "topic common words",
+    ]
+
+    for query in queries:
+        results_traditional = engine_traditional.search(query, top_k=10)
+        results_eager = engine_eager.search(query, top_k=10)
+
+        # Should return same number of results
+        assert len(results_traditional) == len(results_eager), f"Query: {query}"
+
+        # Should return same documents in same order
+        for r_trad, r_eager in zip(results_traditional, results_eager):
+            assert r_trad.document.id == r_eager.document.id, f"Query: {query}"
+            # Scores should be very close (floating point tolerance)
+            np.testing.assert_allclose(
+                r_trad.score, r_eager.score, rtol=1e-5,
+                err_msg=f"Query: {query}, Doc: {r_trad.document.id}"
+            )
+
+
+def test_eager_scoring_empty_query(larger_corpus):
+    """Test eager scoring with empty query."""
+    from vajra_bm25.optimized import VajraSearchOptimized
+
+    engine = VajraSearchOptimized(larger_corpus, use_eager=True, use_sparse=True)
+    results = engine.search("")
+
+    assert len(results) == 0
+
+
+def test_eager_scoring_no_matches(larger_corpus):
+    """Test eager scoring with query that matches nothing."""
+    from vajra_bm25.optimized import VajraSearchOptimized
+
+    engine = VajraSearchOptimized(larger_corpus, use_eager=True, use_sparse=True)
+    results = engine.search("xyzzy quantum chromodynamics superconductivity")
+
+    # Should return empty or very low scored results
+    assert len(results) == 0 or all(r.score == 0 for r in results)
+
+
+def test_eager_scoring_can_be_disabled(larger_corpus):
+    """Test that eager scoring can be disabled."""
+    from vajra_bm25.optimized import VajraSearchOptimized
+
+    engine = VajraSearchOptimized(larger_corpus, use_eager=False, use_sparse=True)
+
+    # Score matrix should not be built
+    assert engine.index.score_matrix is None
+    assert engine.eager_scorer is None
+
+
+def test_eager_scorer_search_top_k(larger_corpus):
+    """Test EagerSparseBM25Scorer.search_top_k method."""
+    from vajra_bm25.optimized import VajraSearchOptimized
+    from vajra_bm25.text_processing import preprocess_text
+
+    engine = VajraSearchOptimized(larger_corpus, use_eager=True, use_sparse=True)
+
+    query_terms = preprocess_text("machine learning neural networks")
+    top_docs = engine.eager_scorer.search_top_k(query_terms, k=5)
+
+    # Should return list of (doc_idx, score) tuples
+    assert isinstance(top_docs, list)
+    assert len(top_docs) <= 5
+
+    # Should be sorted by score descending
+    if len(top_docs) > 1:
+        scores = [score for _, score in top_docs]
+        assert scores == sorted(scores, reverse=True)
+
+
+# ============================================================================
+# ADDITIONAL SCORER TESTS
+# ============================================================================
+
+def test_bm25_parameters_repr():
+    """Test BM25Parameters string representation."""
+    params = BM25Parameters(k1=2.0, b=0.8)
+    repr_str = repr(params)
+
+    assert "k1=2.0" in repr_str
+    assert "b=0.8" in repr_str
+
+
+def test_bm25_score_document_object(sample_corpus):
+    """Test scoring a Document object directly."""
+    index = InvertedIndex()
+    index.build(sample_corpus)
+    scorer = BM25Scorer(index)
+
+    query_terms = ["category", "functors"]
+    doc = sample_corpus.get("1")
+
+    score = scorer.score_document_object(query_terms, doc)
+
+    # Should match direct scoring by ID
+    score_by_id = scorer.score(query_terms, "1")
+    assert score == score_by_id
+
+
+def test_bm25_explain_score(sample_corpus):
+    """Test score explanation breakdown."""
+    index = InvertedIndex()
+    index.build(sample_corpus)
+    scorer = BM25Scorer(index)
+
+    query_terms = ["category", "functors", "nonexistent"]
+    explanation = scorer.explain_score(query_terms, "1")
+
+    # Should have an entry for each term
+    assert "category" in explanation
+    assert "functors" in explanation
+    assert "nonexistent" in explanation
+
+    # Known terms should have positive scores
+    assert explanation["category"] > 0
+    assert explanation["functors"] > 0
+
+    # Unknown term should have zero score
+    assert explanation["nonexistent"] == 0.0
+
+
+def test_bm25_explain_score_zero_doc_length(sample_corpus):
+    """Test explanation for document with zero length."""
+    index = InvertedIndex()
+    index.build(sample_corpus)
+    scorer = BM25Scorer(index)
+
+    # Try to explain a non-existent document
+    explanation = scorer.explain_score(["category"], "nonexistent_doc")
+
+    # All scores should be zero for non-existent doc
+    assert explanation["category"] == 0.0
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

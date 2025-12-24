@@ -155,7 +155,8 @@ Thumbs.db
 large_corpus.jsonl
 sample_corpus.jsonl
 
+# Benchmark index cache
+.index_cache/
 
-#datasets used for testing and benchmarking
-
+# Datasets used for testing and benchmarking
 datasets/

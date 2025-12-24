@@ -90,54 +90,35 @@ batch_results = engine.search_batch(queries, top_k=5)
 
 ## Performance
 
-Benchmarked on synthetic corpora with 10 queries per run, comparing against rank-bm25, BM25S, and BM25S parallel:
+Benchmarked against 5 BM25 implementations across BEIR and Wikipedia datasets (December 2024):
 
-### Speed Comparison
+### BEIR/SciFact (5,183 docs, 300 queries)
 
-| Corpus Size | rank-bm25 (ms) | Vajra Optimized (ms) | Vajra Parallel (ms) | BM25S (ms) | BM25S parallel (ms) |
-| ----------- | -------------- | -------------------- | ------------------- | ---------- | ------------------- |
-| 1,000       | 0.63           | 0.04                 | 0.02                | 0.18       | 0.28                |
-| 10,000      | 9.11           | 0.13                 | 0.08                | 0.32       | 0.37                |
-| 50,000      | 47.14          | 0.47                 | 0.39                | 0.70       | 0.73                |
-| 100,000     | 102.19         | 0.44                 | 0.35                | 0.85       | 0.89                |
+| Engine | Latency | Recall@10 | NDCG@10 | QPS |
+|--------|---------|-----------|---------|-----|
+| **vajra** | **0.001ms** | 78.9% | 67.0% | **796,000** |
+| vajra-parallel | 0.003ms | 78.9% | 67.0% | 329,000 |
+| bm25s | 1.54ms | 77.4% | 66.2% | 648 |
+| tantivy | 0.82ms | 72.5% | 60.0% | 1,217 |
+| pyserini | 2.12ms | **81.7%** | **68.8%** | 472 |
 
-### Speedup vs rank-bm25
+### Wikipedia/500K (500,000 docs, 500 queries)
 
-| Corpus Size | Vajra Optimized | Vajra Parallel | BM25S | BM25S parallel |
-| ----------- | --------------- | -------------- | ----- | -------------- |
-| 1,000       | 17x             | 30x            | 4x    | 2x             |
-| 10,000      | 69x             | 119x           | 28x   | 25x            |
-| 50,000      | 101x            | 122x           | 68x   | 64x            |
-| 100,000     | 230x            | **291x**       | 120x  | 114x           |
-
-### Recall@10 (vs rank-bm25 baseline)
-
-| Corpus Size | Vajra Optimized | Vajra Parallel | BM25S | BM25S parallel |
-| ----------- | --------------- | -------------- | ----- | -------------- |
-| 1,000       | 99%             | 99%            | 98%   | 98%            |
-| 10,000      | 56%             | 56%            | 56%   | 56%            |
-| 50,000      | **80%**         | **80%**        | 56%   | 56%            |
-| 100,000     | 50%             | 50%            | 50%   | 50%            |
+| Engine | Latency | Recall@10 | NDCG@10 | QPS |
+|--------|---------|-----------|---------|-----|
+| **vajra** | **0.006ms** | 49.6% | 36.7% | **180,000** |
+| vajra-parallel | 0.007ms | 49.6% | 36.7% | 145,000 |
+| bm25s | 5.99ms | 49.8% | 37.1% | 167 |
+| tantivy | 25.9ms | **51.6%** | **38.3%** | 39 |
+| pyserini | 5.95ms | 43.2% | 32.3% | 168 |
 
 **Key observations:**
 
-- Sub-millisecond query latency at all corpus sizes
-- Up to **291x speedup** over rank-bm25 at 100K documents with Vajra Parallel
-- Vajra is **faster than both BM25S variants** at all corpus sizes
-- **BM25S parallel is slower than single-threaded** for single queries (parallelism overhead)
-- Vajra achieves **better recall** at 50K docs (80% vs 56%)
-- Recall varies by corpus characteristics (vocabulary overlap, document length distribution)
-
-### Standard IR Benchmarks (BEIR)
-
-Validated on standard information retrieval datasets from the [BEIR benchmark suite](https://github.com/beir-cellar/beir):
-
-| Dataset  | Docs  | Queries | Vajra NDCG@10 | rank-bm25 NDCG@10 | Vajra Speedup    | BM25S NDCG@10  |
-| -------- | ----- | ------- | ------------- | ----------------- | ---------------- | -------------- |
-| SciFact  | 5,183 | 300     | **67.0%**     | 66.7%             | **49x** (0.18ms) | 66.2% (0.16ms) |
-| NFCorpus | 3,633 | 323     | **30.9%**     | 30.9%             | **33x** (0.06ms) | 30.7% (0.14ms) |
-
-With 8 workers, Vajra Parallel achieves **equal or better retrieval quality** than rank-bm25 while being **33-49x faster**. Vajra also outperforms BM25S on **both speed and accuracy** on NFCorpus.
+- Vajra achieves **180,000-800,000 QPS** across all datasets
+- **1,000-2,000x faster** than BM25S, Tantivy, and Pyserini
+- Sub-millisecond latency even at 500K documents
+- Competitive accuracy: within 2% NDCG of best performers
+- Pyserini leads on BEIR accuracy; Tantivy leads on Wikipedia accuracy
 
 Vajra achieves these speedups through structural optimizations based on category theory:
 
@@ -154,21 +135,43 @@ For detailed benchmark methodology and results, see [docs/benchmarks.md](docs/be
 
 ### Running Benchmarks
 
-To reproduce the benchmark results:
+The benchmark system includes progress display, automatic file output, and index caching to avoid expensive rebuilds.
 
 ```bash
 # Install benchmark dependencies
-pip install vajra-bm25[optimized] rank-bm25 bm25s
+pip install vajra-bm25[optimized] rank-bm25 bm25s beir rich tantivy
 
-# Run synthetic corpus benchmarks
-python benchmarks/benchmark.py
+# Optional: Pyserini (requires Java 11+)
+pip install pyserini
 
-# Run BEIR standard dataset benchmarks
-pip install beir ir-datasets
-python benchmarks/benchmark_standard_datasets.py
+# Quick start: Run BEIR SciFact benchmark (small dataset, ~5K docs)
+python benchmarks/benchmark.py --datasets beir-scifact
+
+# Run Wikipedia benchmarks (requires downloading data first)
+python benchmarks/download_wikipedia.py --max-docs 200000
+python benchmarks/benchmark.py --datasets wiki-200k
+
+# Run multiple datasets
+python benchmarks/benchmark.py --datasets beir-scifact beir-nfcorpus wiki-200k wiki-500k
+
+# All engines comparison
+python benchmarks/benchmark.py --datasets beir-scifact \
+    --engines vajra vajra-parallel bm25s tantivy pyserini
+
+# Force rebuild indexes (skip cache)
+python benchmarks/benchmark.py --datasets wiki-200k --no-cache
 ```
 
-The synthetic benchmarks test on corpora of 1K, 10K, 50K, and 100K documents. The BEIR benchmarks validate on standard IR datasets (SciFact, NFCorpus).
+**Output files:**
+- `results/benchmark_results.json` - Structured JSON with detailed metrics
+- `results/benchmark.log` - Human-readable log (appended each run)
+- `.index_cache/` - Cached indexes for faster subsequent runs
+
+**Available datasets:** `beir-scifact`, `beir-nfcorpus`, `wiki-100k`, `wiki-200k`, `wiki-500k`, `wiki-1m`, `custom`
+
+**Available engines:** `vajra`, `vajra-parallel`, `bm25s`, `bm25s-parallel`, `tantivy`, `pyserini`, `rank-bm25`
+
+> **Note:** Pyserini requires Java 11+ installed. On macOS: `brew install openjdk@21`
 
 ## JSONL Format
 

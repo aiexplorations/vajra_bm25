@@ -47,6 +47,21 @@ dev = [
     "pytest-cov>=4.0",
     "rank-bm25>=0.2.2",
 ]
+benchmark = [
+    "rank-bm25>=0.2.2",
+    "bm25s>=0.1.0",
+    "beir>=1.0.0",
+    "rich>=13.0.0",
+    "tantivy>=0.20.0",
+]
+benchmark-full = [
+    "rank-bm25>=0.2.2",
+    "bm25s>=0.1.0",
+    "beir>=1.0.0",
+    "rich>=13.0.0",
+    "tantivy>=0.20.0",
+    "pyserini>=0.20.0",  # Requires Java 11+
+]
 all = [
     "numpy>=1.20.0",
     "scipy>=1.7.0",
