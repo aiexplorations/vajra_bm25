@@ -3,7 +3,7 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Vajra** (Sanskrit: वज्र, "thunderbolt") is a high-performance BM25 search engine. It uses Category Theory abstractions to reframe the BM25 algorithm, providing a well-structured API with vectorized implementations. Benchmarks show Vajra is **faster than BM25S** (one of the fastest Python BM25 libraries) at larger corpus sizes while achieving **better recall** on certain datasets.
+**Vajra** (Sanskrit: वज्र, "thunderbolt") is a high-performance BM25 search engine. It uses Category Theory abstractions to reframe the BM25 algorithm, providing a well-structured API with vectorized implementations. Benchmarks show Vajra is **~1.2-1.3x faster than BM25S** (one of the fastest Python BM25 libraries) while achieving **competitive recall** across datasets.
 
 ## What Makes Vajra Different
 
@@ -113,58 +113,61 @@ batch_results = engine.search_batch(queries, top_k=5)
 
 ## Performance
 
-Benchmarked against 5 BM25 implementations across BEIR and Wikipedia datasets (December 2024):
+Benchmarked against BM25 implementations across BEIR and Wikipedia datasets (January 2025):
 
 ### BEIR/SciFact (5,183 docs, 300 queries)
 
 | Engine | Latency | Recall@10 | NDCG@10 | QPS |
 |--------|---------|-----------|---------|-----|
-| **vajra** | **0.001ms** | 78.9% | 67.0% | **796,000** |
-| vajra-parallel | 0.003ms | 78.9% | 67.0% | 329,000 |
-| bm25s | 1.54ms | 77.4% | 66.2% | 648 |
-| tantivy | 0.82ms | 72.5% | 60.0% | 1,217 |
-| pyserini | 2.12ms | **81.7%** | **68.8%** | 472 |
+| **vajra** | **0.14ms** | 78.9% | 67.0% | **7,133** |
+| bm25s | 0.18ms | 77.4% | 66.2% | 5,512 |
+| tantivy | 0.28ms | 72.5% | 60.0% | 3,539 |
+
+### Wikipedia/200K (200,000 docs, 500 queries)
+
+| Engine | Latency | Recall@10 | NDCG@10 | QPS |
+|--------|---------|-----------|---------|-----|
+| **vajra** | **0.89ms** | 44.4% | 35.1% | **1,125** |
+| bm25s | 1.08ms | 44.6% | 35.2% | 925 |
+| tantivy | 6.68ms | 45.6% | 36.4% | 150 |
 
 ### Wikipedia/500K (500,000 docs, 500 queries)
 
 | Engine | Latency | Recall@10 | NDCG@10 | QPS |
 |--------|---------|-----------|---------|-----|
-| **vajra** | **0.006ms** | 49.6% | 36.7% | **180,000** |
-| vajra-parallel | 0.007ms | 49.6% | 36.7% | 145,000 |
-| bm25s | 5.99ms | 49.8% | 37.1% | 167 |
-| tantivy | 25.9ms | **51.6%** | **38.3%** | 39 |
-| pyserini | 5.95ms | 43.2% | 32.3% | 168 |
+| **vajra** | **1.89ms** | 49.6% | 36.7% | **529** |
+| bm25s | 2.45ms | 49.8% | 37.1% | 409 |
+| tantivy | 5.52ms | 51.6% | 38.3% | 181 |
 
 **Key observations:**
 
-- Vajra achieves **180,000-800,000 QPS** across all datasets
-- **1,000-2,000x faster** than BM25S, Tantivy, and Pyserini
-- Sub-millisecond latency even at 500K documents
-- Competitive accuracy: within 2% NDCG of best performers
-- Pyserini leads on BEIR accuracy; Tantivy leads on Wikipedia accuracy
+- Vajra is **~1.2-1.3x faster** than BM25S across corpus sizes
+- Sub-2ms latency even at 500K documents
+- Competitive accuracy: within 1-2% NDCG of best performers
+- Tantivy leads on accuracy for Wikipedia datasets
 
-### Understanding Latency Numbers
+### Caching for Production Workloads
 
-The reported latencies (0.001-0.006ms) are **averages after warmup with LRU caching**:
+For production systems with repeated queries, Vajra includes built-in LRU caching:
 
 | Scenario | Typical Latency | Explanation |
 |----------|-----------------|-------------|
-| **First query (cold)** | ~0.5ms | No cache, full BM25 computation |
-| **Repeated query** | ~0.001ms | LRU cache hit, near-instant |
-| **Benchmark average** | 0.001-0.006ms | 300 queries averaged, most cached |
+| **First query (cold)** | 0.14-1.9ms | Full BM25 computation |
+| **Repeated query (cached)** | ~0.001ms | LRU cache hit, near-instant |
 
-**For best performance**: Keep the `VajraSearchOptimized` instance alive across queries. The LRU cache (default 1000 entries) dramatically speeds up repeated and similar queries.
+Enable caching by setting `cache_size` (default: 1000):
 
-Vajra achieves these speedups through structural optimizations based on category theory:
+```python
+engine = VajraSearchOptimized(corpus, cache_size=1000)
+```
 
-1. **Enriched Index** (Functorial): Pre-computes term bounds and normalization factors at index time
+### How Vajra Achieves Performance
+
+1. **Eager Score Matrix**: Pre-computes BM25 term-document scores at index time
 2. **Sparse Matrices**: Avoids computation on ~99% zeros in the term-document matrix
-3. **Vectorized NumPy**: Uses SIMD instructions for batch scoring candidates
-4. **Optimized Top-k**: Only considers non-zero scores (typically ~5% of documents)
-5. **LRU Caching**: Caches both preprocessing results and full query/top-k pairs
-6. **Thread Parallelism**: Concurrent query execution with `VajraSearchParallel`
-
-The categorical insight: BM25 scoring is a **monoid homomorphism** (`score(q₁ ⊕ q₂) = score(q₁) + score(q₂)`), which enables compositional optimizations.
+3. **Vectorized NumPy/SciPy**: Uses SIMD instructions for batch scoring
+4. **Numba JIT**: Optional compiled scoring loops for additional speedup
+5. **LRU Caching**: Optional query result caching for repeated queries
 
 For detailed benchmark methodology and results, see [docs/benchmarks.md](docs/benchmarks.md).
 

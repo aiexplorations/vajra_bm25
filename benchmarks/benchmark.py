@@ -532,18 +532,24 @@ def mrr(retrieved: List[str], relevant: List[str]) -> float:
 class VajraEngine:
     """Wrapper for Vajra search engines."""
 
-    def __init__(self, corpus: DocumentCorpus, parallel: bool = False, workers: int = 8):
+    def __init__(self, corpus: DocumentCorpus, parallel: bool = False, workers: int = 8, cache_size: int = 0):
         self.corpus = corpus
         self.parallel = parallel
         self.workers = workers
+        self.cache_size = cache_size
         self.engine = None
         self.supports_batch = parallel  # Only parallel version has search_batch
 
     def build(self):
         if self.parallel:
-            self.engine = VajraSearchParallel(self.corpus, max_workers=self.workers)
+            self.engine = VajraSearchParallel(self.corpus, max_workers=self.workers, cache_size=self.cache_size)
         else:
-            self.engine = VajraSearchOptimized(self.corpus)
+            self.engine = VajraSearchOptimized(self.corpus, cache_size=self.cache_size)
+
+    def clear_cache(self):
+        """Clear query cache if available."""
+        if hasattr(self.engine, 'clear_cache'):
+            self.engine.clear_cache()
 
     def search(self, query: str, top_k: int = 10) -> List[str]:
         results = self.engine.search(query, top_k=top_k)
@@ -834,10 +840,11 @@ def run_benchmark(
                 index_loaded = True
 
         # Create engine with configurable workers
+        # Note: cache_size=0 for fair comparison (no query result caching)
         if engine_name == "vajra":
-            engine = VajraEngine(corpus, parallel=False, workers=workers)
+            engine = VajraEngine(corpus, parallel=False, workers=workers, cache_size=0)
         elif engine_name == "vajra-parallel":
-            engine = VajraEngine(corpus, parallel=True, workers=workers)
+            engine = VajraEngine(corpus, parallel=True, workers=workers, cache_size=0)
         elif engine_name == "rank-bm25":
             engine = RankBM25Engine(corpus)
         elif engine_name == "bm25s":
@@ -874,29 +881,25 @@ def run_benchmark(
 
         progress.update(main_task, advance=1)
 
-        # === Batch Query Evaluation (run FIRST to avoid cache warming) ===
+        # === Batch Query Evaluation ===
         progress.update(main_task, description=f"[{dataset_name}] Batch queries {engine_name}...")
 
         batch_latency_ms = None
         batch_qps = None
 
-        # Run batch evaluation (3 runs, take average)
-        # Run batch BEFORE single queries to get cold-cache performance
+        # Run batch evaluation once (no caching, fair comparison)
         query_texts = [q.text for q in queries]
-        batch_times = []
-        for _ in range(3):
-            start = time.time()
-            batch_results = engine.search_batch(query_texts, top_k=10)
-            batch_times.append(time.time() - start)
+        start = time.time()
+        batch_results = engine.search_batch(query_texts, top_k=10)
+        total_batch_time = time.time() - start
 
-        total_batch_time = statistics.mean(batch_times)
         batch_latency_ms = (total_batch_time / len(queries)) * 1000  # Per-query latency
         batch_qps = len(queries) / total_batch_time
 
         progress.update(main_task, advance=1)
 
-        # === Single Query Evaluation (run after batch) ===
-        # Note: Cache may be warm from batch, but we measure per-query overhead
+        # === Single Query Evaluation ===
+        # Note: Query caching is disabled (cache_size=0) for fair comparison
         progress.update(main_task, description=f"[{dataset_name}] Single queries {engine_name}...")
 
         latencies = []
