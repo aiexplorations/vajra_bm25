@@ -8,7 +8,7 @@ An inverted index is a categorical structure:
 """
 
 from typing import Dict, Set, List
-from collections import defaultdict
+from collections import defaultdict, Counter
 import math
 from dataclasses import dataclass
 
@@ -74,10 +74,8 @@ class InvertedIndex:
             self.doc_lengths[doc.id] = doc_length
             total_length += doc_length
 
-            # Count term frequencies
-            term_counts: Dict[str, int] = defaultdict(int)
-            for term in terms:
-                term_counts[term] += 1
+            # Count term frequencies (Counter is faster than manual loop)
+            term_counts = Counter(terms)
 
             # Add to inverted index
             for term, count in term_counts.items():

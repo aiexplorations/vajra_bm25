@@ -415,20 +415,13 @@ class VectorizedIndexSparse:
         with Pool(processes=n_jobs) as pool:
             results = pool.map(_tokenize_document, corpus.documents)
 
-        # Extract results
-        doc_ids = []
-        doc_term_counts = []
-        doc_lengths_list = []
+        # Extract results using zip (faster than loop with appends)
+        doc_ids, doc_term_counts, doc_lengths_list = zip(*results) if results else ([], [], [])
+        doc_ids = list(doc_ids)
+        doc_term_counts = list(doc_term_counts)
 
-        for doc_id, term_counts, doc_len in results:
-            doc_ids.append(doc_id)
-            doc_term_counts.append(term_counts)
-            doc_lengths_list.append(doc_len)
-
-        # Build vocabularies
-        term_set = set()
-        for term_counts in doc_term_counts:
-            term_set.update(term_counts.keys())
+        # Build vocabulary using set union (faster than repeated updates)
+        term_set = set().union(*[tc.keys() for tc in doc_term_counts]) if doc_term_counts else set()
 
         # Assign term IDs (use insertion order for speed - no sorting)
         self.term_to_id = {term: idx for idx, term in enumerate(term_set)}
@@ -441,19 +434,24 @@ class VectorizedIndexSparse:
         self.doc_lengths = np.array(doc_lengths_list, dtype=np.int32)
 
         # ====================================================================
-        # OPTIMIZATION: COO format construction (batch inserts)
+        # OPTIMIZATION: COO format with NumPy pre-allocation
         # ====================================================================
-        # Prepare COO format data
-        rows = []
-        cols = []
-        data = []
+        # Count total non-zero entries for pre-allocation
+        total_entries = sum(len(tc) for tc in doc_term_counts)
 
+        # Pre-allocate NumPy arrays (much faster than list appends)
+        rows = np.empty(total_entries, dtype=np.int32)
+        cols = np.empty(total_entries, dtype=np.int32)
+        data = np.empty(total_entries, dtype=np.float32)
+
+        # Fill arrays in single pass
+        idx = 0
         for doc_idx, term_counts in enumerate(doc_term_counts):
             for term, count in term_counts.items():
-                term_id = self.term_to_id[term]
-                rows.append(term_id)
-                cols.append(doc_idx)
-                data.append(count)
+                rows[idx] = self.term_to_id[term]
+                cols[idx] = doc_idx
+                data[idx] = count
+                idx += 1
 
         # Build COO matrix (fast batch construction)
         coo = coo_matrix(
@@ -584,12 +582,11 @@ class VectorizedIndexSparse:
 
         # Multiply by IDF for each term
         # We need to map each entry to its term's IDF
-        # Create array of IDFs corresponding to each non-zero entry
-        term_ids_for_entries = np.zeros(len(data), dtype=np.int32)
-        for term_id in range(self.num_terms):
-            row_start = indptr[term_id]
-            row_end = indptr[term_id + 1]
-            term_ids_for_entries[row_start:row_end] = term_id
+        # OPTIMIZATION: Vectorized term ID expansion (replaces O(num_terms) loop)
+        term_ids_for_entries = np.repeat(
+            np.arange(self.num_terms, dtype=np.int32),
+            np.diff(indptr)
+        )
 
         idf_for_entries = self.idf_cache[term_ids_for_entries]
         score_data = (tf_component * idf_for_entries).astype(np.float32)
