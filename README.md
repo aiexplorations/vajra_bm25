@@ -139,12 +139,19 @@ Benchmarked against BM25 implementations across BEIR and Wikipedia datasets (Jan
 | bm25s | 2.45ms | 49.8% | 37.1% | 409 |
 | tantivy | 5.52ms | 51.6% | 38.3% | 181 |
 
+### Wikipedia/1M (1,000,000 docs, 500 queries)
+
+| Engine | Build Time | Latency | Recall@10 | NDCG@10 | QPS |
+|--------|------------|---------|-----------|---------|-----|
+| **vajra** | 29.5 min | **3.48ms** | 45.6% | 36.3% | **287** |
+| bm25s | 15.3 min | 5.08ms | 45.8% | 36.7% | 197 |
+
 **Key observations:**
 
-- Vajra is **~1.2-1.3x faster** than BM25S across corpus sizes
-- Sub-2ms latency even at 500K documents
-- Competitive accuracy: within 1-2% NDCG of best performers
-- Tantivy leads on accuracy for Wikipedia datasets
+- Vajra is **~1.3-1.5x faster** than BM25S on single queries across corpus sizes
+- Sub-4ms latency even at 1M documents
+- Competitive accuracy: within 1% NDCG of BM25S
+- Build time scales linearly; BM25S builds faster but queries slower
 
 ### Caching for Production Workloads
 
@@ -152,7 +159,7 @@ For production systems with repeated queries, Vajra includes built-in LRU cachin
 
 | Scenario | Typical Latency | Explanation |
 |----------|-----------------|-------------|
-| **First query (cold)** | 0.14-1.9ms | Full BM25 computation |
+| **First query (cold)** | 0.14-3.5ms | Full BM25 computation (scales with corpus) |
 | **Repeated query (cached)** | ~0.001ms | LRU cache hit, near-instant |
 
 Enable caching by setting `cache_size` (default: 1000):
