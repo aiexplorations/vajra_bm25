@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vajra-bm25"
-version = "0.3.0"
+version = "0.3.1"
 description = "Categorical BM25 search engine using pure category theory"
 readme = "README.md"
 license = {text = "MIT"}
