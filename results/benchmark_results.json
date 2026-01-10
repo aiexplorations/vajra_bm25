@@ -1,30 +1,30 @@
 {
-  "benchmark_run": "2026-01-09T08:54:17.179085",
+  "benchmark_run": "2026-01-10T08:48:47.335959",
   "datasets": [
     {
       "dataset": "Wikipedia/1M",
       "corpus_size": 1000000,
       "num_queries": 500,
-      "timestamp": "2026-01-09T08:54:16.832992",
+      "timestamp": "2026-01-10T08:48:46.842849",
       "results": [
         {
           "engine": "vajra",
-          "build_time_s": 1770.3773460388184,
+          "build_time_s": 1020.7322750091553,
           "index_loaded": false,
-          "avg_latency_ms": 3.4825801849365234,
-          "p50_latency_ms": 2.9424428939819336,
-          "p95_latency_ms": 7.731914520263672,
+          "avg_latency_ms": 3.3979830741882324,
+          "p50_latency_ms": 2.7925968170166016,
+          "p95_latency_ms": 7.6732635498046875,
           "recall_at_10": 45.6,
           "ndcg_at_10": 36.34091294474951,
           "mrr": 33.3968253968254,
-          "queries_per_sec": 287.14342438556855,
-          "batch_latency_ms": 11.56762981414795,
-          "batch_qps": 86.448132942233,
+          "queries_per_sec": 294.29222517210354,
+          "batch_latency_ms": 9.769515991210938,
+          "batch_qps": 102.35921624977549,
           "sample_queries": [
             {
               "query_id": "wiki_q0",
               "query_text": "since 2005 For the 2006",
-              "latency_ms": 3.885984420776367,
+              "latency_ms": 3.8340091705322266,
               "results": [
                 {
                   "rank": 1,
@@ -106,7 +106,7 @@
             {
               "query_id": "wiki_q1",
               "query_text": "The two traded playing each",
-              "latency_ms": 7.869958877563477,
+              "latency_ms": 7.701873779296875,
               "results": [
                 {
                   "rank": 1,
@@ -188,7 +188,7 @@
             {
               "query_id": "wiki_q2",
               "query_text": "Travel along the river is",
-              "latency_ms": 3.551959991455078,
+              "latency_ms": 3.5109519958496094,
               "results": [
                 {
                   "rank": 1,
@@ -270,7 +270,7 @@
             {
               "query_id": "wiki_q3",
               "query_text": "A palpable part of this",
-              "latency_ms": 3.652811050415039,
+              "latency_ms": 3.3011436462402344,
               "results": [
                 {
                   "rank": 1,
@@ -352,7 +352,7 @@
             {
               "query_id": "wiki_q4",
               "query_text": "18 in practice He was",
-              "latency_ms": 3.3168792724609375,
+              "latency_ms": 2.380847930908203,
               "results": [
                 {
                   "rank": 1,
@@ -435,22 +435,22 @@
         },
         {
           "engine": "bm25s",
-          "build_time_s": 918.2509808540344,
+          "build_time_s": 675.2747001647949,
           "index_loaded": false,
-          "avg_latency_ms": 5.076796054840088,
-          "p50_latency_ms": 4.794001579284668,
-          "p95_latency_ms": 9.022951126098633,
+          "avg_latency_ms": 5.435192108154297,
+          "p50_latency_ms": 4.60052490234375,
+          "p95_latency_ms": 8.527278900146484,
           "recall_at_10": 45.800000000000004,
           "ndcg_at_10": 36.66935714296766,
           "mrr": 33.779761904761905,
-          "queries_per_sec": 196.97462517656692,
-          "batch_latency_ms": 7.021924018859863,
-          "batch_qps": 142.41111087419145,
+          "queries_per_sec": 183.98613703087375,
+          "batch_latency_ms": 7.592714309692383,
+          "batch_qps": 131.70520570271725,
           "sample_queries": [
             {
               "query_id": "wiki_q0",
               "query_text": "since 2005 For the 2006",
-              "latency_ms": 5.168914794921875,
+              "latency_ms": 4.662990570068359,
               "results": [
                 {
                   "rank": 1,
@@ -532,7 +532,7 @@
             {
               "query_id": "wiki_q1",
               "query_text": "The two traded playing each",
-              "latency_ms": 9.252071380615234,
+              "latency_ms": 8.662939071655273,
               "results": [
                 {
                   "rank": 1,
@@ -614,7 +614,7 @@
             {
               "query_id": "wiki_q2",
               "query_text": "Travel along the river is",
-              "latency_ms": 6.448268890380859,
+              "latency_ms": 6.35981559753418,
               "results": [
                 {
                   "rank": 1,
@@ -696,7 +696,7 @@
             {
               "query_id": "wiki_q3",
               "query_text": "A palpable part of this",
-              "latency_ms": 5.756855010986328,
+              "latency_ms": 5.676031112670898,
               "results": [
                 {
                   "rank": 1,
@@ -778,7 +778,7 @@
             {
               "query_id": "wiki_q4",
               "query_text": "18 in practice He was",
-              "latency_ms": 6.974935531616211,
+              "latency_ms": 6.786108016967773,
               "results": [
                 {
                   "rank": 1,
