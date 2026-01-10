@@ -143,15 +143,15 @@ Benchmarked against BM25 implementations across BEIR and Wikipedia datasets (Jan
 
 | Engine | Build Time | Latency | Recall@10 | NDCG@10 | QPS |
 |--------|------------|---------|-----------|---------|-----|
-| **vajra** | 29.5 min | **3.48ms** | 45.6% | 36.3% | **287** |
-| bm25s | 15.3 min | 5.08ms | 45.8% | 36.7% | 197 |
+| **vajra** | 17.0 min | **3.40ms** | 45.6% | 36.3% | **294** |
+| bm25s | 11.3 min | 5.44ms | 45.8% | 36.7% | 184 |
 
 **Key observations:**
 
-- Vajra is **~1.3-1.5x faster** than BM25S on single queries across corpus sizes
+- Vajra is **~1.3-1.6x faster** than BM25S on single queries across corpus sizes
 - Sub-4ms latency even at 1M documents
 - Competitive accuracy: within 1% NDCG of BM25S
-- Build time scales linearly; BM25S builds faster but queries slower
+- Optimized index building with per-document array concatenation
 
 ### Caching for Production Workloads
 

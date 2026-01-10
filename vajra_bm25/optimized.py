@@ -420,38 +420,58 @@ class VectorizedIndexSparse:
         doc_ids = list(doc_ids)
         doc_term_counts = list(doc_term_counts)
 
-        # Build vocabulary using set union (faster than repeated updates)
-        term_set = set().union(*[tc.keys() for tc in doc_term_counts]) if doc_term_counts else set()
+        # ====================================================================
+        # OPTIMIZATION: Combined vocabulary + term_to_id in single pass
+        # Builds term->id mapping directly while iterating terms once.
+        # Scales better than set.update + dict comprehension at large corpus sizes.
+        # ====================================================================
+        self.term_to_id = {}
+        next_id = 0
+        for tc in doc_term_counts:
+            for term in tc:
+                if term not in self.term_to_id:
+                    self.term_to_id[term] = next_id
+                    next_id += 1
 
-        # Assign term IDs (use insertion order for speed - no sorting)
-        self.term_to_id = {term: idx for idx, term in enumerate(term_set)}
         self.id_to_term = {idx: term for term, idx in self.term_to_id.items()}
         self.doc_to_id = {doc_id: idx for idx, doc_id in enumerate(doc_ids)}
         self.id_to_doc = {idx: doc_id for doc_id, idx in self.doc_to_id.items()}
 
         self.num_docs = len(corpus)
-        self.num_terms = len(term_set)
+        self.num_terms = len(self.term_to_id)
         self.doc_lengths = np.array(doc_lengths_list, dtype=np.int32)
 
         # ====================================================================
-        # OPTIMIZATION: COO format with NumPy pre-allocation
+        # OPTIMIZATION: Per-document arrays + concatenate for COO construction
+        # Building many small arrays and concatenating is faster than nested
+        # loops with individual assignments due to better cache locality and
+        # optimized list comprehensions.
         # ====================================================================
-        # Count total non-zero entries for pre-allocation
-        total_entries = sum(len(tc) for tc in doc_term_counts)
+        all_rows = []
+        all_cols = []
+        all_data = []
 
-        # Pre-allocate NumPy arrays (much faster than list appends)
-        rows = np.empty(total_entries, dtype=np.int32)
-        cols = np.empty(total_entries, dtype=np.int32)
-        data = np.empty(total_entries, dtype=np.float32)
-
-        # Fill arrays in single pass
-        idx = 0
         for doc_idx, term_counts in enumerate(doc_term_counts):
-            for term, count in term_counts.items():
-                rows[idx] = self.term_to_id[term]
-                cols[idx] = doc_idx
-                data[idx] = count
-                idx += 1
+            n = len(term_counts)
+            if n == 0:
+                continue
+
+            terms_list = list(term_counts.keys())
+            counts_list = list(term_counts.values())
+
+            # Batch lookup: list comprehension is faster than per-item assignment
+            doc_rows = np.array([self.term_to_id[t] for t in terms_list], dtype=np.int32)
+            doc_cols = np.full(n, doc_idx, dtype=np.int32)
+            doc_data = np.array(counts_list, dtype=np.float32)
+
+            all_rows.append(doc_rows)
+            all_cols.append(doc_cols)
+            all_data.append(doc_data)
+
+        # Single concatenate is highly optimized
+        rows = np.concatenate(all_rows) if all_rows else np.array([], dtype=np.int32)
+        cols = np.concatenate(all_cols) if all_cols else np.array([], dtype=np.int32)
+        data = np.concatenate(all_data) if all_data else np.array([], dtype=np.float32)
 
         # Build COO matrix (fast batch construction)
         coo = coo_matrix(
