@@ -1430,13 +1430,22 @@ class VajraSearchOptimized:
         filepath = Path(filepath)
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
-        # Save index and scorer together
+        # Save index, scorer, and all configuration needed for reconstruction
         index_data = {
             'index': self.index,
             'scorer': self.scorer,
             'use_sparse': self.use_sparse,
             'corpus_size': len(self.corpus),
-            'cache_size': self.query_cache.capacity if self.query_cache else 0
+            'cache_size': self.query_cache.capacity if self.query_cache else 0,
+            # BM25 parameters
+            'k1': self.k1,
+            'b': self.b,
+            # Scorer flags
+            'use_maxscore': self.use_maxscore,
+            'use_numba': self.use_numba,
+            'use_eager': self.use_eager,
+            # Internal state
+            '_use_sparse_actual': getattr(self, '_use_sparse_actual', self.use_sparse),
         }
 
         joblib.dump(index_data, filepath, compress=3)
@@ -1469,9 +1478,47 @@ class VajraSearchOptimized:
         instance.scorer = index_data['scorer']
         instance.use_sparse = index_data.get('use_sparse', False)
 
-        # Initialize query cache (default size: 1000)
+        # Restore BM25 parameters
+        instance.k1 = index_data.get('k1', 1.5)
+        instance.b = index_data.get('b', 0.75)
+
+        # Restore scorer flags
+        instance.use_maxscore = index_data.get('use_maxscore', False)
+        instance.use_numba = index_data.get('use_numba', True) and NUMBA_AVAILABLE
+        instance.use_eager = index_data.get('use_eager', True)
+        instance._use_sparse_actual = index_data.get('_use_sparse_actual', instance.use_sparse)
+
+        # Initialize query cache
         cache_size = index_data.get('cache_size', 1000)
         instance.query_cache = LRUCache(capacity=cache_size) if cache_size > 0 else None
+
+        # Recreate scorers based on index type and flags
+        if isinstance(instance.index, VectorizedIndexSparse):
+            # MaxScore scorer
+            instance.maxscore_scorer = MaxScoreBM25Scorer(instance.index, instance.k1, instance.b)
+
+            # Numba scorer (if available and enabled)
+            if instance.use_numba and NUMBA_AVAILABLE:
+                logger.info("Initializing Numba JIT scorer...")
+                instance.numba_scorer = NumbaSparseBM25Scorer(instance.index, instance.k1, instance.b)
+            else:
+                instance.numba_scorer = None
+
+            # Eager scorer (if index has score_matrix and enabled)
+            if instance.use_eager and instance.index.score_matrix is not None:
+                instance.eager_scorer = EagerSparseBM25Scorer(instance.index)
+            elif instance.use_eager and instance.index.score_matrix is None:
+                # Rebuild score matrix if needed
+                logger.info("Building eager score matrix...")
+                instance.index.build_score_matrix(instance.k1, instance.b)
+                instance.eager_scorer = EagerSparseBM25Scorer(instance.index)
+            else:
+                instance.eager_scorer = None
+        else:
+            # Dense index: these scorers are not available
+            instance.maxscore_scorer = None
+            instance.numba_scorer = None
+            instance.eager_scorer = None
 
         logger.info(f"Index loaded ({index_data.get('corpus_size', 'unknown')} documents)")
 

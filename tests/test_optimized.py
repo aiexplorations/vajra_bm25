@@ -373,6 +373,111 @@ class TestIndexPersistence:
                 larger_corpus
             )
 
+    def test_save_load_roundtrip_with_eager_scorer(self, larger_corpus):
+        """Test save/load roundtrip preserves eager scorer functionality."""
+        try:
+            import joblib
+        except ImportError:
+            pytest.skip("joblib not available")
+
+        # Create engine with eager scoring enabled
+        engine = VajraSearchOptimized(
+            larger_corpus, use_sparse=True, use_eager=True, use_numba=False
+        )
+
+        # Get results before save
+        query = "machine learning neural"
+        results_before = engine.search(query, top_k=5)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            index_path = Path(tmpdir) / "test_index.joblib"
+
+            # Save index
+            engine.save_index(index_path)
+
+            # Load index
+            loaded_engine = VajraSearchOptimized.load_index(index_path, larger_corpus)
+
+            # Verify all attributes are restored
+            assert loaded_engine.k1 == engine.k1
+            assert loaded_engine.b == engine.b
+            assert loaded_engine.use_eager == engine.use_eager
+            assert loaded_engine.use_sparse == engine.use_sparse
+
+            # Verify eager_scorer is available
+            assert loaded_engine.eager_scorer is not None
+
+            # Search should work and return same results
+            results_after = loaded_engine.search(query, top_k=5)
+
+            assert len(results_before) == len(results_after)
+            for r_before, r_after in zip(results_before, results_after):
+                assert r_before.document.id == r_after.document.id
+                np.testing.assert_allclose(r_before.score, r_after.score, rtol=1e-5)
+
+    def test_save_load_roundtrip_sparse_no_eager(self, larger_corpus):
+        """Test save/load roundtrip without eager scorer."""
+        try:
+            import joblib
+        except ImportError:
+            pytest.skip("joblib not available")
+
+        # Create engine with eager scoring disabled
+        engine = VajraSearchOptimized(
+            larger_corpus, use_sparse=True, use_eager=False, use_numba=False
+        )
+
+        query = "topic common words"
+        results_before = engine.search(query, top_k=5)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            index_path = Path(tmpdir) / "test_index.joblib"
+
+            engine.save_index(index_path)
+            loaded_engine = VajraSearchOptimized.load_index(index_path, larger_corpus)
+
+            # Verify eager_scorer is None
+            assert loaded_engine.eager_scorer is None
+            assert loaded_engine.use_eager is False
+
+            # Search should still work
+            results_after = loaded_engine.search(query, top_k=5)
+
+            assert len(results_before) == len(results_after)
+            for r_before, r_after in zip(results_before, results_after):
+                assert r_before.document.id == r_after.document.id
+
+    def test_save_load_roundtrip_dense(self, sample_corpus):
+        """Test save/load roundtrip with dense index."""
+        try:
+            import joblib
+        except ImportError:
+            pytest.skip("joblib not available")
+
+        # Create engine with dense index
+        engine = VajraSearchOptimized(
+            sample_corpus, use_sparse=False
+        )
+
+        query = "category functors"
+        results_before = engine.search(query, top_k=3)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            index_path = Path(tmpdir) / "test_index.joblib"
+
+            engine.save_index(index_path)
+            loaded_engine = VajraSearchOptimized.load_index(index_path, sample_corpus)
+
+            # Dense index doesn't have these scorers
+            assert loaded_engine.eager_scorer is None
+            assert loaded_engine.numba_scorer is None
+            assert loaded_engine.maxscore_scorer is None
+
+            # Search should work
+            results_after = loaded_engine.search(query, top_k=3)
+
+            assert len(results_before) == len(results_after)
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

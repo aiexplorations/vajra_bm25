@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vajra-bm25"
-version = "0.3.2"
+version = "0.4.0"
 description = "Categorical BM25 search engine using pure category theory"
 readme = "README.md"
 license = {text = "MIT"}
@@ -22,6 +22,10 @@ keywords = [
     "functor",
     "text-search",
     "ranking",
+    "vector-search",
+    "hnsw",
+    "embeddings",
+    "hybrid-search",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -43,6 +47,15 @@ classifiers = [
 optimized = ["numpy>=1.20.0", "scipy>=1.7.0"]
 persistence = ["joblib>=1.0.0"]
 pdf = ["pypdf>=4.0.0"]
+vector = [
+    "numpy>=1.20.0",
+    "sentence-transformers>=2.2.0",
+]
+vector-numba = [
+    "numpy>=1.20.0",
+    "sentence-transformers>=2.2.0",
+    "numba>=0.56.0",
+]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
@@ -73,6 +86,7 @@ all = [
     "scipy>=1.7.0",
     "joblib>=1.0.0",
     "pypdf>=4.0.0",
+    "sentence-transformers>=2.2.0",
 ]
 
 [project.scripts]
