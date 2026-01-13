@@ -161,3 +161,4 @@ sample_corpus.jsonl
 # Datasets used for testing and benchmarking
 datasets/test_pdf/
 datasets/
+site/
