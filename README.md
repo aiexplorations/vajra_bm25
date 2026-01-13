@@ -24,6 +24,9 @@ pip install vajra-bm25
 # With optimizations (NumPy + SciPy for vectorized operations)
 pip install vajra-bm25[optimized]
 
+# With PDF support (index and search PDF documents)
+pip install vajra-bm25[pdf]
+
 # With index persistence (save/load indices)
 pip install vajra-bm25[persistence]
 
@@ -45,8 +48,14 @@ vajra-search
 # Single query mode
 vajra-search -q "machine learning algorithms"
 
-# Use custom corpus
+# Use custom JSONL corpus
 vajra-search --corpus my_documents.jsonl
+
+# Search PDF files (requires: pip install vajra-bm25[pdf])
+vajra-search --corpus document.pdf -q "search query"
+
+# Search a directory of PDFs
+vajra-search --corpus ./pdf_folder/
 
 # Show options
 vajra-search --help
@@ -56,7 +65,7 @@ In interactive mode, use `:help` for commands, `:stats` for index info, and `:qu
 
 ## Quick Start
 
-The Python API for using Vajra BM25 is quite straightforward, and there's currently support for using JSONL document corpuses via the `DocumentCorpus` class.
+The Python API for using Vajra BM25 is quite straightforward. Vajra supports JSONL and PDF document formats via the `DocumentCorpus` class.
 
 ```python
 from vajra_bm25 import VajraSearch, Document, DocumentCorpus
@@ -218,7 +227,9 @@ python benchmarks/benchmark.py --datasets wiki-200k --no-cache
 
 > **Note:** Pyserini requires Java 11+ installed. On macOS: `brew install openjdk@21`
 
-## JSONL Format
+## Supported Formats
+
+### JSONL Format
 
 Vajra uses JSONL for corpus persistence:
 
@@ -236,6 +247,32 @@ corpus.save_jsonl("corpus.jsonl")
 # Load
 corpus = DocumentCorpus.load_jsonl("corpus.jsonl")
 ```
+
+### PDF Support
+
+Vajra can index and search PDF documents directly (requires `pip install vajra-bm25[pdf]`):
+
+```python
+from vajra_bm25 import DocumentCorpus, VajraSearchOptimized
+
+# Load a single PDF
+corpus = DocumentCorpus.load_pdf("research_paper.pdf")
+
+# Load all PDFs from a directory
+corpus = DocumentCorpus.load_pdf_directory("./papers/")
+
+# Load recursively from subdirectories
+corpus = DocumentCorpus.load_pdf_directory("./papers/", recursive=True)
+
+# Auto-detect format (JSONL, PDF, or directory)
+corpus = DocumentCorpus.load("./my_data")  # Works with any format
+
+# Build index and search
+engine = VajraSearchOptimized(corpus)
+results = engine.search("attention mechanism transformer", top_k=10)
+```
+
+PDF metadata (title, author, page count) is automatically extracted and stored in the document's metadata field.
 
 ## BM25 Parameters
 

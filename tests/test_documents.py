@@ -353,5 +353,217 @@ class TestCreateSampleCorpus:
         assert len(results) > 0
 
 
+class TestPDFLoading:
+    """Tests for PDF loading functionality."""
+
+    @pytest.fixture
+    def sample_pdf(self, tmp_path):
+        """Create a sample PDF file for testing."""
+        try:
+            from pypdf import PdfWriter
+        except ImportError:
+            pytest.skip("pypdf not installed")
+
+        pdf_path = tmp_path / "test_document.pdf"
+
+        writer = PdfWriter()
+
+        # Create a simple PDF with text
+        # pypdf's PdfWriter needs pages from an existing PDF or created differently
+        # We'll use a minimal approach - create empty pages and add annotations
+        # For a proper test, we need reportlab or similar
+
+        # Alternative: Create a minimal valid PDF manually
+        # This is a workaround since pypdf PdfWriter can't easily create text
+        minimal_pdf = b"""%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792]
+   /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 44 >>
+stream
+BT
+/F1 12 Tf
+100 700 Td
+(Test PDF Content) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f
+0000000009 00000 n
+0000000058 00000 n
+0000000115 00000 n
+0000000266 00000 n
+0000000359 00000 n
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+434
+%%EOF"""
+
+        with open(pdf_path, "wb") as f:
+            f.write(minimal_pdf)
+
+        return pdf_path
+
+    @pytest.fixture
+    def pdf_directory(self, tmp_path):
+        """Create a directory with multiple PDF files."""
+        try:
+            from pypdf import PdfWriter
+        except ImportError:
+            pytest.skip("pypdf not installed")
+
+        pdf_dir = tmp_path / "pdfs"
+        pdf_dir.mkdir()
+
+        minimal_pdf_template = b"""%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792]
+   /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 50 >>
+stream
+BT
+/F1 12 Tf
+100 700 Td
+(Document {num} content) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f
+0000000009 00000 n
+0000000058 00000 n
+0000000115 00000 n
+0000000266 00000 n
+0000000365 00000 n
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+440
+%%EOF"""
+
+        for i in range(3):
+            pdf_path = pdf_dir / f"doc{i+1}.pdf"
+            with open(pdf_path, "wb") as f:
+                f.write(minimal_pdf_template.replace(b"{num}", str(i+1).encode()))
+
+        return pdf_dir
+
+    def test_load_pdf_single_file(self, sample_pdf):
+        """Test loading a single PDF file."""
+        corpus = DocumentCorpus.load_pdf(sample_pdf)
+
+        assert len(corpus) == 1
+        doc = corpus.documents[0]
+        assert doc.id == "test_document"
+        assert doc.metadata["format"] == "pdf"
+        assert doc.metadata["pages"] == 1
+
+    def test_load_pdf_with_custom_id(self, sample_pdf):
+        """Test loading PDF with custom document ID."""
+        corpus = DocumentCorpus.load_pdf(sample_pdf, doc_id="custom_id")
+
+        assert len(corpus) == 1
+        assert corpus.documents[0].id == "custom_id"
+
+    def test_load_pdf_not_found(self, tmp_path):
+        """Test loading non-existent PDF raises error."""
+        with pytest.raises(FileNotFoundError):
+            DocumentCorpus.load_pdf(tmp_path / "nonexistent.pdf")
+
+    def test_load_pdf_directory(self, pdf_directory):
+        """Test loading a directory of PDFs."""
+        corpus = DocumentCorpus.load_pdf_directory(pdf_directory)
+
+        assert len(corpus) == 3
+
+        # Check all documents loaded
+        doc_ids = {doc.id for doc in corpus.documents}
+        assert "doc1" in doc_ids
+        assert "doc2" in doc_ids
+        assert "doc3" in doc_ids
+
+    def test_load_pdf_directory_empty(self, tmp_path):
+        """Test loading empty directory returns empty corpus."""
+        empty_dir = tmp_path / "empty"
+        empty_dir.mkdir()
+
+        corpus = DocumentCorpus.load_pdf_directory(empty_dir)
+
+        assert len(corpus) == 0
+
+    def test_load_pdf_directory_not_a_dir(self, sample_pdf):
+        """Test loading file as directory raises error."""
+        with pytest.raises(NotADirectoryError):
+            DocumentCorpus.load_pdf_directory(sample_pdf)
+
+    def test_load_auto_detect_pdf(self, sample_pdf):
+        """Test auto-detection of PDF format."""
+        corpus = DocumentCorpus.load(sample_pdf)
+
+        assert len(corpus) == 1
+        assert corpus.documents[0].metadata["format"] == "pdf"
+
+    def test_load_auto_detect_directory(self, pdf_directory):
+        """Test auto-detection of PDF directory."""
+        corpus = DocumentCorpus.load(pdf_directory)
+
+        assert len(corpus) == 3
+
+    def test_load_auto_detect_jsonl(self, tmp_path):
+        """Test auto-detection of JSONL format."""
+        jsonl_path = tmp_path / "test.jsonl"
+        with open(jsonl_path, "w") as f:
+            f.write('{"id": "1", "title": "Title", "content": "Content"}\n')
+
+        corpus = DocumentCorpus.load(jsonl_path)
+
+        assert len(corpus) == 1
+        assert corpus.documents[0].id == "1"
+
+    def test_load_explicit_format(self, tmp_path):
+        """Test loading with explicit format override."""
+        jsonl_path = tmp_path / "data.txt"  # Non-standard extension
+        with open(jsonl_path, "w") as f:
+            f.write('{"id": "1", "title": "Title", "content": "Content"}\n')
+
+        corpus = DocumentCorpus.load(jsonl_path, format="jsonl")
+
+        assert len(corpus) == 1
+
+    def test_load_unknown_format(self, tmp_path):
+        """Test loading with unknown format raises error."""
+        unknown_file = tmp_path / "data.xyz"
+        unknown_file.touch()
+
+        with pytest.raises(ValueError, match="Cannot auto-detect"):
+            DocumentCorpus.load(unknown_file)
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
