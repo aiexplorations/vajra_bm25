@@ -34,9 +34,7 @@ For small corpora, a dense matrix is acceptable. However, search engines for lar
 
 ## 3. The Engineering Flow
 
-The following diagram illustrates how Vajra treats search as a **coalgebraic unfolding** ($\alpha: S \to F(S)$):
-
-![Architectural Flow](../docs/bm25_flow.png)
+The following illustrates how Vajra treats search as a **coalgebraic unfolding** ($\alpha: S \to F(S)$):
 
 1. **Carrier (State)**: The immutable `QueryState` containing tokenized terms and expansion depth.
 2. **Unfolding ($\alpha$)**: The process of using the Inverted Index to identify candidates (Term $\to$ Postings).
