@@ -42,10 +42,12 @@ classifiers = [
 [project.optional-dependencies]
 optimized = ["numpy>=1.20.0", "scipy>=1.7.0"]
 persistence = ["joblib>=1.0.0"]
+pdf = ["pypdf>=4.0.0"]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "rank-bm25>=0.2.2",
+    "pypdf>=4.0.0",
 ]
 benchmark = [
     "rank-bm25>=0.2.2",
@@ -70,6 +72,7 @@ all = [
     "numpy>=1.20.0",
     "scipy>=1.7.0",
     "joblib>=1.0.0",
+    "pypdf>=4.0.0",
 ]
 
 [project.scripts]

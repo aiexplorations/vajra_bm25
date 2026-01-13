@@ -7,7 +7,9 @@ Interactive search engine powered by categorical BM25.
 Usage:
     vajra-search                           # Interactive mode with scifact
     vajra-search -q "machine learning"     # Single query mode
-    vajra-search --corpus my_docs.jsonl    # Custom corpus
+    vajra-search --corpus my_docs.jsonl    # Custom JSONL corpus
+    vajra-search --corpus document.pdf     # Single PDF file
+    vajra-search --corpus ./pdf_folder/    # Directory of PDFs
     vajra-search --dataset beir-nfcorpus   # Use nfcorpus
 """
 
@@ -52,6 +54,7 @@ class SearchConfig:
     """CLI configuration."""
     dataset: str = "beir-scifact"
     corpus_path: Optional[str] = None
+    corpus_format: Optional[str] = None  # 'jsonl', 'pdf', 'pdf_dir', or None for auto
     top_k: int = 10
     snippet_length: int = 200
     use_rich: bool = True
@@ -136,25 +139,46 @@ def load_beir_dataset(dataset_name: str, console) -> DocumentCorpus:
     return DocumentCorpus(documents)
 
 
-def load_custom_corpus(corpus_path: str, console) -> DocumentCorpus:
-    """Load a custom JSONL corpus.
+def load_custom_corpus(
+    corpus_path: str,
+    console,
+    format: Optional[str] = None
+) -> DocumentCorpus:
+    """Load a custom corpus (JSONL, PDF, or directory of PDFs).
 
     Args:
-        corpus_path: Path to JSONL file
+        corpus_path: Path to file or directory
         console: Console for output
+        format: Optional format hint ('jsonl', 'pdf', 'pdf_dir')
+               If None, auto-detects based on path
 
     Returns:
         DocumentCorpus
     """
     path = Path(corpus_path)
     if not path.exists():
-        console.print(f"[red]Corpus file not found: {corpus_path}[/red]")
+        console.print(f"[red]Path not found: {corpus_path}[/red]")
         sys.exit(1)
 
-    console.print(f"[dim]Loading corpus from {corpus_path}...[/dim]")
+    # Determine format description for logging
+    if format:
+        format_desc = format
+    elif path.is_dir():
+        format_desc = "PDF directory"
+    elif path.suffix.lower() == ".pdf":
+        format_desc = "PDF"
+    else:
+        format_desc = "JSONL"
+
+    console.print(f"[dim]Loading {format_desc} corpus from {corpus_path}...[/dim]")
+
     try:
-        corpus = DocumentCorpus.load_jsonl(path)
+        corpus = DocumentCorpus.load(path, format=format)
+        console.print(f"[dim]Loaded {len(corpus)} documents[/dim]")
         return corpus
+    except ImportError as e:
+        console.print(f"[red]{e}[/red]")
+        sys.exit(1)
     except Exception as e:
         console.print(f"[red]Failed to load corpus: {e}[/red]")
         sys.exit(1)
@@ -247,7 +271,11 @@ class VajraSearchCLI:
         """Load dataset and build index with progress."""
         # Load corpus
         if self.config.corpus_path:
-            self.corpus = load_custom_corpus(self.config.corpus_path, self.console)
+            self.corpus = load_custom_corpus(
+                self.config.corpus_path,
+                self.console,
+                format=self.config.corpus_format
+            )
             source = Path(self.config.corpus_path).name
         else:
             dataset_name = self.config.dataset.replace("beir-", "")
@@ -602,8 +630,15 @@ Examples:
   vajra-search                           # Interactive mode with scifact
   vajra-search -q "machine learning"     # Single query mode
   vajra-search --corpus my_docs.jsonl    # Custom JSONL corpus
+  vajra-search --corpus doc.pdf          # Single PDF file
+  vajra-search --corpus ./pdfs/          # Directory of PDFs
   vajra-search --dataset beir-nfcorpus   # Use nfcorpus dataset
   vajra-search --top-k 20                # Return 20 results
+
+Supported corpus formats:
+  .jsonl      JSONL file with {id, title, content} per line
+  .pdf        Single PDF file (requires: pip install vajra-bm25[pdf])
+  directory   Directory of PDF files
 """
     )
 
@@ -619,7 +654,12 @@ Examples:
     )
     parser.add_argument(
         "-c", "--corpus",
-        help="Path to custom JSONL corpus (overrides --dataset)"
+        help="Path to corpus: JSONL file, PDF file, or directory of PDFs"
+    )
+    parser.add_argument(
+        "-f", "--format",
+        choices=["jsonl", "pdf", "pdf_dir"],
+        help="Corpus format (auto-detected if not specified)"
     )
     parser.add_argument(
         "-k", "--top-k",
@@ -657,6 +697,7 @@ def main() -> int:
     config = SearchConfig(
         dataset=args.dataset,
         corpus_path=args.corpus,
+        corpus_format=args.format,
         top_k=args.top_k,
         use_rich=RICH_AVAILABLE and not args.no_rich,
     )

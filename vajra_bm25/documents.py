@@ -96,6 +96,144 @@ class DocumentCorpus:
 
         return cls(documents)
 
+    @classmethod
+    def load_pdf(cls, filepath: Path, doc_id: Optional[str] = None) -> 'DocumentCorpus':
+        """
+        Load a single PDF file as a document.
+
+        Morphism: PDF File -> Corpus (single document)
+
+        Args:
+            filepath: Path to PDF file
+            doc_id: Optional document ID (defaults to filename stem)
+
+        Returns:
+            DocumentCorpus containing the PDF as a single document
+
+        Raises:
+            ImportError: If pypdf is not installed
+            FileNotFoundError: If PDF file doesn't exist
+        """
+        try:
+            from pypdf import PdfReader
+        except ImportError:
+            raise ImportError(
+                "PDF support requires pypdf. Install with: pip install vajra-bm25[pdf]"
+            )
+
+        filepath = Path(filepath)
+        if not filepath.exists():
+            raise FileNotFoundError(f"PDF file not found: {filepath}")
+
+        reader = PdfReader(filepath)
+
+        # Extract text from all pages
+        pages_text = []
+        for i, page in enumerate(reader.pages):
+            text = page.extract_text()
+            if text:
+                pages_text.append(text)
+
+        content = "\n\n".join(pages_text)
+
+        # Try to extract title from PDF metadata
+        title = filepath.name
+        if reader.metadata and reader.metadata.title:
+            title = reader.metadata.title
+
+        doc = Document(
+            id=doc_id or filepath.stem,
+            title=title,
+            content=content,
+            metadata={
+                "source": str(filepath.absolute()),
+                "format": "pdf",
+                "pages": len(reader.pages),
+                "author": reader.metadata.author if reader.metadata else None,
+            }
+        )
+
+        logger.info(f"Loaded PDF: {filepath.name} ({len(reader.pages)} pages, {len(content)} chars)")
+        return cls([doc])
+
+    @classmethod
+    def load_pdf_directory(
+        cls,
+        dirpath: Path,
+        recursive: bool = False
+    ) -> 'DocumentCorpus':
+        """
+        Load all PDF files from a directory.
+
+        Morphism: Directory -> Corpus
+
+        Args:
+            dirpath: Path to directory containing PDFs
+            recursive: If True, search subdirectories recursively
+
+        Returns:
+            DocumentCorpus containing all PDFs as documents
+        """
+        dirpath = Path(dirpath)
+        if not dirpath.is_dir():
+            raise NotADirectoryError(f"Not a directory: {dirpath}")
+
+        pattern = "**/*.pdf" if recursive else "*.pdf"
+        pdf_files = sorted(dirpath.glob(pattern))
+
+        if not pdf_files:
+            logger.warning(f"No PDF files found in {dirpath}")
+            return cls([])
+
+        documents = []
+        for pdf_file in pdf_files:
+            try:
+                corpus = cls.load_pdf(pdf_file)
+                documents.extend(corpus.documents)
+            except Exception as e:
+                logger.error(f"Failed to load {pdf_file}: {e}")
+
+        logger.info(f"Loaded {len(documents)} PDFs from {dirpath}")
+        return cls(documents)
+
+    @classmethod
+    def load(cls, path: Path, format: Optional[str] = None) -> 'DocumentCorpus':
+        """
+        Load corpus from file or directory, auto-detecting format.
+
+        Morphism: Path -> Corpus
+
+        Args:
+            path: Path to file or directory
+            format: Optional format hint ('jsonl', 'pdf', 'pdf_dir')
+                   If None, auto-detects based on path
+
+        Returns:
+            DocumentCorpus
+        """
+        path = Path(path)
+
+        # Auto-detect format
+        if format is None:
+            if path.is_dir():
+                format = "pdf_dir"
+            elif path.suffix.lower() == ".pdf":
+                format = "pdf"
+            elif path.suffix.lower() in (".jsonl", ".json"):
+                format = "jsonl"
+            else:
+                raise ValueError(f"Cannot auto-detect format for: {path}")
+
+        # Load based on format
+        if format == "jsonl":
+            return cls.load_jsonl(path)
+        elif format == "pdf":
+            return cls.load_pdf(path)
+        elif format == "pdf_dir":
+            return cls.load_pdf_directory(path)
+        else:
+            raise ValueError(f"Unknown format: {format}")
+
 
 def create_sample_corpus() -> DocumentCorpus:
     """
