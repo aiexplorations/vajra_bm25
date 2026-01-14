@@ -562,5 +562,129 @@ def test_bm25_explain_score_zero_doc_length(sample_corpus):
     assert explanation["category"] == 0.0
 
 
+# ============================================================================
+# Unified Search API Tests
+# ============================================================================
+
+class TestUnifiedSearchAPI:
+    """Tests for the unified search API with mode parameter."""
+
+    def test_vajra_search_default_mode_is_bm25(self, sample_corpus):
+        """Test that VajraSearch defaults to BM25 mode."""
+        engine = VajraSearch(sample_corpus)
+        results = engine.search("category", top_k=3)
+
+        assert len(results) > 0
+        assert all(hasattr(r, 'score') for r in results)
+
+    def test_vajra_search_explicit_bm25_mode(self, sample_corpus):
+        """Test VajraSearch with explicit BM25 mode."""
+        engine = VajraSearch(sample_corpus)
+        results = engine.search("functors", top_k=3, mode="bm25")
+
+        assert len(results) > 0
+
+    def test_vajra_search_invalid_mode_raises(self, sample_corpus):
+        """Test that invalid mode raises ValueError."""
+        engine = VajraSearch(sample_corpus)
+
+        with pytest.raises(ValueError, match="Unknown search mode"):
+            engine.search("query", mode="invalid_mode")
+
+    def test_vajra_search_vector_available_property(self, sample_corpus):
+        """Test vector_available property."""
+        engine = VajraSearch(sample_corpus)
+
+        # Should be a boolean
+        assert isinstance(engine.vector_available, bool)
+
+    def test_vajra_search_vector_initialized_initially_false(self, sample_corpus):
+        """Test that vector_initialized is False before first vector search."""
+        engine = VajraSearch(sample_corpus)
+
+        assert engine.vector_initialized is False
+
+    def test_vajra_search_alpha_parameter(self, sample_corpus):
+        """Test that alpha parameter is accepted (for hybrid mode)."""
+        engine = VajraSearch(sample_corpus)
+        # BM25 mode ignores alpha but should accept it
+        results = engine.search("category", mode="bm25", alpha=0.7)
+
+        assert len(results) > 0
+
+
+class TestVajraSearchOptimizedUnifiedAPI:
+    """Tests for VajraSearchOptimized unified search API."""
+
+    def test_optimized_default_mode_is_bm25(self, sample_corpus):
+        """Test that VajraSearchOptimized defaults to BM25 mode."""
+        from vajra_bm25 import VajraSearchOptimized
+
+        engine = VajraSearchOptimized(sample_corpus)
+        results = engine.search("category", top_k=3)
+
+        assert len(results) > 0
+
+    def test_optimized_explicit_bm25_mode(self, sample_corpus):
+        """Test VajraSearchOptimized with explicit BM25 mode."""
+        from vajra_bm25 import VajraSearchOptimized
+
+        engine = VajraSearchOptimized(sample_corpus)
+        results = engine.search("functors", top_k=3, mode="bm25")
+
+        assert len(results) > 0
+
+    def test_optimized_invalid_mode_raises(self, sample_corpus):
+        """Test that invalid mode raises ValueError."""
+        from vajra_bm25 import VajraSearchOptimized
+
+        engine = VajraSearchOptimized(sample_corpus)
+
+        with pytest.raises(ValueError, match="Unknown search mode"):
+            engine.search("query", mode="invalid_mode")
+
+    def test_optimized_vector_available_property(self, sample_corpus):
+        """Test vector_available property on optimized engine."""
+        from vajra_bm25 import VajraSearchOptimized
+
+        engine = VajraSearchOptimized(sample_corpus)
+
+        # Should be a boolean
+        assert isinstance(engine.vector_available, bool)
+
+    def test_optimized_vector_initialized_initially_false(self, sample_corpus):
+        """Test that vector_initialized is False before first vector search."""
+        from vajra_bm25 import VajraSearchOptimized
+
+        engine = VajraSearchOptimized(sample_corpus)
+
+        assert engine.vector_initialized is False
+
+    def test_optimized_embedding_model_parameter(self, sample_corpus):
+        """Test that embedding_model parameter is accepted."""
+        from vajra_bm25 import VajraSearchOptimized
+
+        engine = VajraSearchOptimized(
+            sample_corpus,
+            embedding_model="all-MiniLM-L6-v2"
+        )
+
+        assert engine._embedding_model_name == "all-MiniLM-L6-v2"
+
+    def test_optimized_bm25_and_mode_give_same_results(self, sample_corpus):
+        """Test that BM25 mode and default mode give identical results."""
+        from vajra_bm25 import VajraSearchOptimized
+
+        engine = VajraSearchOptimized(sample_corpus)
+
+        results_default = engine.search("category functors")
+        results_explicit = engine.search("category functors", mode="bm25")
+
+        assert len(results_default) == len(results_explicit)
+        for r1, r2 in zip(results_default, results_explicit):
+            assert r1.document.id == r2.document.id
+            assert r1.score == r2.score
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

@@ -9,7 +9,10 @@ Key optimizations (all categorical):
 5. Parallel unfolding (concurrent coalgebra evaluation)
 """
 
-from typing import List, Dict, Set, Tuple, Callable, Optional
+from typing import List, Dict, Set, Tuple, Callable, Optional, Literal
+
+# Type alias for search modes
+SearchMode = Literal["bm25", "vector", "hybrid"]
 from dataclasses import dataclass
 import numpy as np
 from functools import lru_cache, wraps
@@ -1326,11 +1329,26 @@ class VajraSearchOptimized:
     - Sparse matrices (optional, for 100K+ documents)
     - MaxScore algorithm (coalgebraic early termination)
 
-    The MaxScore algorithm exploits BM25's monoid homomorphism property:
-    - score(q1 ⊕ q2) = score(q1) + score(q2)
-    - Pre-computed term bounds enable early termination
-    - Only documents that CAN make top-k are fully scored
+    Supports three search modes:
+    - bm25: Traditional keyword search (default, always available)
+    - vector: Semantic vector search (lazy-loaded on first use)
+    - hybrid: Combined BM25 + vector with score fusion
+
+    Usage:
+        engine = VajraSearchOptimized(corpus)
+
+        # BM25 search (default)
+        results = engine.search("query")
+
+        # Vector search (lazy-loads embedding model)
+        results = engine.search("semantic query", mode="vector")
+
+        # Hybrid search (combines both)
+        results = engine.search("query", mode="hybrid", alpha=0.5)
     """
+
+    # Default embedding model for vector search
+    DEFAULT_EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 
     def __init__(
         self,
@@ -1341,7 +1359,8 @@ class VajraSearchOptimized:
         cache_size: int = 1000,
         use_maxscore: bool = False,  # MaxScore disabled by default (Python too slow)
         use_numba: bool = True,  # Use Numba JIT scorer when available (much faster)
-        use_eager: bool = True  # Use eager scoring (pre-computed BM25 scores) - fastest!
+        use_eager: bool = True,  # Use eager scoring (pre-computed BM25 scores) - fastest!
+        embedding_model: Optional[str] = None,  # Embedding model for vector/hybrid search
     ):
         self.corpus = corpus
         self.use_sparse = use_sparse
@@ -1350,6 +1369,12 @@ class VajraSearchOptimized:
         self.use_eager = use_eager
         self.k1 = k1
         self.b = b
+        self._embedding_model_name = embedding_model or self.DEFAULT_EMBEDDING_MODEL
+
+        # Lazy-loaded vector search components
+        self._vector_engine = None
+        self._hybrid_engine = None
+        self._vector_initialized = False
 
         # Initialize multi-level caching
         self.query_cache = LRUCache(capacity=cache_size) if cache_size > 0 else None
@@ -1488,6 +1513,12 @@ class VajraSearchOptimized:
         instance.use_eager = index_data.get('use_eager', True)
         instance._use_sparse_actual = index_data.get('_use_sparse_actual', instance.use_sparse)
 
+        # Initialize vector search components (lazy-loaded)
+        instance._embedding_model_name = index_data.get('embedding_model', VajraSearchOptimized.DEFAULT_EMBEDDING_MODEL)
+        instance._vector_engine = None
+        instance._hybrid_engine = None
+        instance._vector_initialized = False
+
         # Initialize query cache
         cache_size = index_data.get('cache_size', 1000)
         instance.query_cache = LRUCache(capacity=cache_size) if cache_size > 0 else None
@@ -1524,9 +1555,110 @@ class VajraSearchOptimized:
 
         return instance
 
-    def search(self, query: str, top_k: int = 10) -> List[SearchResult]:
+    def _init_vector_search(self) -> bool:
         """
-        Execute optimized search with multi-level caching.
+        Lazy-initialize vector search components.
+
+        Returns:
+            True if initialization successful, False otherwise
+        """
+        if self._vector_initialized:
+            return self._vector_engine is not None
+
+        self._vector_initialized = True
+
+        try:
+            from vajra_bm25.vector import (
+                VajraVectorSearch,
+                FlatVectorIndex,
+                NativeHNSWIndex,
+                TextEmbeddingMorphism,
+                HybridSearchEngine,
+            )
+
+            logger.info(f"Loading embedding model: {self._embedding_model_name}")
+            embedder = TextEmbeddingMorphism(
+                model_name=self._embedding_model_name,
+                normalize=True
+            )
+            dimension = embedder.dimension
+
+            # Use HNSW for larger corpora, Flat for small ones
+            corpus_size = len(self.corpus)
+            if corpus_size > 1000:
+                logger.info(f"Building HNSW index ({corpus_size:,} documents)")
+                index = NativeHNSWIndex(
+                    dimension=dimension,
+                    metric="cosine",
+                    M=16,
+                    ef_construction=200,
+                    ef_search=50
+                )
+            else:
+                logger.info(f"Building flat index ({corpus_size:,} documents)")
+                index = FlatVectorIndex(dimension=dimension, metric="cosine")
+
+            self._vector_engine = VajraVectorSearch(embedder, index)
+
+            # Index documents
+            logger.info("Indexing documents for vector search...")
+            docs = list(self.corpus.documents)
+            self._vector_engine.index_documents(docs, batch_size=64, show_progress=False)
+
+            # Create hybrid engine
+            self._hybrid_engine = HybridSearchEngine(
+                bm25_engine=self,
+                vector_engine=self._vector_engine,
+                method="rrf"
+            )
+
+            logger.info("Vector search initialized successfully")
+            return True
+
+        except ImportError as e:
+            logger.warning(
+                f"Vector search not available: {e}. "
+                "Install with: pip install vajra-bm25[vector]"
+            )
+            return False
+        except Exception as e:
+            logger.error(f"Failed to initialize vector search: {e}")
+            return False
+
+    def search(
+        self,
+        query: str,
+        top_k: int = 10,
+        mode: SearchMode = "bm25",
+        alpha: float = 0.5,
+    ) -> List[SearchResult]:
+        """
+        Execute search in specified mode.
+
+        Args:
+            query: Search query string
+            top_k: Number of results to return
+            mode: Search mode - "bm25", "vector", or "hybrid"
+            alpha: BM25 weight for hybrid search (0-1). Higher = more BM25.
+
+        Returns:
+            List of SearchResult objects
+
+        Raises:
+            ValueError: If mode is invalid or vector search unavailable
+        """
+        if mode == "bm25":
+            return self._search_bm25(query, top_k)
+        elif mode == "vector":
+            return self._search_vector(query, top_k)
+        elif mode == "hybrid":
+            return self._search_hybrid(query, top_k, alpha)
+        else:
+            raise ValueError(f"Unknown search mode: {mode}. Use 'bm25', 'vector', or 'hybrid'.")
+
+    def _search_bm25(self, query: str, top_k: int) -> List[SearchResult]:
+        """
+        Execute optimized BM25 search with multi-level caching.
 
         Scorer preference (fastest to slowest):
         1. Cache hit (instant)
@@ -1617,6 +1749,40 @@ class VajraSearchOptimized:
             self.query_cache.put(cache_key, results)
 
         return results
+
+    def _search_vector(self, query: str, top_k: int) -> List[SearchResult]:
+        """Execute vector search (lazy-loads on first use)."""
+        if not self._init_vector_search():
+            raise ValueError(
+                "Vector search not available. "
+                "Install with: pip install vajra-bm25[vector]"
+            )
+
+        return self._vector_engine.search(query, top_k=top_k)
+
+    def _search_hybrid(self, query: str, top_k: int, alpha: float) -> List[SearchResult]:
+        """Execute hybrid search (lazy-loads on first use)."""
+        if not self._init_vector_search():
+            raise ValueError(
+                "Hybrid search requires vector search. "
+                "Install with: pip install vajra-bm25[vector]"
+            )
+
+        return self._hybrid_engine.search(query, top_k=top_k, bm25_weight=alpha)
+
+    @property
+    def vector_available(self) -> bool:
+        """Check if vector search is available (without initializing)."""
+        try:
+            from vajra_bm25.vector import VajraVectorSearch
+            return True
+        except ImportError:
+            return False
+
+    @property
+    def vector_initialized(self) -> bool:
+        """Check if vector search has been initialized."""
+        return self._vector_initialized and self._vector_engine is not None
 
     def get_cache_stats(self) -> Optional[Dict]:
         """Get cache statistics."""

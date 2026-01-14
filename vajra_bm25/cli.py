@@ -1,16 +1,23 @@
 #!/usr/bin/env python3
 """
-Vajra BM25 Search CLI
+Vajra Search CLI
 
-Interactive search engine powered by categorical BM25.
+Interactive search engine with BM25, vector, and hybrid search modes.
 
 Usage:
-    vajra-search                           # Interactive mode with scifact
+    vajra-search                           # Interactive BM25 mode with scifact
     vajra-search -q "machine learning"     # Single query mode
     vajra-search --corpus my_docs.jsonl    # Custom JSONL corpus
     vajra-search --corpus document.pdf     # Single PDF file
     vajra-search --corpus ./pdf_folder/    # Directory of PDFs
     vajra-search --dataset beir-nfcorpus   # Use nfcorpus
+
+    # Vector search (requires: pip install vajra-bm25[vector])
+    vajra-search --mode vector             # Semantic vector search
+    vajra-search --mode vector --model all-MiniLM-L6-v2
+
+    # Hybrid search (BM25 + Vector fusion)
+    vajra-search --mode hybrid --alpha 0.5 # 50% BM25, 50% vector
 """
 
 import argparse
@@ -58,6 +65,12 @@ class SearchConfig:
     top_k: int = 10
     snippet_length: int = 200
     use_rich: bool = True
+    # Search mode
+    mode: str = "bm25"  # 'bm25', 'vector', or 'hybrid'
+    # Vector search options
+    embedding_model: str = "all-MiniLM-L6-v2"
+    # Hybrid search options
+    alpha: float = 0.5  # BM25 weight (1-alpha = vector weight)
 
 
 # ============================================================================
@@ -234,7 +247,7 @@ def create_snippet(content: str, query_terms: List[str], max_length: int = 200) 
     return snippet
 
 
-def highlight_snippet(snippet: str, query_terms: List[str]) -> Text:
+def highlight_snippet(snippet: str, query_terms: List[str]) -> "Text":
     """Create Rich Text with highlighted query terms.
 
     Args:
@@ -257,18 +270,41 @@ def highlight_snippet(snippet: str, query_terms: List[str]) -> Text:
 # ============================================================================
 
 class VajraSearchCLI:
-    """Main CLI application."""
+    """Main CLI application.
+
+    Uses VajraSearchOptimized unified API for all search modes:
+    - BM25: Traditional keyword search (always available)
+    - Vector: Semantic search (lazy-loaded on first use)
+    - Hybrid: Combined BM25 + vector fusion
+    """
 
     def __init__(self, config: SearchConfig):
         self.config = config
         self.console = Console() if (RICH_AVAILABLE and config.use_rich) else PlainConsole()
-        self.engine: Optional[VajraSearch] = None
+        self.engine: Optional[VajraSearchOptimized] = None
         self.corpus: Optional[DocumentCorpus] = None
         self.last_query: Optional[str] = None
         self.last_query_terms: List[str] = []
 
+    # Legacy properties for backward compatibility with tests
+    @property
+    def bm25_engine(self):
+        return self.engine
+
+    @bm25_engine.setter
+    def bm25_engine(self, value):
+        self.engine = value
+
+    @property
+    def vector_engine(self):
+        return self.engine._vector_engine if self.engine else None
+
+    @property
+    def hybrid_engine(self):
+        return self.engine._hybrid_engine if self.engine else None
+
     def load_dataset(self) -> None:
-        """Load dataset and build index with progress."""
+        """Load dataset and build unified search engine."""
         # Load corpus
         if self.config.corpus_path:
             self.corpus = load_custom_corpus(
@@ -282,26 +318,63 @@ class VajraSearchCLI:
             self.corpus = load_beir_dataset(dataset_name, self.console)
             source = self.config.dataset
 
-        # Build index with optimized engine for fast queries
-        self.console.print(f"[dim]Building index for {len(self.corpus):,} documents...[/dim]")
-
+        # Build unified search engine with embedding model for vector/hybrid modes
+        self.console.print(f"[dim]Building search index for {len(self.corpus):,} documents...[/dim]")
         start_time = time.perf_counter()
-        # Use sparse mode with eager scoring for fastest queries
+
         self.engine = VajraSearchOptimized(
             self.corpus,
-            use_sparse=True,  # Sparse mode enables eager scoring
-            use_eager=True,   # Pre-compute BM25 scores for sub-ms queries
-            cache_size=1000
+            use_sparse=True,
+            use_eager=True,
+            cache_size=1000,
+            embedding_model=self.config.embedding_model,
         )
-        build_time = (time.perf_counter() - start_time) * 1000
+        bm25_time = (time.perf_counter() - start_time) * 1000
+        self.console.print(f"[green]BM25 index built in {bm25_time:.2f} ms[/green]")
 
-        self.console.print(
-            f"[green]Index built in {build_time:.2f} ms[/green] "
-            f"[dim]({len(self.corpus):,} docs from {source})[/dim]\n"
-        )
+        mode = self.config.mode
+
+        # For vector/hybrid modes, initialize vector search upfront
+        if mode in ("vector", "hybrid"):
+            self._init_vector_search()
+
+    def _init_vector_search(self) -> bool:
+        """Initialize vector search components upfront."""
+        if not self.engine:
+            return False
+
+        if not self.engine.vector_available:
+            self.console.print(
+                "[yellow]Vector search not available.[/yellow] "
+                "Install with: pip install vajra-bm25[vector]"
+            )
+            return False
+
+        self.console.print(f"[dim]Loading embedding model: {self.config.embedding_model}...[/dim]")
+        start_time = time.perf_counter()
+
+        try:
+            # Trigger lazy initialization
+            success = self.engine._init_vector_search()
+            if success:
+                vector_time = (time.perf_counter() - start_time) * 1000
+                self.console.print(f"[green]Vector index built in {vector_time:.2f} ms[/green]")
+                if self.config.mode == "hybrid":
+                    self.console.print(
+                        f"[green]Hybrid engine ready[/green] "
+                        f"[dim](alpha={self.config.alpha}: {self.config.alpha*100:.0f}% BM25, "
+                        f"{(1-self.config.alpha)*100:.0f}% vector)[/dim]"
+                    )
+                return True
+            else:
+                self.console.print("[red]Failed to initialize vector search[/red]")
+                return False
+        except Exception as e:
+            self.console.print(f"[red]Vector search error: {e}[/red]")
+            return False
 
     def search(self, query: str) -> List[SearchResult]:
-        """Execute search and display results.
+        """Execute search using unified API.
 
         Args:
             query: Search query string
@@ -310,7 +383,7 @@ class VajraSearchCLI:
             List of SearchResult objects
         """
         if not self.engine:
-            self.console.print("[red]No index loaded[/red]")
+            self.console.print("[red]Search engine not loaded[/red]")
             return []
 
         if not query.strip():
@@ -320,9 +393,21 @@ class VajraSearchCLI:
         self.last_query = query
         self.last_query_terms = preprocess_text(query)
 
-        # Execute search with timing
+        # Execute search using unified API with mode parameter
         start_time = time.perf_counter()
-        results = self.engine.search(query, top_k=self.config.top_k)
+        mode = self.config.mode
+
+        try:
+            results = self.engine.search(
+                query,
+                top_k=self.config.top_k,
+                mode=mode,
+                alpha=self.config.alpha
+            )
+        except ValueError as e:
+            self.console.print(f"[red]{e}[/red]")
+            return []
+
         latency_ms = (time.perf_counter() - start_time) * 1000
 
         # Display results
@@ -407,12 +492,12 @@ class VajraSearchCLI:
         Args:
             doc_id: Document ID to explain
         """
-        if not self.engine or not self.last_query:
-            self.console.print("[red]No previous query to explain[/red]")
+        if not self.bm25_engine or not self.last_query:
+            self.console.print("[red]No previous query to explain (requires BM25 mode)[/red]")
             return
 
         try:
-            explanation = self.engine.explain_result(self.last_query, doc_id)
+            explanation = self.bm25_engine.explain_result(self.last_query, doc_id)
         except Exception as e:
             self.console.print(f"[red]Could not explain: {e}[/red]")
             return
@@ -449,17 +534,30 @@ class VajraSearchCLI:
 
     def show_stats(self) -> None:
         """Display index statistics."""
-        if not self.engine or not self.corpus:
-            self.console.print("[red]No index loaded[/red]")
+        if not self.corpus:
+            self.console.print("[red]No corpus loaded[/red]")
             return
 
         stats = {
             "Dataset": self.config.corpus_path or self.config.dataset,
             "Documents": f"{len(self.corpus):,}",
-            "Unique Terms": f"{len(self.engine.index.term_to_id):,}",
-            "Avg Doc Length": f"{self.engine.index.avg_doc_length:.1f} tokens",
+            "Search Mode": self.config.mode.upper(),
             "Top-K": str(self.config.top_k),
         }
+
+        # Add BM25-specific stats
+        if self.bm25_engine:
+            stats["BM25 Terms"] = f"{len(self.bm25_engine.index.term_to_id):,}"
+            stats["Avg Doc Length"] = f"{self.bm25_engine.index.avg_doc_length:.1f} tokens"
+
+        # Add vector-specific stats
+        if self.vector_engine:
+            stats["Vector Index"] = self.vector_engine.index.__class__.__name__
+            stats["Vectors"] = f"{self.vector_engine.num_documents:,}"
+
+        # Add hybrid-specific stats
+        if self.config.mode == "hybrid":
+            stats["Alpha (BM25 weight)"] = f"{self.config.alpha}"
 
         if not RICH_AVAILABLE or not self.config.use_rich:
             print("\nIndex Statistics:")
@@ -480,16 +578,23 @@ class VajraSearchCLI:
         """Display welcome message."""
         corpus_size = len(self.corpus) if self.corpus else 0
         source = self.config.corpus_path or self.config.dataset
+        mode = self.config.mode.upper()
 
         if not RICH_AVAILABLE or not self.config.use_rich:
-            print(f"\nVajra BM25 Search Engine v{__version__}")
+            print(f"\nVajra Search Engine v{__version__}")
+            print(f"Mode: {mode}")
             print(f"Dataset: {source} ({corpus_size:,} documents)")
             print(f"Top-K: {self.config.top_k}")
             print("\nType a query to search, or :help for commands.\n")
             return
 
+        mode_info = f"Mode: [yellow]{mode}[/yellow]"
+        if self.config.mode == "hybrid":
+            mode_info += f" [dim](alpha={self.config.alpha})[/dim]"
+
         welcome_text = (
-            f"[bold]Vajra BM25 Search Engine[/bold] v{__version__}\n\n"
+            f"[bold]Vajra Search Engine[/bold] v{__version__}\n\n"
+            f"{mode_info}\n"
             f"Dataset: [cyan]{source}[/cyan] ({corpus_size:,} documents)\n"
             f"Top-K: [cyan]{self.config.top_k}[/cyan]\n\n"
             "Type a query to search, or [bold]:help[/bold] for commands."
@@ -511,16 +616,18 @@ class VajraSearchCLI:
   [cyan]:help[/cyan] or [cyan]:h[/cyan]      Show this help
   [cyan]:stats[/cyan] or [cyan]:s[/cyan]     Show index statistics
   [cyan]:top N[/cyan] or [cyan]:k N[/cyan]   Set number of results (current: {top_k})
-  [cyan]:explain ID[/cyan]      Score breakdown for document ID
+  [cyan]:explain ID[/cyan]      Score breakdown for document ID (BM25 only)
   [cyan]:e ID[/cyan]            (shorthand for :explain)
   [cyan]:clear[/cyan] or [cyan]:c[/cyan]     Clear screen
   [cyan]:quit[/cyan] or [cyan]:q[/cyan]      Exit
+
+[bold]Current Mode:[/bold] [yellow]{mode}[/yellow]
 
 [bold]Examples:[/bold]
   machine learning algorithms
   :top 20
   :explain doc_123
-""".format(top_k=self.config.top_k)
+""".format(top_k=self.config.top_k, mode=self.config.mode.upper())
 
         if not RICH_AVAILABLE or not self.config.use_rich:
             import re
@@ -623,11 +730,11 @@ def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
         prog="vajra-search",
-        description="Vajra BM25 Search Engine - Interactive CLI",
+        description="Vajra Search Engine - BM25, Vector, and Hybrid Search",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  vajra-search                           # Interactive mode with scifact
+  vajra-search                           # Interactive BM25 mode with scifact
   vajra-search -q "machine learning"     # Single query mode
   vajra-search --corpus my_docs.jsonl    # Custom JSONL corpus
   vajra-search --corpus doc.pdf          # Single PDF file
@@ -635,10 +742,23 @@ Examples:
   vajra-search --dataset beir-nfcorpus   # Use nfcorpus dataset
   vajra-search --top-k 20                # Return 20 results
 
+  # Vector search (semantic similarity)
+  vajra-search --mode vector             # Uses all-MiniLM-L6-v2 by default
+  vajra-search --mode vector --model sentence-transformers/all-mpnet-base-v2
+
+  # Hybrid search (BM25 + Vector fusion)
+  vajra-search --mode hybrid             # Default alpha=0.5
+  vajra-search --mode hybrid --alpha 0.7 # 70% BM25, 30% vector
+
 Supported corpus formats:
   .jsonl      JSONL file with {id, title, content} per line
   .pdf        Single PDF file (requires: pip install vajra-bm25[pdf])
   directory   Directory of PDF files
+
+Search modes:
+  bm25        Traditional keyword search (fast, exact matching)
+  vector      Semantic search (requires: pip install vajra-bm25[vector])
+  hybrid      Combined BM25 + vector with score fusion
 """
     )
 
@@ -668,6 +788,23 @@ Supported corpus formats:
         help="Number of results to return (default: 10)"
     )
     parser.add_argument(
+        "-m", "--mode",
+        choices=["bm25", "vector", "hybrid"],
+        default="bm25",
+        help="Search mode: bm25, vector, or hybrid (default: bm25)"
+    )
+    parser.add_argument(
+        "--model",
+        default="all-MiniLM-L6-v2",
+        help="Embedding model for vector/hybrid search (default: all-MiniLM-L6-v2)"
+    )
+    parser.add_argument(
+        "--alpha",
+        type=float,
+        default=0.5,
+        help="BM25 weight for hybrid search, 0-1 (default: 0.5)"
+    )
+    parser.add_argument(
         "--stats",
         action="store_true",
         help="Show index statistics and exit"
@@ -694,12 +831,20 @@ def main() -> int:
     if not RICH_AVAILABLE and not args.no_rich:
         print("Note: Install 'rich' for enhanced output: pip install rich")
 
+    # Validate alpha
+    if args.alpha < 0 or args.alpha > 1:
+        print("Error: --alpha must be between 0 and 1")
+        return 1
+
     config = SearchConfig(
         dataset=args.dataset,
         corpus_path=args.corpus,
         corpus_format=args.format,
         top_k=args.top_k,
         use_rich=RICH_AVAILABLE and not args.no_rich,
+        mode=args.mode,
+        embedding_model=args.model,
+        alpha=args.alpha,
     )
 
     cli = VajraSearchCLI(config)

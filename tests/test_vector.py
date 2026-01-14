@@ -703,5 +703,308 @@ class TestVectorSearchIntegration:
         assert len(results) == 5
 
 
+# ============================================================================
+# Additional Coverage Tests
+# ============================================================================
+
+
+class TestHybridSearchAdditional:
+    """Additional tests for HybridSearchEngine"""
+
+    def test_rsf_fusion(self, sample_documents):
+        """Test Relative Score Fusion method."""
+        from vajra_bm25.vector.hybrid import HybridSearchEngine
+        from vajra_bm25.search import SearchResult
+        from unittest.mock import Mock
+
+        bm25_engine = Mock()
+        vector_engine = Mock()
+
+        bm25_engine.search.return_value = [
+            SearchResult(document=sample_documents[0], score=10.0, rank=1),
+            SearchResult(document=sample_documents[1], score=5.0, rank=2),
+        ]
+        vector_engine.search.return_value = [
+            SearchResult(document=sample_documents[0], score=1.0, rank=1),
+            SearchResult(document=sample_documents[1], score=0.5, rank=2),
+        ]
+
+        hybrid = HybridSearchEngine(
+            bm25_engine, vector_engine, method="rsf", alpha=0.5
+        )
+        results = hybrid.search("test", top_k=2)
+
+        assert len(results) == 2
+        # Doc 0 should be top (best in both)
+        assert results[0].document.id == "1"
+
+    def test_hybrid_with_disjoint_results(self, sample_documents):
+        """Test hybrid when BM25 and vector return different docs."""
+        from vajra_bm25.vector.hybrid import HybridSearchEngine
+        from vajra_bm25.search import SearchResult
+        from unittest.mock import Mock
+
+        bm25_engine = Mock()
+        vector_engine = Mock()
+
+        # BM25 returns docs 0, 1
+        bm25_engine.search.return_value = [
+            SearchResult(document=sample_documents[0], score=10.0, rank=1),
+            SearchResult(document=sample_documents[1], score=8.0, rank=2),
+        ]
+        # Vector returns docs 2, 3 (no overlap)
+        vector_engine.search.return_value = [
+            SearchResult(document=sample_documents[2], score=0.9, rank=1),
+            SearchResult(document=sample_documents[3], score=0.8, rank=2),
+        ]
+
+        hybrid = HybridSearchEngine(bm25_engine, vector_engine, method="rrf")
+        results = hybrid.search("test", top_k=4)
+
+        assert len(results) == 4
+        doc_ids = {r.document.id for r in results}
+        assert doc_ids == {"1", "2", "3", "4"}
+
+    def test_hybrid_repr(self, sample_documents):
+        """Test HybridSearchEngine __repr__."""
+        from vajra_bm25.vector.hybrid import HybridSearchEngine
+        from unittest.mock import Mock
+
+        bm25_engine = Mock()
+        vector_engine = Mock()
+
+        hybrid = HybridSearchEngine(bm25_engine, vector_engine, alpha=0.7)
+        repr_str = repr(hybrid)
+
+        assert "rrf" in repr_str
+        assert "0.7" in repr_str
+
+
+class TestSimilarityMorphismsAdditional:
+    """Additional tests for similarity morphisms"""
+
+    def test_l2_batch_scoring(self):
+        """Test L2Distance batch scoring."""
+        from vajra_bm25.vector.scorer import L2Distance
+
+        scorer = L2Distance()
+        query = np.array([1.0, 0.0])
+        candidates = np.array([
+            [1.0, 0.0],  # Same as query
+            [0.0, 1.0],  # Distance sqrt(2)
+            [2.0, 0.0],  # Distance 1.0
+        ])
+
+        scores = scorer.score_batch(query, candidates)
+        assert len(scores) == 3
+        # Same vector should have distance 0
+        assert scores[0] == pytest.approx(0.0, abs=1e-5)
+        # Distance should be positive
+        assert scores[1] > 0
+        assert scores[2] > 0
+
+    def test_inner_product_batch_scoring(self):
+        """Test InnerProduct batch scoring."""
+        from vajra_bm25.vector.scorer import InnerProduct
+
+        scorer = InnerProduct()
+        query = np.array([1.0, 2.0])
+        candidates = np.array([
+            [1.0, 2.0],  # Inner product = 5
+            [1.0, 0.0],  # Inner product = 1
+            [0.0, 0.0],  # Inner product = 0
+        ])
+
+        scores = scorer.score_batch(query, candidates)
+        assert len(scores) == 3
+        assert scores[0] == pytest.approx(5.0)
+        assert scores[1] == pytest.approx(1.0)
+        assert scores[2] == pytest.approx(0.0)
+
+    def test_cosine_similarity_repr(self):
+        """Test CosineSimilarity __repr__."""
+        from vajra_bm25.vector.scorer import CosineSimilarity
+
+        scorer = CosineSimilarity()
+        repr_str = repr(scorer)
+        assert "CosineSimilarity" in repr_str
+
+    def test_l2_distance_repr(self):
+        """Test L2Distance __repr__."""
+        from vajra_bm25.vector.scorer import L2Distance
+
+        scorer = L2Distance()
+        repr_str = repr(scorer)
+        assert "L2Distance" in repr_str
+
+
+class TestFlatVectorIndexAdditional:
+    """Additional tests for FlatVectorIndex"""
+
+    def test_search_empty_index(self):
+        """Test searching an empty index."""
+        from vajra_bm25.vector.index_flat import FlatVectorIndex
+
+        index = FlatVectorIndex(dimension=64)
+        query = np.random.randn(64).astype(np.float32)
+
+        results = index.search(query, k=5)
+        assert len(results) == 0
+
+    def test_search_k_larger_than_index(self, sample_vectors, sample_ids):
+        """Test searching with k larger than index size."""
+        from vajra_bm25.vector.index_flat import FlatVectorIndex
+
+        index = FlatVectorIndex(dimension=64)
+        # Add only 3 vectors
+        index.add(sample_ids[:3], sample_vectors[:3])
+
+        results = index.search(sample_vectors[0], k=10)
+        assert len(results) == 3  # Should return all available
+
+    def test_batch_search_multiple_queries(self, sample_vectors, sample_ids):
+        """Test batch search with multiple queries."""
+        from vajra_bm25.vector.index_flat import FlatVectorIndex
+
+        index = FlatVectorIndex(dimension=64)
+        index.add(sample_ids[:50], sample_vectors[:50])
+
+        queries = sample_vectors[:5]
+        all_results = index.search_batch(queries, k=3)
+
+        assert len(all_results) == 5
+        for results in all_results:
+            assert len(results) == 3
+
+    def test_inner_product_metric(self, sample_vectors, sample_ids):
+        """Test FlatVectorIndex with inner product metric."""
+        from vajra_bm25.vector.index_flat import FlatVectorIndex
+
+        index = FlatVectorIndex(dimension=64, metric="ip")
+        index.add(sample_ids[:10], sample_vectors[:10])
+
+        results = index.search(sample_vectors[0], k=3)
+        assert len(results) == 3
+
+    def test_index_size_property(self, sample_vectors, sample_ids):
+        """Test index size property."""
+        from vajra_bm25.vector.index_flat import FlatVectorIndex
+
+        index = FlatVectorIndex(dimension=64)
+        assert index.size == 0
+
+        index.add(sample_ids[:10], sample_vectors[:10])
+        assert index.size == 10
+
+        index.add(sample_ids[10:15], sample_vectors[10:15])
+        assert index.size == 15
+
+
+class TestHNSWIndexAdditional:
+    """Additional tests for NativeHNSWIndex"""
+
+    def test_search_empty_index(self):
+        """Test searching an empty HNSW index."""
+        from vajra_bm25.vector.hnsw import NativeHNSWIndex
+
+        index = NativeHNSWIndex(dimension=64)
+        query = np.random.randn(64).astype(np.float32)
+
+        results = index.search(query, k=5)
+        assert len(results) == 0
+
+    def test_l2_metric(self, sample_vectors, sample_ids):
+        """Test HNSW with L2 metric."""
+        from vajra_bm25.vector.hnsw import NativeHNSWIndex
+
+        index = NativeHNSWIndex(dimension=64, metric="l2")
+        index.add(sample_ids[:20], sample_vectors[:20])
+
+        results = index.search(sample_vectors[0], k=3)
+        assert len(results) == 3
+
+    def test_ef_search_parameter(self, sample_vectors, sample_ids):
+        """Test adjusting ef_search parameter."""
+        from vajra_bm25.vector.hnsw import NativeHNSWIndex
+
+        index = NativeHNSWIndex(dimension=64, ef_search=100)
+        index.add(sample_ids[:30], sample_vectors[:30])
+
+        # High ef_search should give good recall
+        results = index.search(sample_vectors[0], k=5)
+        assert results[0].id == "doc_0"
+
+    def test_batch_search_hnsw(self, sample_vectors, sample_ids):
+        """Test batch search with HNSW."""
+        from vajra_bm25.vector.hnsw import NativeHNSWIndex
+
+        index = NativeHNSWIndex(dimension=64, M=8, ef_construction=50)
+        index.add(sample_ids[:50], sample_vectors[:50])
+
+        queries = sample_vectors[:3]
+        all_results = index.search_batch(queries, k=5)
+
+        assert len(all_results) == 3
+        for results in all_results:
+            assert len(results) == 5
+
+
+class TestEmbeddingMorphismsAdditional:
+    """Additional tests for embedding morphisms"""
+
+    def test_precomputed_empty_embeddings_raises(self):
+        """Test PrecomputedEmbeddingMorphism with empty dict raises."""
+        from vajra_bm25.vector.embeddings import PrecomputedEmbeddingMorphism
+
+        # Empty dict should raise in __init__
+        with pytest.raises(ValueError, match="cannot be empty"):
+            PrecomputedEmbeddingMorphism({})
+
+    def test_identity_embedding_batch(self):
+        """Test IdentityEmbeddingMorphism batch operation."""
+        from vajra_bm25.vector.embeddings import IdentityEmbeddingMorphism
+
+        morphism = IdentityEmbeddingMorphism(dimension=4)
+        # Pass as numpy array, not list
+        vectors = np.array([
+            [1.0, 2.0, 3.0, 4.0],
+            [5.0, 6.0, 7.0, 8.0],
+        ])
+
+        result = morphism.embed_batch(vectors)
+        assert result.shape == (2, 4)
+
+
+class TestVectorQueryState:
+    """Tests for VectorQueryState"""
+
+    def test_state_creation(self):
+        """Test VectorQueryState creation."""
+        from vajra_bm25.vector.search import VectorQueryState
+
+        state = VectorQueryState(
+            query_embedding=(1.0, 2.0, 3.0),
+            top_k=10,
+        )
+
+        assert state.query_embedding == (1.0, 2.0, 3.0)
+        assert state.top_k == 10
+
+    def test_state_hashable(self):
+        """Test VectorQueryState is hashable."""
+        from vajra_bm25.vector.search import VectorQueryState
+
+        state = VectorQueryState(
+            query_embedding=(1.0, 2.0, 3.0),
+            top_k=5,
+        )
+
+        # Should be hashable
+        hash(state)
+        # Should work in set
+        s = {state}
+        assert state in s
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
