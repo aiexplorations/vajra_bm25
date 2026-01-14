@@ -479,5 +479,123 @@ class TestIndexPersistence:
             assert len(results_before) == len(results_after)
 
 
+# ============================================================================
+# Additional Coverage Tests
+# ============================================================================
+
+class TestVajraSearchOptimizedAdditional:
+    """Additional tests for VajraSearchOptimized coverage."""
+
+    def test_search_single_term(self, sample_corpus):
+        """Test search with single term query."""
+        engine = VajraSearchOptimized(sample_corpus, use_sparse=True)
+        results = engine.search("category", top_k=5)
+
+        assert len(results) > 0
+
+    def test_search_returns_scored_results(self, larger_corpus):
+        """Test that search results have scores."""
+        engine = VajraSearchOptimized(larger_corpus, use_sparse=True)
+        results = engine.search("graph search traversal", top_k=10)
+
+        if results:
+            assert all(r.score > 0 for r in results)
+            assert all(r.rank > 0 for r in results)
+
+    def test_cache_clear(self, sample_corpus):
+        """Test cache clear functionality."""
+        engine = VajraSearchOptimized(sample_corpus, cache_size=10)
+
+        # Make some queries to populate cache
+        engine.search("category")
+        engine.search("functors")
+
+        # Cache should have entries
+        if engine.query_cache:
+            initial_size = len(engine.query_cache.cache)
+            engine.query_cache.clear()
+            assert len(engine.query_cache.cache) == 0
+
+    def test_index_stats(self, sample_corpus):
+        """Test that index has expected attributes."""
+        engine = VajraSearchOptimized(sample_corpus, use_sparse=True)
+
+        assert hasattr(engine.index, 'term_to_id')
+        assert hasattr(engine.index, 'avg_doc_length')
+        assert engine.index.avg_doc_length > 0
+        assert len(engine.index.term_to_id) > 0
+
+    def test_search_with_stopwords_only(self, sample_corpus):
+        """Test search with query containing mostly stopwords."""
+        engine = VajraSearchOptimized(sample_corpus, use_sparse=True)
+        # "the" and "and" are common stopwords
+        results = engine.search("the and", top_k=5)
+
+        # May return empty or few results
+        assert isinstance(results, list)
+
+    def test_sparse_vs_dense_equivalent_results(self, sample_corpus):
+        """Test that sparse and dense modes give similar results."""
+        engine_sparse = VajraSearchOptimized(sample_corpus, use_sparse=True, use_eager=False)
+        engine_dense = VajraSearchOptimized(sample_corpus, use_sparse=False)
+
+        query = "category theory functors"
+        results_sparse = engine_sparse.search(query, top_k=3)
+        results_dense = engine_dense.search(query, top_k=3)
+
+        # Same documents should be in top results
+        sparse_ids = {r.document.id for r in results_sparse}
+        dense_ids = {r.document.id for r in results_dense}
+
+        # At least some overlap expected
+        if results_sparse and results_dense:
+            assert sparse_ids.intersection(dense_ids)
+
+    def test_maxscore_mode(self, larger_corpus):
+        """Test MaxScore algorithm mode."""
+        engine = VajraSearchOptimized(
+            larger_corpus,
+            use_sparse=True,
+            use_maxscore=True,
+            use_eager=False,
+            use_numba=False
+        )
+
+        results = engine.search("graph traversal", top_k=5)
+        assert isinstance(results, list)
+
+
+class TestLRUCacheAdditional:
+    """Additional LRU Cache tests."""
+
+    def test_cache_small_capacity(self):
+        """Test cache with small capacity."""
+        cache = LRUCache(capacity=1)
+        cache.put("key1", [1, 2, 3])
+        cache.put("key2", [4, 5, 6])
+
+        # key1 should be evicted
+        assert cache.get("key1") is None
+        assert cache.get("key2") == [4, 5, 6]
+
+    def test_cache_hit_rate_calculation(self):
+        """Test cache hit rate calculation."""
+        cache = LRUCache(capacity=5)
+
+        # All misses
+        cache.get("a")
+        cache.get("b")
+
+        stats = cache.stats()
+        assert stats['hit_rate'] == 0.0
+
+        # Add and hit
+        cache.put("a", [1])
+        cache.get("a")  # Hit
+
+        stats = cache.stats()
+        assert stats['hit_rate'] > 0
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

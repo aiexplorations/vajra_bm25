@@ -30,6 +30,12 @@ pip install vajra-bm25[pdf]
 # With index persistence (save/load indices)
 pip install vajra-bm25[persistence]
 
+# With vector search (semantic search with embeddings)
+pip install vajra-bm25[vector]
+
+# With vector search + Numba acceleration
+pip install vajra-bm25[vector-numba]
+
 # With CLI (interactive search)
 pip install vajra-bm25[cli]
 
@@ -39,10 +45,10 @@ pip install vajra-bm25[all]
 
 ## Interactive CLI
 
-Vajra includes a rich interactive CLI for exploring search:
+Vajra includes a rich interactive CLI for exploring BM25, vector, and hybrid search:
 
 ```bash
-# Interactive mode with BEIR SciFact dataset
+# Interactive BM25 mode with BEIR SciFact dataset
 vajra-search
 
 # Single query mode
@@ -56,6 +62,15 @@ vajra-search --corpus document.pdf -q "search query"
 
 # Search a directory of PDFs
 vajra-search --corpus ./pdf_folder/
+
+# Vector search (requires: pip install vajra-bm25[vector])
+vajra-search --mode vector
+vajra-search --mode vector --model all-MiniLM-L6-v2
+
+# Hybrid search (BM25 + Vector with RRF fusion)
+vajra-search --mode hybrid
+vajra-search --mode hybrid --alpha 0.5  # 50% BM25, 50% vector
+vajra-search --mode hybrid --alpha 0.7  # 70% BM25, 30% vector
 
 # Show options
 vajra-search --help
@@ -119,6 +134,83 @@ engine = VajraSearchParallel(corpus, max_workers=4)
 queries = ["machine learning", "deep learning", "neural networks"]
 batch_results = engine.search_batch(queries, top_k=5)
 ```
+
+## Vector Search
+
+Vajra supports semantic vector search using sentence transformers and HNSW indices (requires `pip install vajra-bm25[vector]`).
+
+```python
+from vajra_bm25 import DocumentCorpus
+from vajra_bm25.vector import (
+    VajraVectorSearch,
+    TextEmbeddingMorphism,
+    NativeHNSWIndex,
+)
+
+# Load corpus
+corpus = DocumentCorpus.load_jsonl("corpus.jsonl")
+
+# Create embedding morphism
+embedder = TextEmbeddingMorphism(
+    model_name="all-MiniLM-L6-v2",
+    normalize=True
+)
+
+# Create HNSW index (use FlatVectorIndex for small corpora)
+index = NativeHNSWIndex(
+    dimension=384,  # all-MiniLM-L6-v2 dimension
+    metric="cosine",
+    M=16,
+    ef_construction=200,
+    ef_search=50
+)
+
+# Build search engine
+vector_engine = VajraVectorSearch(embedder, index)
+vector_engine.index_documents(list(corpus.documents.values()))
+
+# Semantic search
+results = vector_engine.search("machine learning techniques", top_k=10)
+```
+
+### Hybrid Search (BM25 + Vector Fusion)
+
+Combine keyword-based BM25 with semantic vector search using Reciprocal Rank Fusion:
+
+```python
+from vajra_bm25 import VajraSearchOptimized
+from vajra_bm25.vector import HybridSearchEngine
+
+# Create BM25 engine
+bm25_engine = VajraSearchOptimized(corpus)
+
+# Create vector engine (from above)
+vector_engine = VajraVectorSearch(embedder, index)
+vector_engine.index_documents(list(corpus.documents.values()))
+
+# Create hybrid engine
+hybrid_engine = HybridSearchEngine(
+    bm25_engine=bm25_engine,
+    vector_engine=vector_engine,
+    alpha=0.5,  # 0.5 = equal weight to BM25 and vector
+    method="rrf"  # Reciprocal Rank Fusion (also: "linear", "rsf")
+)
+
+# Search with both keyword and semantic relevance
+results = hybrid_engine.search("neural network architectures", top_k=10)
+
+# Each result includes component scores
+for r in results:
+    print(f"{r.rank}. {r.document.title}")
+    print(f"   Hybrid: {r.score:.3f} | BM25: {r.bm25_score:.3f} | Vector: {r.vector_score:.3f}")
+```
+
+### Why Hybrid Search?
+
+- **BM25** excels at exact keyword matches and term frequency
+- **Vector search** captures semantic similarity and synonyms
+- **Hybrid fusion** combines the best of both approaches
+- **RRF method** is robust and parameter-free, doesn't require score normalization
 
 ## Performance
 
@@ -373,6 +465,27 @@ pytest tests/ -v
 # Run with coverage
 pytest --cov=vajra_bm25 --cov-report=html
 ```
+
+## What's New in v0.4.0
+
+### Vector Search Module
+- Native HNSW implementation with coalgebraic abstractions
+- `TextEmbeddingMorphism`: Sentence transformer integration
+- `NativeHNSWIndex`: Approximate nearest neighbor search
+- `FlatVectorIndex`: Exact brute-force baseline
+- `HybridSearchEngine`: BM25 + Vector fusion (RRF, Linear, RSF methods)
+- Optional Numba acceleration for distance functions
+- 40 new tests covering embeddings, HNSW, flat index, and hybrid search
+
+### Bug Fixes
+- Fixed `save_index`/`load_index` eager scorer persistence
+- `save_index` now correctly serializes all scorer attributes (k1, b, use_eager, use_numba, use_maxscore)
+- `load_index` now recreates eager_scorer, numba_scorer, and maxscore_scorer properly
+- Added comprehensive roundtrip tests for all index modes
+
+### New Dependencies
+- `vajra-bm25[vector]`: numpy + sentence-transformers for semantic search
+- `vajra-bm25[vector-numba]`: adds numba for distance computation acceleration
 
 ## Publishing to PyPI
 

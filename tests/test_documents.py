@@ -493,6 +493,10 @@ startxref
 
     def test_load_pdf_not_found(self, tmp_path):
         """Test loading non-existent PDF raises error."""
+        try:
+            import pypdf  # noqa: F401
+        except ImportError:
+            pytest.skip("pypdf not installed")
         with pytest.raises(FileNotFoundError):
             DocumentCorpus.load_pdf(tmp_path / "nonexistent.pdf")
 
