@@ -104,7 +104,7 @@ class CosineSimilarity(SimilarityMorphism):
         vectors_norm = vectors / (norms + self.eps)
 
         # Dot product gives cosine similarity for normalized vectors
-        return (vectors_norm @ query_norm).astype(np.float32)
+        return (vectors_norm @ query_norm).astype(np.float32, copy=False)
 
     def score_batch_normalized(
         self, query: np.ndarray, vectors: np.ndarray
@@ -115,7 +115,9 @@ class CosineSimilarity(SimilarityMorphism):
         When vectors are already L2-normalized, cosine similarity
         is just the dot product.
         """
-        return (vectors @ query).astype(np.float32)
+        # copy=False: when inputs are already float32 the matmul result is
+        # float32, so this is a zero-copy type assertion rather than a cast.
+        return (vectors @ query).astype(np.float32, copy=False)
 
 
 @dataclass
