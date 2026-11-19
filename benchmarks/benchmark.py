@@ -537,6 +537,18 @@ def mrr(retrieved: List[str], relevant: List[str]) -> float:
 # Engine Wrappers
 # =============================================================================
 
+# Tokenizer processes for Vajra index builds (--vajra-n-jobs). None = library default. Only
+# passed when the installed vajra-bm25 supports it (0.5.1+; 0.5.0 always used a pool).
+VAJRA_N_JOBS: Optional[int] = None
+
+
+def _vajra_build_kwargs() -> Dict[str, Any]:
+    import inspect
+    if VAJRA_N_JOBS is not None and "n_jobs" in inspect.signature(VajraSearchOptimized.__init__).parameters:
+        return {"n_jobs": VAJRA_N_JOBS}
+    return {}
+
+
 class VajraEngine:
     """Wrapper for Vajra search engines."""
 
@@ -550,9 +562,10 @@ class VajraEngine:
 
     def build(self):
         if self.parallel:
-            self.engine = VajraSearchParallel(self.corpus, max_workers=self.workers, cache_size=self.cache_size)
+            self.engine = VajraSearchParallel(self.corpus, max_workers=self.workers, cache_size=self.cache_size,
+                                              **_vajra_build_kwargs())
         else:
-            self.engine = VajraSearchOptimized(self.corpus, cache_size=self.cache_size)
+            self.engine = VajraSearchOptimized(self.corpus, cache_size=self.cache_size, **_vajra_build_kwargs())
 
     def clear_cache(self):
         """Clear query cache if available."""
@@ -1170,8 +1183,16 @@ Examples:
         '--workers', type=int, default=8,
         help="Number of workers for parallel engines (default: 8)"
     )
+    parser.add_argument(
+        '--vajra-n-jobs', type=int, default=None,
+        help="Tokenizer processes for Vajra index builds (-1 = all cores). Default: the library's "
+             "default (1 from 0.5.1; 0.5.0 always used a process pool)"
+    )
 
     args = parser.parse_args()
+
+    global VAJRA_N_JOBS
+    VAJRA_N_JOBS = args.vajra_n_jobs
 
     # Setup
     print_header("VAJRA BM25 BENCHMARK")

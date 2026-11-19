@@ -12,6 +12,8 @@ cd "$(dirname "$0")/.."
 
 TAG="${TAG:?set TAG, e.g. TAG=baseline-0.5.0}"
 WORKERS="${WORKERS:-16}"
+# Tokenizer processes for Vajra index builds (-1 = all cores); empty = library default
+VAJRA_N_JOBS="${VAJRA_N_JOBS:-}"
 OUT="results/$TAG"
 CACHE=".index_cache/$TAG"
 DATASETS=("$@")
@@ -22,7 +24,7 @@ fi
 
 mkdir -p "$OUT"
 
-python - "$OUT/environment.json" "$WORKERS" <<'EOF'
+python - "$OUT/environment.json" "$WORKERS" "$VAJRA_N_JOBS" <<'EOF'
 import json, os, platform, subprocess, sys
 from importlib import metadata
 
@@ -43,6 +45,7 @@ env = {
     "machine": platform.machine(),
     "cpu_count": os.cpu_count(),
     "workers": int(sys.argv[2]),
+    "vajra_n_jobs": sys.argv[3] or None,
     "packages": {p: ver(p) for p in
                  ["vajra-bm25", "numpy", "scipy", "numba", "bm25s", "joblib", "tantivy",
                   "pyserini", "beir", "sentence-transformers", "torch"]},
@@ -77,6 +80,7 @@ for ds in "${DATASETS[@]}"; do
     --datasets "$ds" \
     --engines "${ENGINES[@]}" \
     --workers "$WORKERS" \
+    ${VAJRA_N_JOBS:+--vajra-n-jobs "$VAJRA_N_JOBS"} \
     --output "$OUT/$ds.json" \
     --log "$OUT/benchmark.log" \
     --index-cache-dir "$CACHE"

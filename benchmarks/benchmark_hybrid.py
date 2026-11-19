@@ -78,13 +78,21 @@ class SystemResult:
     params: Dict = field(default_factory=dict)
 
 
+BGE_QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
+
+
 class TimedEmbedder(TextEmbeddingMorphism):
     """Text embedder that accumulates time spent embedding documents and keeps the vectors."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, query_prefix: str = "", **kwargs):
         super().__init__(*args, **kwargs)
+        self.query_prefix = query_prefix
         self.batch_seconds = 0.0
         self.captured: List[np.ndarray] = []
+
+    def embed(self, text):
+        # Single-text embedding is the query path (documents go through embed_batch)
+        return super().embed(self.query_prefix + text)
 
     def embed_batch(self, texts):
         t = time.perf_counter()
@@ -148,6 +156,9 @@ def main():
     ap.add_argument("--dataset", required=True, choices=sorted(DATASETS))
     ap.add_argument("--output", type=Path, required=True)
     ap.add_argument("--model", default="all-MiniLM-L6-v2")
+    ap.add_argument("--query-prefix", default=None,
+                    help="text prepended to queries only; default is the model's recommended "
+                         "prefix (BGE v1.5 needs one), pass '' to disable")
     ap.add_argument("--lexical", nargs="+", choices=LEXICAL_ENGINES, default=LEXICAL_ENGINES)
     ap.add_argument("--embed-batch-size", type=int, default=256)
     ap.add_argument("--seed", type=int, default=42)
@@ -199,7 +210,10 @@ def main():
                  content=f"{d.title}. {d.content}" if d.title else d.content)
         for d in corpus
     ]
-    embedder = TimedEmbedder(args.model)
+    query_prefix = args.query_prefix
+    if query_prefix is None:
+        query_prefix = BGE_QUERY_PREFIX if "bge-" in args.model.lower() else ""
+    embedder = TimedEmbedder(args.model, query_prefix=query_prefix)
     embedder.dimension  # load model outside the timed region
     dim = embedder.dimension
 
@@ -271,6 +285,7 @@ def main():
         "corpus_size": len(corpus),
         "num_queries": len(queries),
         "model": args.model,
+        "query_prefix": query_prefix,
         "embedding_dim": dim,
         "ignore_identical_ids": ignore_identical,
         "seed": args.seed,
