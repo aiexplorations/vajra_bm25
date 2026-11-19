@@ -90,6 +90,14 @@ def setup_jvm_environment():
     if os.environ.get("JVM_PATH"):
         return
 
+    # Honor an explicit JAVA_HOME (e.g. brew's openjdk, which java_home does not list)
+    explicit_home = os.environ.get("JAVA_HOME")
+    if explicit_home:
+        jvm_path = os.path.join(explicit_home, "lib", "server", "libjvm.dylib")
+        if os.path.exists(jvm_path):
+            os.environ["JVM_PATH"] = jvm_path
+            return
+
     try:
         # Get Java home from macOS java_home utility
         result = subprocess.run(
@@ -698,6 +706,10 @@ class PyseriniEngine:
         # Configure JVM environment before importing pyserini
         setup_jvm_environment()
 
+        # pyserini.encode constructs an OpenAI client at import time and fails without a key.
+        # No OpenAI calls are made here, so a placeholder is enough.
+        os.environ.setdefault("OPENAI_API_KEY", "unused-placeholder-for-pyserini-import")
+
         # Lazy import to avoid JVM conflicts with multiprocessing
         from pyserini.search.lucene import LuceneSearcher
         self.LuceneSearcher = LuceneSearcher
@@ -1088,7 +1100,7 @@ def append_to_log(results: List[DatasetResult], log_path: Path):
 
 DATASET_CHOICES = [
     'beir-scifact', 'beir-nfcorpus',
-    'wiki-100k', 'wiki-200k', 'wiki-500k', 'wiki-1m',
+    'wiki-100k', 'wiki-200k', 'wiki-500k', 'wiki-1m', 'wiki-2m', 'wiki-5m',
     'custom',
 ]
 
