@@ -156,10 +156,75 @@ Embedding dimension: all-MiniLM-L6-v2 384, BAAI_bge-small-en-v1.5 384, all-mpnet
 - **Caveats.** Four datasets, one run each, binary nDCG, FiQA lexical is weak (23), and no domain data from Verity.
   Do not change the default model on this evidence alone; check the candidate on Verity's own queries first.
 
-## 5. Reproduce
+## 5. Comparison with other engines (BM25S, Tantivy, Pyserini/Lucene)
+
+Same corpora, same queries, same metrics. Wikipedia 200k to 5M comparisons are not in this file yet
+(pending the owner's runs of `benchmarks/run_suite.sh`).
+
+### 5.1 SciFact, all engines, single run (`beir-scifact-all-engines.json`)
+
+Vajra rows are 0.5.1. "Single" is mean per-query latency; "Batch QPS" runs the 300 queries as a batch
+(16 workers for the parallel variants).
+
+| Engine | Build (s) | Single (ms) | Single QPS | Batch QPS | Recall@10 | nDCG@10 |
+|---|---:|---:|---:|---:|---:|---:|
+| vajra | 0.37 | 0.115 | 8,664 | 8,305 | 78.9 | 67.0 |
+| vajra-parallel | 0.34 | 0.116 | 8,637 | 6,959 | 78.9 | 67.0 |
+| bm25s | 0.26 | 0.125 | 7,987 | 15,839 | 77.4 | 66.2 |
+| bm25s-parallel | 0.25 | 0.125 | 7,981 | 11,398 | 77.4 | 66.2 |
+| tantivy | 0.03 | 0.178 | 5,610 | 5,441 | 73.1 | 60.4 |
+| pyserini (Lucene) | 1.28 | 0.534 | 1,874 | 8,568 | 81.7 | 68.8 |
+
+### 5.2 Four BEIR datasets (nDCG@10, recall@10, p50 single-query latency, index build)
+
+Vajra, BM25S and Tantivy come from the 0.5.1 model-matrix runs; Pyserini comes from the 0.5.0 baseline
+(it does not depend on Vajra code). Vajra and BM25S scores are identical across 0.5.0 and 0.5.1.
+
+| Dataset (docs) | Engine | nDCG@10 | Recall@10 | MRR | p50 (ms) | Build (s) |
+|---|---|---:|---:|---:|---:|---:|
+| SciFact (5,183) | vajra-bm25 | 67.0 | 78.9 | 64.0 | 0.113 | 0.36 |
+| | bm25s | 66.2 | 77.4 | 63.1 | 0.129 | 0.25 |
+| | tantivy | 60.4 | 73.1 | 57.0 | 0.178 | 0.02 |
+| | pyserini | 68.8 | 81.7 | 65.3 | 0.380 | 3.21 |
+| NFCorpus (3,633) | vajra-bm25 | 30.9 | 15.2 | 51.6 | 0.042 | 0.26 |
+| | bm25s | 30.7 | 14.5 | 51.9 | 0.100 | 0.20 |
+| | tantivy | 28.5 | 13.7 | 48.2 | 0.033 | 0.02 |
+| | pyserini | 32.6 | 15.6 | 52.9 | 0.272 | 3.09 |
+| ArguAna (8,674) | vajra-bm25 | 47.7 | 74.5 | 39.4 | 1.474 | 0.51 |
+| | bm25s | 48.2 | 75.4 | 39.7 | 0.330 | 0.33 |
+| | tantivy | 10.7 | 17.3 | 8.6 | 0.026 | 0.02 |
+| | pyserini | 48.5 | 76.0 | 40.0 | 1.024 | 3.34 |
+| FiQA (57,638) | vajra-bm25 | 23.2 | 29.3 | 28.8 | 0.255 | 1.73 |
+| | bm25s | 23.3 | 29.6 | 28.7 | 0.417 | 1.81 |
+| | tantivy | 20.7 | 26.1 | 25.9 | 0.553 | 0.10 |
+| | pyserini | 25.3 | 32.3 | 30.7 | 0.546 | 5.10 |
+
+Vajra index build on these datasets, 0.5.0 against 0.5.1 (the default in-process build): SciFact 0.56 s to
+0.36 s, NFCorpus 0.40 s to 0.26 s, ArguAna 0.75 s to 0.51 s, FiQA 3.01 s to 1.73 s.
+
+### 5.3 Reading the comparison
+
+- **Quality.** Vajra is level with BM25S on all four datasets (within 0.8 nDCG; Vajra ahead on SciFact and NFCorpus). Pyserini/Lucene is higher on every
+  dataset, by 0.8 to 2.1 nDCG over Vajra, probably because it applies stemming, which Vajra and BM25S here do not; I have
+  not isolated the cause. Tantivy is 2 to 7 nDCG behind. Its ArguAna score (10.7) is a wrapper defect: queries that
+  fail to parse are silently dropped, so ignore it. Treat the Tantivy numbers as a lower bound.
+- **Single-query latency.** Vajra is the fastest on SciFact and FiQA among BM25S, Tantivy and Pyserini, and
+  about 2.4x faster than BM25S on NFCorpus. Tantivy is faster on NFCorpus (0.033 ms against 0.042 ms) and on ArguAna,
+  where its number is meaningless. **ArguAna is a weakness:** Vajra's p50 is 1.47 ms against 0.33 ms for BM25S,
+  because ArguAna queries are whole documents (long queries). This needs a look in 0.6.
+- **Batch throughput.** BM25S is about 1.9x Vajra's batch QPS on SciFact (15,839 against 8,305), and Vajra's
+  thread-pool variant is slower than the plain engine on this small corpus (6,959 against 8,305).
+- **Build time.** Tantivy is the fastest builder by a wide margin (0.03 s on SciFact, 0.1 s on FiQA). Vajra builds
+  slower than BM25S on the small corpora and about level with it on FiQA (1.73 s against 1.81 s).
+- **Not covered here.** Wikipedia 200k to 5M (scaling and build cost at size), memory use, and rank-bm25.
+  Single runs, one machine, binary-relevance nDCG.
+
+## 6. Reproduce
 
 ```bash
 TAG=after-0.5.1 caffeinate -i benchmarks/run_suite.sh beir-scifact hybrid-scifact
+# all six engines on SciFact (pyserini needs JAVA_HOME set to a JDK 11+):
+python benchmarks/benchmark.py --datasets beir-scifact --engines vajra vajra-parallel bm25s bm25s-parallel tantivy pyserini
 TAG=models-0.5.1 benchmarks/run_model_matrix.sh && python benchmarks/summarize_models.py models-0.5.1
 python benchmarks/bench_build.py v0.5.1 wiki20000 wiki200000 wiki200000@8   # needs the Wikipedia corpora
 python benchmarks/bench_search.py v0.5.1 200000

@@ -83,6 +83,9 @@ def setup_jvm_environment():
     import subprocess
     import platform
 
+    # pyserini builds an OpenAI client at import time and fails without a key (never used)
+    os.environ.setdefault("OPENAI_API_KEY", "unused-placeholder-for-pyserini-import")
+
     if platform.system() != "Darwin":
         return  # Only needed on macOS
 
