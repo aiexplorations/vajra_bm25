@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Vajra BM25 is a high-performance BM25 search engine using Category Theory abstractions. It provides vectorized implementations with sparse matrix support, achieving up to 291x speedup over rank-bm25 at 100K documents.
 
 **Package name:** `vajra-bm25` (on PyPI)
-**Current version:** 0.4.0
+**Current version:** 0.5.1
 
 ## Development Commands
 
@@ -230,8 +230,20 @@ vajra-search --stats  # Show index statistics
 - Eager scoring tests verify equivalence with traditional scoring
 - Vector search tests cover embeddings, HNSW, flat index, hybrid fusion
 - Index persistence tests verify save/load roundtrip (BM25 + eager scorer)
-- Test suite: 236 tests passing (including 40 vector search tests)
+- Test suite: 360 tests passing (including 40 vector search tests and 48 for the 0.5.1 fixes in `tests/test_v051.py`)
 - All tests should pass with just `pytest tests/ -v`
+
+## 0.5.1 changes (Verity findings)
+
+- `VajraSearchOptimized._build_index()` / `_build_scorers()` are the single place scorers are created
+  (`__init__`, `load_index`, `add_document(s)`, `remove_document`); never rebuild only `self.scorer`
+- `analyzer` (default `preprocess_text`) applies to documents and queries; `tag_aware_analyzer` is in
+  `text_processing.py`; it is saved by `save_index`, so it must be picklable
+- Sparse index build is in-process by default (`n_jobs=1`); a `spawn` pool needs `n_jobs>1` and 20,000+ docs
+- The library installs only a `NullHandler`; `configure_logging()` is the opt-in
+- `__version__` reads package metadata, so reinstall (`uv pip install -e .`) after changing the version
+- Benchmarks: `benchmarks/run_suite.sh` (tagged runs), `benchmarks/benchmark_hybrid.py`,
+  `benchmarks/summarize_hybrid.py`; baseline in `results/baseline-0.5.0/BASELINE.md`
 
 ## Bug Fixes (v0.4.0)
 

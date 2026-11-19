@@ -121,6 +121,41 @@ engine = VajraSearchOptimized(corpus)
 results = engine.search("neural networks", top_k=10)
 ```
 
+### Updating the index
+
+```python
+engine.add_document(doc)                 # one document: rebuilds the index and every scorer
+engine.add_documents([doc1, doc2, doc3]) # a batch: one rebuild
+engine.remove_document("doc-id")
+```
+
+### Custom analyzers and equipment tags
+
+By default `V-110` is indexed as the common terms `v` and `110`. Pass an `analyzer` (a function from text
+to a list of terms) to change how documents *and* queries are tokenised. `tag_aware_analyzer` keeps the
+default terms and adds the joined tag, so a query for `V-110` matches a rare term instead of two common ones:
+
+```python
+from vajra_bm25 import VajraSearchOptimized, tag_aware_analyzer
+
+engine = VajraSearchOptimized(corpus, analyzer=tag_aware_analyzer)
+engine.search("What is the design pressure of V-110?")   # also indexes v110, p400a/p400b for P-400A/B, ...
+```
+
+An analyzer used with `save_index` or `n_jobs > 1` must be a module-level function (not a lambda).
+
+### Build parallelism
+
+Index builds tokenise in-process by default (`n_jobs=1`), which is fastest for small and medium corpora
+and safe inside threaded servers. For very large corpora pass `n_jobs=-1` (or a count) to tokenise in a
+`spawn` process pool; it is used from 20,000 documents. Scripts that do this need an
+`if __name__ == "__main__":` guard.
+
+### Logging
+
+Vajra attaches only a `NullHandler`: its log records go to your application's logging setup. For plain
+console output in a script, call `vajra_bm25.logging_config.configure_logging()`.
+
 ## Parallel Batch Processing
 
 For high-throughput scenarios, use the parallel batch processing version. This version is much faster and able to return results for multiple queries in parallel. There's obviously the overhead due to parallelism, which may work against the search algorithm, but in cases where we have memory limitations, this may work better than Vajra Search Optimized.
@@ -465,6 +500,10 @@ pytest tests/ -v
 # Run with coverage
 pytest --cov=vajra_bm25 --cov-report=html
 ```
+
+## What's New in v0.5.1
+
+Fixes reported by the Verity backend team; see [CHANGELOG.md](CHANGELOG.md).
 
 ## What's New in v0.4.0
 

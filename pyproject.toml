@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vajra-bm25"
-version = "0.5.0"
+version = "0.5.1"
 description = "Categorical BM25 search engine using pure category theory"
 readme = "README.md"
 license = {text = "MIT"}
@@ -66,6 +66,7 @@ benchmark = [
     "rank-bm25>=0.2.2",
     "bm25s>=0.1.0",
     "beir>=1.0.0",
+    "requests>=2.0",  # imported by beir but not declared by it
     "rich>=13.0.0",
     "tantivy>=0.20.0",
 ]
@@ -73,6 +74,7 @@ benchmark-full = [
     "rank-bm25>=0.2.2",
     "bm25s>=0.1.0",
     "beir>=1.0.0",
+    "requests>=2.0",  # imported by beir but not declared by it
     "rich>=13.0.0",
     "tantivy>=0.20.0",
     "pyserini>=0.20.0",  # Requires Java 11+
@@ -80,6 +82,7 @@ benchmark-full = [
 cli = [
     "rich>=13.0.0",
     "beir>=1.0.0",
+    "requests>=2.0",  # imported by beir but not declared by it
 ]
 all = [
     "numpy>=1.20.0",

@@ -41,7 +41,12 @@ Parallel Batch Processing:
     batch_results = engine.search_batch(["query1", "query2", "query3"])
 """
 
-__version__ = "0.4.1"
+from importlib import metadata as _metadata
+
+try:
+    __version__ = _metadata.version("vajra-bm25")
+except _metadata.PackageNotFoundError:  # running from a source tree that was never installed
+    __version__ = "0+unknown"
 
 # Core document types
 from vajra_bm25.documents import (
@@ -53,6 +58,7 @@ from vajra_bm25.documents import (
 # Text processing
 from vajra_bm25.text_processing import (
     preprocess_text,
+    tag_aware_analyzer,
     tokenize,
     Token,
     STOP_WORDS,
@@ -109,6 +115,7 @@ __all__ = [
     "create_sample_corpus",
     # Text processing
     "preprocess_text",
+    "tag_aware_analyzer",
     "tokenize",
     "Token",
     "STOP_WORDS",
