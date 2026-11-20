@@ -19,7 +19,7 @@ import pytest
 
 import vajra_bm25
 
-TARGET_VERSION = "0.5.1"
+TARGET_VERSION = "0.5.1rc1"
 ROOT = Path(__file__).resolve().parent.parent
 
 

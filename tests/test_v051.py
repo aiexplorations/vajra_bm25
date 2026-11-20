@@ -433,4 +433,5 @@ class TestVersion:
         assert vajra_bm25.__version__ == metadata.version("vajra-bm25")
 
     def test_version_is_0_5_1(self):
-        assert vajra_bm25.__version__ == "0.5.1"
+        # "0.5.1" or a 0.5.1 pre-release such as "0.5.1rc1"
+        assert vajra_bm25.__version__.startswith("0.5.1")
