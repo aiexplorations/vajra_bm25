@@ -43,6 +43,15 @@ Parallel Batch Processing:
 
 __version__ = "0.4.1"
 
+import warnings
+warnings.warn(
+    "vajra-bm25 is feature-complete at v0.4.1 and is no longer actively developed. "
+    "Active development has moved to vajra-search (pip install vajra-search), which "
+    "provides a Rust-backed HNSW engine and the same search API.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
 # Core document types
 from vajra_bm25.documents import (
     Document,
