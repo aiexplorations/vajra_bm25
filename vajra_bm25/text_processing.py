@@ -41,6 +41,9 @@ class Token:
         return hash(self.text)
 
 
+_WORD_PATTERN = re.compile(r'\b[a-z0-9]+\b')
+
+
 def tokenize(text: str) -> List[Token]:
     """
     Tokenize text into words.
@@ -102,13 +105,48 @@ def preprocess_text(text: str, remove_stopwords: bool = True) -> List[str]:
 
     This is categorical composition!
     """
-    tokens = tokenize(text)
-
+    # Fast path: same result as tokenize -> remove_stop_words -> normalize_token, without
+    # allocating a Token object per word (the dominant cost of index builds).
+    words = _WORD_PATTERN.findall(text.lower())
     if remove_stopwords:
-        tokens = remove_stop_words(tokens)
+        return [w for w in words if w not in STOP_WORDS]
+    return words
 
-    # Extract normalized terms
-    terms = [normalize_token(token) for token in tokens]
+
+# Hyphenated alphanumeric identifiers such as V-110, P-400A/B or DNV-ST-F101. The optional
+# "/X" covers paired equipment (P-400A/B).
+_TAG_PATTERN = re.compile(r'\b[a-z0-9]+(?:-[a-z0-9]+)+(?:/[a-z])?\b')
+
+
+def tag_aware_analyzer(text: str) -> List[str]:
+    """
+    Analyzer that also indexes equipment tags as single terms.
+
+    Morphism: Text -> List[Term]
+
+    Returns the default terms from preprocess_text (so V-110 still yields "v" and
+    "110"), followed by the joined form of every tag: "v110". Paired tags expand
+    to both members: P-400A/B yields "p400a" and "p400b". A query for "V-110" or
+    "V110" then matches a rare, specific term instead of two common ones.
+
+    Pass it as VajraSearchOptimized(corpus, analyzer=tag_aware_analyzer). The same
+    analyzer is applied to documents and queries.
+    """
+    terms = preprocess_text(text)
+
+    for match in _TAG_PATTERN.finditer(text.lower()):
+        tag = match.group()
+        # Needs a letter and a digit: skips dates (2026-11-19) and plain hyphenated words
+        if not (any(ch.isdigit() for ch in tag) and any(ch.isalpha() for ch in tag)):
+            continue
+
+        base, _, pair = tag.partition('/')
+        joined = base.replace('-', '')
+        terms.append(joined)
+
+        # P-400A/B -> p400a and p400b: the letter after the slash replaces the last letter
+        if pair and joined[-1].isalpha():
+            terms.append(joined[:-1] + pair)
 
     return terms
 

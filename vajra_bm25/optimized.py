@@ -17,8 +17,11 @@ from dataclasses import dataclass
 import numpy as np
 from functools import lru_cache, wraps
 from collections import OrderedDict, Counter
+from functools import partial
+import multiprocessing
+import pickle
 import time
-from multiprocessing import Pool, cpu_count
+from multiprocessing import cpu_count
 
 try:
     from scipy.sparse import csr_matrix, lil_matrix, coo_matrix
@@ -53,7 +56,26 @@ logger = get_logger("optimized")
 # Helper: Parallel tokenization
 # ============================================================================
 
-def _tokenize_document(doc: Document) -> Tuple[str, Dict[str, int], int]:
+# Analyzer: Text -> List[Term]. Applied to documents when indexing and to queries when
+# searching, so both sides always agree. The default is the standard pipeline.
+Analyzer = Callable[[str], List[str]]
+
+# A process pool only pays for itself on large corpora (starting workers costs about a second)
+POOL_MIN_DOCS = 20_000
+
+
+def _resolve_n_jobs(n_jobs: Optional[int]) -> int:
+    """None or 1 -> 1 (in-process); -1 -> all cores; otherwise the requested count."""
+    if n_jobs is None or n_jobs == 1:
+        return 1
+    if n_jobs < 0:
+        return cpu_count()
+    return max(1, n_jobs)
+
+
+def _tokenize_document(
+    doc: Document, analyzer: Analyzer = preprocess_text
+) -> Tuple[str, Dict[str, int], int]:
     """
     Tokenize a single document (for parallel processing).
 
@@ -61,7 +83,7 @@ def _tokenize_document(doc: Document) -> Tuple[str, Dict[str, int], int]:
         (doc_id, term_counts, doc_length)
     """
     full_text = doc.title + " " + doc.content
-    terms = preprocess_text(full_text)
+    terms = analyzer(full_text)
     term_counts = Counter(terms)
     return doc.id, term_counts, len(terms)
 
@@ -188,12 +210,18 @@ class VectorizedIndex:
         self.avg_doc_length: float = 0.0
         self.num_terms: int = 0
 
-    def build(self, corpus: DocumentCorpus):
+    def build(self, corpus: DocumentCorpus, analyzer: Optional[Analyzer] = None):
         """
         Build vectorized index.
 
+        Args:
+            corpus: Documents to index
+            analyzer: Text -> List[Term]; defaults to preprocess_text
+
         Morphism: Corpus -> VectorizedIndex
         """
+        analyzer = analyzer or preprocess_text
+
         # Build term and doc vocabularies
         term_set = set()
         doc_term_counts = []
@@ -203,7 +231,7 @@ class VectorizedIndex:
             self.id_to_doc[doc_idx] = doc.id
 
             full_text = doc.title + " " + doc.content
-            terms = preprocess_text(full_text)
+            terms = analyzer(full_text)
 
             term_counts = {}
             for term in terms:
@@ -398,25 +426,44 @@ class VectorizedIndexSparse:
         self.avg_doc_length: float = 0.0
         self.num_terms: int = 0
 
-    def build(self, corpus: DocumentCorpus):
+    def build(
+        self,
+        corpus: DocumentCorpus,
+        analyzer: Optional[Analyzer] = None,
+        n_jobs: Optional[int] = 1,
+    ):
         """
         Build sparse vectorized index with optimizations.
 
         Optimizations:
-        - Parallel tokenization (uses multiprocessing)
+        - Optional parallel tokenization (spawn-context process pool)
         - COO format construction (3-5x faster than LIL)
         - Single-pass vocabulary building
 
+        Args:
+            corpus: Documents to index
+            analyzer: Text -> List[Term]; defaults to preprocess_text. With n_jobs > 1
+                it must be picklable (a module-level function, not a lambda).
+            n_jobs: Tokenization processes. 1 (default) tokenizes in-process, which is
+                faster for all but large corpora and safe inside threaded servers.
+                A pool is used only when n_jobs > 1 and the corpus has POOL_MIN_DOCS
+                or more documents; -1 means all cores. Scripts using a pool must guard
+                their entry point with `if __name__ == "__main__":` (spawn start method).
+
         Morphism: Corpus -> SparseVectorizedIndex
         """
-        n_jobs = min(cpu_count(), len(corpus) // 100 + 1)  # At least 100 docs per worker
-        logger.info(f"Building sparse index with {n_jobs} workers...")
+        analyzer = analyzer or preprocess_text
+        n_jobs = _resolve_n_jobs(n_jobs)
+        tokenize = partial(_tokenize_document, analyzer=analyzer)
 
-        # ====================================================================
-        # OPTIMIZATION: Parallel tokenization
-        # ====================================================================
-        with Pool(processes=n_jobs) as pool:
-            results = pool.map(_tokenize_document, corpus.documents)
+        if n_jobs > 1 and len(corpus) >= POOL_MIN_DOCS:
+            logger.info(f"Building sparse index with {n_jobs} tokenizer processes...")
+            chunksize = max(1, len(corpus) // (n_jobs * 4))
+            with multiprocessing.get_context("spawn").Pool(processes=n_jobs) as pool:
+                results = pool.map(tokenize, corpus.documents, chunksize=chunksize)
+        else:
+            logger.info("Building sparse index (in-process tokenization)...")
+            results = [tokenize(doc) for doc in corpus.documents]
 
         # Extract results using zip (faster than loop with appends)
         doc_ids, doc_term_counts, doc_lengths_list = zip(*results) if results else ([], [], [])
@@ -1361,6 +1408,8 @@ class VajraSearchOptimized:
         use_numba: bool = True,  # Use Numba JIT scorer when available (much faster)
         use_eager: bool = True,  # Use eager scoring (pre-computed BM25 scores) - fastest!
         embedding_model: Optional[str] = None,  # Embedding model for vector/hybrid search
+        analyzer: Optional[Analyzer] = None,  # Text -> List[Term], applied to documents and queries
+        n_jobs: Optional[int] = 1,  # Tokenizer processes for large sparse builds (see VectorizedIndexSparse.build)
     ):
         self.corpus = corpus
         self.use_sparse = use_sparse
@@ -1369,6 +1418,8 @@ class VajraSearchOptimized:
         self.use_eager = use_eager
         self.k1 = k1
         self.b = b
+        self.analyzer = analyzer or preprocess_text
+        self.n_jobs = n_jobs
         self._embedding_model_name = embedding_model or self.DEFAULT_EMBEDDING_MODEL
 
         # Lazy-loaded vector search components
@@ -1394,52 +1445,74 @@ class VajraSearchOptimized:
 
         self._use_sparse_actual = use_sparse_actual
 
-        # Build index (sparse or dense)
-        if use_sparse_actual:
-            logger.info("Building optimized SPARSE vectorized index...")
-            start = time.time()
-            self.index = VectorizedIndexSparse()
-            self.index.build(corpus)
-            build_time = time.time() - start
-            logger.info(f"Built sparse index in {build_time:.3f}s ({self.index.num_terms} terms, {self.index.num_docs} docs)")
+        if use_sparse_actual and use_numba and not NUMBA_AVAILABLE:
+            logger.warning("Numba not available. Install with: pip install numba")
 
-            # Create scorers
+        # Build index (sparse or dense) and every scorer on top of it
+        self._build_index()
+
+    def _build_index(self):
+        """
+        Build self.index from self.corpus, then every scorer on it.
+
+        The index type (sparse or dense) is fixed at construction and kept across
+        add/remove rebuilds. Used by __init__, add_document, remove_document and
+        add_documents so that no scorer can keep pointing at an old index.
+        """
+        start = time.time()
+        if self._use_sparse_actual:
+            logger.info("Building optimized SPARSE vectorized index...")
+            self.index = VectorizedIndexSparse()
+            self.index.build(self.corpus, analyzer=self.analyzer, n_jobs=self.n_jobs)
+            kind = "sparse"
+        else:
+            logger.info("Building optimized vectorized index...")
+            self.index = VectorizedIndex()
+            self.index.build(self.corpus, analyzer=self.analyzer)
+            kind = "dense"
+        build_time = time.time() - start
+        logger.info(f"Built {kind} index in {build_time:.3f}s ({self.index.num_terms} terms, {self.index.num_docs} docs)")
+
+        self._build_scorers()
+        logger.debug(f"Average document length: {self.index.avg_doc_length:.2f}")
+
+    def _build_scorers(self):
+        """
+        (Re)create every scorer for the current self.index and BM25 parameters.
+
+        Called whenever self.index is replaced or restored from disk. The eager score
+        matrix is reused when the index already holds one for these k1/b values.
+        """
+        k1, b = self.k1, self.b
+
+        if isinstance(self.index, VectorizedIndexSparse):
             self.scorer = SparseBM25Scorer(self.index, k1, b)
             self.maxscore_scorer = MaxScoreBM25Scorer(self.index, k1, b)
 
-            # Create Numba scorer if available (primary scorer for speed)
+            # Numba scorer if available (primary scorer for speed)
             if self.use_numba:
                 logger.info("Initializing Numba JIT scorer (this may take a moment on first run)...")
                 self.numba_scorer = NumbaSparseBM25Scorer(self.index, k1, b)
                 logger.info("Numba scorer ready")
             else:
                 self.numba_scorer = None
-                if use_numba and not NUMBA_AVAILABLE:
-                    logger.warning("Numba not available. Install with: pip install numba")
 
-            # Create eager scorer if enabled (fastest for query-time)
+            # Eager scorer if enabled (fastest for query-time)
             if self.use_eager:
-                logger.info("Building eager score matrix for fast query-time scoring...")
-                self.index.build_score_matrix(k1, b)
+                if (self.index.score_matrix is None
+                        or self.index._eager_k1 != k1 or self.index._eager_b != b):
+                    logger.info("Building eager score matrix for fast query-time scoring...")
+                    self.index.build_score_matrix(k1, b)
                 self.eager_scorer = EagerSparseBM25Scorer(self.index)
                 logger.info("Eager scorer ready")
             else:
                 self.eager_scorer = None
         else:
-            logger.info("Building optimized vectorized index...")
-            start = time.time()
-            self.index = VectorizedIndex()
-            self.index.build(corpus)
-            build_time = time.time() - start
-            logger.info(f"Built dense index in {build_time:.3f}s ({self.index.num_terms} terms, {self.index.num_docs} docs)")
-
-            # Create vectorized scorer (MaxScore, Numba, and Eager not available for dense)
+            # Dense index: MaxScore, Numba and Eager scorers are not available
             self.scorer = VectorizedBM25Scorer(self.index, k1, b)
             self.maxscore_scorer = None
             self.numba_scorer = None
             self.eager_scorer = None
-
-        logger.debug(f"Average document length: {self.index.avg_doc_length:.2f}")
 
     def save_index(self, filepath: Path):
         """
@@ -1453,6 +1526,16 @@ class VajraSearchOptimized:
             raise ImportError("joblib required for index persistence. Install with: pip install joblib")
 
         filepath = Path(filepath)
+
+        # The analyzer is stored by reference, so it must be importable (not a lambda or closure)
+        try:
+            pickle.dumps(self.analyzer)
+        except Exception as e:
+            raise ValueError(
+                f"Cannot save index: the analyzer {self.analyzer!r} is not picklable ({e}). "
+                "Use a module-level function."
+            ) from e
+
         filepath.parent.mkdir(parents=True, exist_ok=True)
 
         # Save index, scorer, and all configuration needed for reconstruction
@@ -1469,6 +1552,9 @@ class VajraSearchOptimized:
             'use_maxscore': self.use_maxscore,
             'use_numba': self.use_numba,
             'use_eager': self.use_eager,
+            # Text analysis and build configuration
+            'analyzer': self.analyzer,
+            'n_jobs': self.n_jobs,
             # Internal state
             '_use_sparse_actual': getattr(self, '_use_sparse_actual', self.use_sparse),
         }
@@ -1513,6 +1599,10 @@ class VajraSearchOptimized:
         instance.use_eager = index_data.get('use_eager', True)
         instance._use_sparse_actual = index_data.get('_use_sparse_actual', instance.use_sparse)
 
+        # Files written before 0.5.1 have no analyzer: they used the default pipeline
+        instance.analyzer = index_data.get('analyzer') or preprocess_text
+        instance.n_jobs = index_data.get('n_jobs', 1)
+
         # Initialize vector search components (lazy-loaded)
         instance._embedding_model_name = index_data.get('embedding_model', VajraSearchOptimized.DEFAULT_EMBEDDING_MODEL)
         instance._vector_engine = None
@@ -1524,32 +1614,7 @@ class VajraSearchOptimized:
         instance.query_cache = LRUCache(capacity=cache_size) if cache_size > 0 else None
 
         # Recreate scorers based on index type and flags
-        if isinstance(instance.index, VectorizedIndexSparse):
-            # MaxScore scorer
-            instance.maxscore_scorer = MaxScoreBM25Scorer(instance.index, instance.k1, instance.b)
-
-            # Numba scorer (if available and enabled)
-            if instance.use_numba and NUMBA_AVAILABLE:
-                logger.info("Initializing Numba JIT scorer...")
-                instance.numba_scorer = NumbaSparseBM25Scorer(instance.index, instance.k1, instance.b)
-            else:
-                instance.numba_scorer = None
-
-            # Eager scorer (if index has score_matrix and enabled)
-            if instance.use_eager and instance.index.score_matrix is not None:
-                instance.eager_scorer = EagerSparseBM25Scorer(instance.index)
-            elif instance.use_eager and instance.index.score_matrix is None:
-                # Rebuild score matrix if needed
-                logger.info("Building eager score matrix...")
-                instance.index.build_score_matrix(instance.k1, instance.b)
-                instance.eager_scorer = EagerSparseBM25Scorer(instance.index)
-            else:
-                instance.eager_scorer = None
-        else:
-            # Dense index: these scorers are not available
-            instance.maxscore_scorer = None
-            instance.numba_scorer = None
-            instance.eager_scorer = None
+        instance._build_scorers()
 
         logger.info(f"Index loaded ({index_data.get('corpus_size', 'unknown')} documents)")
 
@@ -1676,8 +1741,8 @@ class VajraSearchOptimized:
             if cached_results is not None:
                 return cached_results
 
-        # Preprocess query
-        query_terms = preprocess_text(query)
+        # Analyze the query with the same analyzer used for the documents
+        query_terms = self.analyzer(query)
 
         if not query_terms:
             return []
@@ -1797,43 +1862,47 @@ class VajraSearchOptimized:
 
     def add_document(self, doc: Document):
         """
-        Add a document to the index incrementally.
+        Add a document to the index.
 
         Categorical interpretation: Morphism (Index, Document) -> Index
-        - Extends the index structure without full rebuild
         - Updates IDF values (affected morphisms)
         - Clears cache (invalidates cached results)
 
-        Note: For sparse indices, this requires matrix reconstruction.
-        For frequent updates, consider batch additions.
+        The index and every scorer are rebuilt, so the document is found by every
+        search path. For several documents use add_documents(), which rebuilds once.
         """
-        # Clear cache since results will change
-        if self.query_cache:
-            self.query_cache.clear()
+        self.add_documents([doc])
 
-        # Add to corpus
-        if doc.id in [d.id for d in self.corpus.documents]:
-            raise ValueError(f"Document {doc.id} already exists in corpus")
+    def add_documents(self, docs: List[Document]):
+        """
+        Add multiple documents with a single index rebuild.
 
-        # Add document to corpus
-        self.corpus = DocumentCorpus(list(self.corpus.documents) + [doc])
+        Categorical interpretation: Morphism (Index, List[Document]) -> Index
 
-        # Rebuild index (for now - could be optimized further)
-        # This is still categorical: same morphism, just recomputed
-        logger.info(f"Adding document {doc.id} (rebuilding index)...")
-        start = time.time()
+        Raises:
+            ValueError: If an ID already exists in the corpus or appears twice in docs.
+                Nothing is changed in that case.
+        """
+        docs = list(docs)
+        if not docs:
+            return
 
-        if isinstance(self.index, VectorizedIndexSparse):
-            self.index = VectorizedIndexSparse()
-            self.index.build(self.corpus)
-            self.scorer = SparseBM25Scorer(self.index, self.scorer.k1, self.scorer.b)
-        else:
-            self.index = VectorizedIndex()
-            self.index.build(self.corpus)
-            self.scorer = VectorizedBM25Scorer(self.index, self.scorer.k1, self.scorer.b)
+        seen = set()
+        for doc in docs:
+            if self.corpus.get(doc.id) is not None or doc.id in seen:
+                raise ValueError(f"Document {doc.id} already exists in corpus")
+            seen.add(doc.id)
 
-        rebuild_time = time.time() - start
-        logger.info(f"Index rebuilt in {rebuild_time:.3f}s")
+        self._replace_corpus(list(self.corpus.documents) + docs)
+
+        # Vector search is built lazily over the corpus: keep it in step if it exists
+        if self._vector_initialized and self._vector_engine is not None:
+            for doc in docs:
+                self._vector_engine.add_document(doc)
+
+    def batch_add_documents(self, docs: List[Document]):
+        """Alias for add_documents (kept for compatibility)."""
+        self.add_documents(docs)
 
     def remove_document(self, doc_id: str):
         """
@@ -1847,70 +1916,32 @@ class VajraSearchOptimized:
         Note: Requires index rebuild. For frequent removals,
         consider marking as deleted and rebuilding periodically.
         """
-        # Clear cache
-        if self.query_cache:
-            self.query_cache.clear()
-
-        # Remove from corpus
         remaining_docs = [d for d in self.corpus.documents if d.id != doc_id]
 
         if len(remaining_docs) == len(self.corpus.documents):
             raise ValueError(f"Document {doc_id} not found in corpus")
 
-        self.corpus = DocumentCorpus(remaining_docs)
+        self._replace_corpus(remaining_docs)
 
-        # Rebuild index
-        logger.info(f"Removing document {doc_id} (rebuilding index)...")
-        start = time.time()
+        # The vector indices cannot all delete: rebuild vector search lazily on next use
+        if self._vector_initialized:
+            self._vector_engine = None
+            self._hybrid_engine = None
+            self._vector_initialized = False
 
-        if isinstance(self.index, VectorizedIndexSparse):
-            self.index = VectorizedIndexSparse()
-            self.index.build(self.corpus)
-            self.scorer = SparseBM25Scorer(self.index, self.scorer.k1, self.scorer.b)
-        else:
-            self.index = VectorizedIndex()
-            self.index.build(self.corpus)
-            self.scorer = VectorizedBM25Scorer(self.index, self.scorer.k1, self.scorer.b)
-
-        rebuild_time = time.time() - start
-        logger.info(f"Index rebuilt in {rebuild_time:.3f}s")
-
-    def batch_add_documents(self, docs: List[Document]):
+    def _replace_corpus(self, documents: List[Document]):
         """
-        Add multiple documents efficiently.
+        Make `documents` the corpus and rebuild the index and every scorer.
 
-        Categorical interpretation: Morphism (Index, List[Document]) -> Index
-        - Batches additions for efficiency
-        - Single rebuild instead of N rebuilds
+        The caller's original DocumentCorpus object is left untouched.
         """
-        # Clear cache
         if self.query_cache:
             self.query_cache.clear()
 
-        # Check for duplicates
-        existing_ids = {d.id for d in self.corpus.documents}
-        for doc in docs:
-            if doc.id in existing_ids:
-                raise ValueError(f"Document {doc.id} already exists")
+        self.corpus = DocumentCorpus(documents)
 
-        # Add all documents
-        self.corpus = DocumentCorpus(list(self.corpus.documents) + docs)
-
-        # Single rebuild
-        logger.info(f"Adding {len(docs)} documents (rebuilding index)...")
-        start = time.time()
-
-        if isinstance(self.index, VectorizedIndexSparse):
-            self.index = VectorizedIndexSparse()
-            self.index.build(self.corpus)
-            self.scorer = SparseBM25Scorer(self.index, self.scorer.k1, self.scorer.b)
-        else:
-            self.index = VectorizedIndex()
-            self.index.build(self.corpus)
-            self.scorer = VectorizedBM25Scorer(self.index, self.scorer.k1, self.scorer.b)
-
-        rebuild_time = time.time() - start
-        logger.info(f"Index rebuilt in {rebuild_time:.3f}s ({len(self.corpus)} total documents)")
+        logger.info(f"Corpus changed ({len(documents)} documents): rebuilding index...")
+        self._build_index()
 
 
 if __name__ == "__main__":

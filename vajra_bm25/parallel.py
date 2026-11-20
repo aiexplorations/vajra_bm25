@@ -38,8 +38,9 @@ class VajraSearchParallel(VajraSearchOptimized):
     Optimized for batch query processing with multi-core parallelism.
     """
 
-    def __init__(self, corpus, k1=1.5, b=0.75, max_workers=4, use_sparse=False, cache_size=1000):
-        super().__init__(corpus, k1, b, use_sparse=use_sparse, cache_size=cache_size)
+    def __init__(self, corpus, k1=1.5, b=0.75, max_workers=4, use_sparse=False, cache_size=1000, **kwargs):
+        # kwargs (analyzer, n_jobs, ...) go to VajraSearchOptimized
+        super().__init__(corpus, k1, b, use_sparse=use_sparse, cache_size=cache_size, **kwargs)
         self.max_workers = max_workers
 
     def search_batch(self, queries: List[str], top_k: int = 10) -> List[List[SearchResult]]:

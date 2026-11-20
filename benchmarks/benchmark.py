@@ -83,12 +83,23 @@ def setup_jvm_environment():
     import subprocess
     import platform
 
+    # pyserini builds an OpenAI client at import time and fails without a key (never used)
+    os.environ.setdefault("OPENAI_API_KEY", "unused-placeholder-for-pyserini-import")
+
     if platform.system() != "Darwin":
         return  # Only needed on macOS
 
     # Skip if already configured
     if os.environ.get("JVM_PATH"):
         return
+
+    # Honor an explicit JAVA_HOME (e.g. brew's openjdk, which java_home does not list)
+    explicit_home = os.environ.get("JAVA_HOME")
+    if explicit_home:
+        jvm_path = os.path.join(explicit_home, "lib", "server", "libjvm.dylib")
+        if os.path.exists(jvm_path):
+            os.environ["JVM_PATH"] = jvm_path
+            return
 
     try:
         # Get Java home from macOS java_home utility
@@ -529,6 +540,18 @@ def mrr(retrieved: List[str], relevant: List[str]) -> float:
 # Engine Wrappers
 # =============================================================================
 
+# Tokenizer processes for Vajra index builds (--vajra-n-jobs). None = library default. Only
+# passed when the installed vajra-bm25 supports it (0.5.1+; 0.5.0 always used a pool).
+VAJRA_N_JOBS: Optional[int] = None
+
+
+def _vajra_build_kwargs() -> Dict[str, Any]:
+    import inspect
+    if VAJRA_N_JOBS is not None and "n_jobs" in inspect.signature(VajraSearchOptimized.__init__).parameters:
+        return {"n_jobs": VAJRA_N_JOBS}
+    return {}
+
+
 class VajraEngine:
     """Wrapper for Vajra search engines."""
 
@@ -542,9 +565,10 @@ class VajraEngine:
 
     def build(self):
         if self.parallel:
-            self.engine = VajraSearchParallel(self.corpus, max_workers=self.workers, cache_size=self.cache_size)
+            self.engine = VajraSearchParallel(self.corpus, max_workers=self.workers, cache_size=self.cache_size,
+                                              **_vajra_build_kwargs())
         else:
-            self.engine = VajraSearchOptimized(self.corpus, cache_size=self.cache_size)
+            self.engine = VajraSearchOptimized(self.corpus, cache_size=self.cache_size, **_vajra_build_kwargs())
 
     def clear_cache(self):
         """Clear query cache if available."""
@@ -697,6 +721,10 @@ class PyseriniEngine:
 
         # Configure JVM environment before importing pyserini
         setup_jvm_environment()
+
+        # pyserini.encode constructs an OpenAI client at import time and fails without a key.
+        # No OpenAI calls are made here, so a placeholder is enough.
+        os.environ.setdefault("OPENAI_API_KEY", "unused-placeholder-for-pyserini-import")
 
         # Lazy import to avoid JVM conflicts with multiprocessing
         from pyserini.search.lucene import LuceneSearcher
@@ -1088,7 +1116,7 @@ def append_to_log(results: List[DatasetResult], log_path: Path):
 
 DATASET_CHOICES = [
     'beir-scifact', 'beir-nfcorpus',
-    'wiki-100k', 'wiki-200k', 'wiki-500k', 'wiki-1m',
+    'wiki-100k', 'wiki-200k', 'wiki-500k', 'wiki-1m', 'wiki-2m', 'wiki-5m',
     'custom',
 ]
 
@@ -1158,8 +1186,16 @@ Examples:
         '--workers', type=int, default=8,
         help="Number of workers for parallel engines (default: 8)"
     )
+    parser.add_argument(
+        '--vajra-n-jobs', type=int, default=None,
+        help="Tokenizer processes for Vajra index builds (-1 = all cores). Default: the library's "
+             "default (1 from 0.5.1; 0.5.0 always used a process pool)"
+    )
 
     args = parser.parse_args()
+
+    global VAJRA_N_JOBS
+    VAJRA_N_JOBS = args.vajra_n_jobs
 
     # Setup
     print_header("VAJRA BM25 BENCHMARK")

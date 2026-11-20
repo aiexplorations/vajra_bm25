@@ -1,8 +1,10 @@
 """
 Logging configuration for Vajra BM25.
 
-Provides centralized logging setup with configurable levels and formats.
-Can be controlled via environment variables:
+As a library, Vajra only attaches a NullHandler to its "vajra_bm25" logger: records
+propagate to the application's logging configuration and the application chooses the
+level and destination. Scripts that want Vajra's own console output can opt in with
+configure_logging(), which can be controlled via environment variables:
 - VAJRA_LOG_LEVEL: Set log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
 - VAJRA_LOG_FORMAT: Set log format (simple, detailed, json)
 """
@@ -44,7 +46,10 @@ def configure_logging(
     logger_name: str = "vajra_bm25"
 ) -> logging.Logger:
     """
-    Configure logging for Vajra BM25.
+    Opt in to Vajra's own console logging (stdout handler, no propagation).
+
+    Not called on import. Libraries should not install handlers, so by default Vajra
+    records flow to the application's logging setup instead.
 
     Args:
         level: Logging level (defaults to environment or INFO)
@@ -97,5 +102,8 @@ def get_logger(name: str) -> logging.Logger:
     return logging.getLogger(f"vajra_bm25.{name}")
 
 
-# Configure root vajra logger on module import
-_root_logger = configure_logging()
+# Library default: a NullHandler and nothing else. No level is set and propagation stays on,
+# so the application's root logger decides what is shown and where it goes.
+_root_logger = logging.getLogger("vajra_bm25")
+if not any(isinstance(h, logging.NullHandler) for h in _root_logger.handlers):
+    _root_logger.addHandler(logging.NullHandler())
