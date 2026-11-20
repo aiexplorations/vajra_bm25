@@ -1,0 +1,279 @@
+{
+  "benchmark": "hybrid",
+  "dataset": "BEIR/arguana",
+  "timestamp": "2026-11-20T18:11:46.936748",
+  "corpus_size": 8674,
+  "num_queries": 1401,
+  "model": "all-MiniLM-L6-v2",
+  "query_prefix": "",
+  "embedding_dim": 384,
+  "ignore_identical_ids": true,
+  "seed": 42,
+  "device": "mps:0",
+  "platform": "macOS-27.2.1-arm64-arm-64bit",
+  "build": {
+    "vajra_build_s": 0.5047645000158809,
+    "bm25s_build_s": 0.33242145797703415,
+    "tantivy_build_s": 0.02581941697280854,
+    "embed_corpus_s": 5.727513416961301,
+    "flat_add_s": 0.0077420000452548265,
+    "hnsw_add_s": 7.52115370798856,
+    "query_embed_ms_avg": 3.3645537414122373
+  },
+  "results": [
+    {
+      "system": "vajra-bm25",
+      "kind": "lexical",
+      "recall_at_10": 74.51820128479658,
+      "ndcg_at_10": 47.746605340129754,
+      "mrr": 39.35706354871237,
+      "avg_latency_ms": 1.6218315205702307,
+      "p50_latency_ms": 1.4666670467704535,
+      "p95_latency_ms": 2.9161249985918403,
+      "params": {}
+    },
+    {
+      "system": "bm25s",
+      "kind": "lexical",
+      "recall_at_10": 75.44610992148465,
+      "ndcg_at_10": 48.21838116459084,
+      "mrr": 39.67752625675538,
+      "avg_latency_ms": 0.35018247755298887,
+      "p50_latency_ms": 0.3358329995535314,
+      "p95_latency_ms": 0.5152089870534837,
+      "params": {}
+    },
+    {
+      "system": "tantivy",
+      "kind": "lexical",
+      "recall_at_10": 17.273376159885796,
+      "ndcg_at_10": 10.738586991601483,
+      "mrr": 8.652889659313642,
+      "avg_latency_ms": 0.30524723640949514,
+      "p50_latency_ms": 0.026291003450751305,
+      "p95_latency_ms": 1.4327079989016056,
+      "params": {}
+    },
+    {
+      "system": "vajra-flat",
+      "kind": "vector",
+      "recall_at_10": 76.23126338329764,
+      "ndcg_at_10": 49.093328324433436,
+      "mrr": 40.57583585420845,
+      "avg_latency_ms": 4.538294132694211,
+      "p50_latency_ms": 4.537290951702744,
+      "p95_latency_ms": 4.9146669916808605,
+      "params": {}
+    },
+    {
+      "system": "vajra-hnsw ef=50",
+      "kind": "vector",
+      "recall_at_10": 75.44610992148465,
+      "ndcg_at_10": 48.57897167683502,
+      "mrr": 40.14360490805887,
+      "avg_latency_ms": 3.510157330072007,
+      "p50_latency_ms": 3.518582961987704,
+      "p95_latency_ms": 3.843708022031933,
+      "params": {
+        "ef_search": 50,
+        "M": 16,
+        "ef_construction": 200
+      }
+    },
+    {
+      "system": "vajra-hnsw ef=100",
+      "kind": "vector",
+      "recall_at_10": 75.80299785867237,
+      "ndcg_at_10": 48.81358150875374,
+      "mrr": 40.33989327351212,
+      "avg_latency_ms": 3.725903332530907,
+      "p50_latency_ms": 3.7189589929766953,
+      "p95_latency_ms": 4.098290984984487,
+      "params": {
+        "ef_search": 100,
+        "M": 16,
+        "ef_construction": 200
+      }
+    },
+    {
+      "system": "hybrid vajra+flat rrf a=0.3",
+      "kind": "hybrid",
+      "recall_at_10": 79.72876516773732,
+      "ndcg_at_10": 51.92955223380421,
+      "mrr": 43.2262103032981,
+      "avg_latency_ms": 6.789993505343611,
+      "p50_latency_ms": 6.357625010423362,
+      "p95_latency_ms": 8.94504098687321,
+      "params": {
+        "fusion": "rrf",
+        "alpha": 0.3,
+        "vector": "flat"
+      }
+    },
+    {
+      "system": "hybrid vajra+flat rrf a=0.5",
+      "kind": "hybrid",
+      "recall_at_10": 80.08565310492506,
+      "ndcg_at_10": 52.62926796147538,
+      "mrr": 44.032352174750464,
+      "avg_latency_ms": 6.790578080976727,
+      "p50_latency_ms": 6.352791970130056,
+      "p95_latency_ms": 8.891500008758157,
+      "params": {
+        "fusion": "rrf",
+        "alpha": 0.5,
+        "vector": "flat"
+      }
+    },
+    {
+      "system": "hybrid vajra+flat rrf a=0.7",
+      "kind": "hybrid",
+      "recall_at_10": 78.22983583154888,
+      "ndcg_at_10": 51.32672929303481,
+      "mrr": 42.88549562104166,
+      "avg_latency_ms": 6.78440873417405,
+      "p50_latency_ms": 6.360916013363749,
+      "p95_latency_ms": 8.908124989829957,
+      "params": {
+        "fusion": "rrf",
+        "alpha": 0.7,
+        "vector": "flat"
+      }
+    },
+    {
+      "system": "hybrid vajra+flat linear a=0.3",
+      "kind": "hybrid",
+      "recall_at_10": 77.37330478229836,
+      "ndcg_at_10": 50.721302142500335,
+      "mrr": 42.33617144216716,
+      "avg_latency_ms": 6.7772546075208036,
+      "p50_latency_ms": 6.346917012706399,
+      "p95_latency_ms": 8.91945802140981,
+      "params": {
+        "fusion": "linear",
+        "alpha": 0.3,
+        "vector": "flat"
+      }
+    },
+    {
+      "system": "hybrid vajra+flat linear a=0.5",
+      "kind": "hybrid",
+      "recall_at_10": 79.5146324054247,
+      "ndcg_at_10": 52.02767441809873,
+      "mrr": 43.392503087363906,
+      "avg_latency_ms": 6.78879342495273,
+      "p50_latency_ms": 6.369750015437603,
+      "p95_latency_ms": 8.902832982130349,
+      "params": {
+        "fusion": "linear",
+        "alpha": 0.5,
+        "vector": "flat"
+      }
+    },
+    {
+      "system": "hybrid vajra+flat linear a=0.7",
+      "kind": "hybrid",
+      "recall_at_10": 81.44182726623839,
+      "ndcg_at_10": 53.47122813071513,
+      "mrr": 44.704236203165536,
+      "avg_latency_ms": 6.757227711033523,
+      "p50_latency_ms": 6.320790969766676,
+      "p95_latency_ms": 8.945209032390267,
+      "params": {
+        "fusion": "linear",
+        "alpha": 0.7,
+        "vector": "flat"
+      }
+    },
+    {
+      "system": "hybrid vajra+flat rsf a=0.3",
+      "kind": "hybrid",
+      "recall_at_10": 80.0142755174875,
+      "ndcg_at_10": 52.50337842169205,
+      "mrr": 43.86302867566251,
+      "avg_latency_ms": 6.7620014694624375,
+      "p50_latency_ms": 6.331375043373555,
+      "p95_latency_ms": 8.94729100400582,
+      "params": {
+        "fusion": "rsf",
+        "alpha": 0.3,
+        "vector": "flat"
+      }
+    },
+    {
+      "system": "hybrid vajra+flat rsf a=0.5",
+      "kind": "hybrid",
+      "recall_at_10": 80.1570306923626,
+      "ndcg_at_10": 53.229417816893175,
+      "mrr": 44.7800607275982,
+      "avg_latency_ms": 6.806773410488165,
+      "p50_latency_ms": 6.360125029459596,
+      "p95_latency_ms": 8.949416980613023,
+      "params": {
+        "fusion": "rsf",
+        "alpha": 0.5,
+        "vector": "flat"
+      }
+    },
+    {
+      "system": "hybrid vajra+flat rsf a=0.7",
+      "kind": "hybrid",
+      "recall_at_10": 79.87152034261243,
+      "ndcg_at_10": 52.729253479515606,
+      "mrr": 44.22529825634751,
+      "avg_latency_ms": 6.785473703283107,
+      "p50_latency_ms": 6.338874984066933,
+      "p95_latency_ms": 8.97941697621718,
+      "params": {
+        "fusion": "rsf",
+        "alpha": 0.7,
+        "vector": "flat"
+      }
+    },
+    {
+      "system": "hybrid vajra+hnsw rrf a=0.5",
+      "kind": "hybrid",
+      "recall_at_10": 79.80014275517487,
+      "ndcg_at_10": 52.278473800110206,
+      "mrr": 43.669714376352495,
+      "avg_latency_ms": 5.574576548539331,
+      "p50_latency_ms": 5.35729102557525,
+      "p95_latency_ms": 7.885584025643766,
+      "params": {
+        "fusion": "rrf",
+        "alpha": 0.5,
+        "vector": "hnsw ef=50"
+      }
+    },
+    {
+      "system": "hybrid bm25s+flat rrf a=0.5",
+      "kind": "hybrid",
+      "recall_at_10": 80.72805139186295,
+      "ndcg_at_10": 52.66097373847527,
+      "mrr": 43.861357533734406,
+      "avg_latency_ms": 4.98252944363684,
+      "p50_latency_ms": 4.974916984792799,
+      "p95_latency_ms": 5.512416013516486,
+      "params": {
+        "fusion": "rrf",
+        "alpha": 0.5,
+        "vector": "flat"
+      }
+    },
+    {
+      "system": "hybrid tantivy+flat rrf a=0.5",
+      "kind": "hybrid",
+      "recall_at_10": 76.58815132048537,
+      "ndcg_at_10": 49.41788007295661,
+      "mrr": 40.89437250036821,
+      "avg_latency_ms": 4.967429458534612,
+      "p50_latency_ms": 4.690875008236617,
+      "p95_latency_ms": 6.913500023074448,
+      "params": {
+        "fusion": "rrf",
+        "alpha": 0.5,
+        "vector": "flat"
+      }
+    }
+  ]
+}
