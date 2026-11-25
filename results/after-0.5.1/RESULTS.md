@@ -5,7 +5,7 @@ branch `feat/v0.5.1`. The 0.5.0 numbers come from `results/baseline-0.5.0/` and 
 extract of the 0.5.0 commit run in the same session. Every figure is a single run: differences under
 about 3% (search) or 1 s (builds) are noise.
 
-## 1. What 0.5.1 changes (Verity findings)
+## 1. What 0.5.1 changes (downstream-reported findings)
 
 | Finding | Change | Status |
 |---|---|---|
@@ -153,8 +153,8 @@ Embedding dimension: all-MiniLM-L6-v2 384, BAAI_bge-small-en-v1.5 384, all-mpnet
 - **The default fusion (rrf, alpha 0.5) can hurt.** mpnet on FiQA scores 43.1 with the default against 50.0 for
   vector-only; BGE on FiQA scores 36.1 against 40.3; MiniLM on FiQA 35.0 against 36.9. The best fusion on FiQA is
   linear with alpha 0.3, on SciFact linear 0.5, on NFCorpus rsf 0.5. This supports revisiting the hybrid default in 0.6.
-- **Caveats.** Four datasets, one run each, binary nDCG, FiQA lexical is weak (23), and no domain data from Verity.
-  Do not change the default model on this evidence alone; check the candidate on Verity's own queries first.
+- **Caveats.** Four datasets, one run each, binary nDCG, FiQA lexical is weak (23), and no domain-specific data.
+  Do not change the default model on this evidence alone; check the candidate on your own queries first.
 
 ## 5. Comparison with other engines (BM25S, Tantivy, Pyserini/Lucene)
 

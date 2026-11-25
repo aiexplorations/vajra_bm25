@@ -1,0 +1,2143 @@
+{
+  "benchmark_run": "2026-11-20T18:13:35.128835",
+  "datasets": [
+    {
+      "dataset": "Wikipedia/200K",
+      "corpus_size": 200000,
+      "num_queries": 464,
+      "timestamp": "2026-11-20T18:13:35.100184",
+      "results": [
+        {
+          "engine": "vajra",
+          "build_time_s": 29.099160194396973,
+          "index_loaded": false,
+          "avg_latency_ms": 0.41561291135590656,
+          "p50_latency_ms": 0.392913818359375,
+          "p95_latency_ms": 0.7729530334472656,
+          "recall_at_10": 98.27586206896551,
+          "ndcg_at_10": 92.88285759678145,
+          "mrr": 91.07980979748221,
+          "queries_per_sec": 2406.0850196823135,
+          "batch_latency_ms": 0.4209526653947501,
+          "batch_qps": 2375.564005663786,
+          "sample_queries": [
+            {
+              "query_id": "wiki_q0",
+              "query_text": "List of German names for places in Poland",
+              "latency_ms": 0.7691383361816406,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "5399915",
+                  "title": "List of German names for places in Poland",
+                  "snippet": "Below are links to subpages listing German language names of towns and villages in different regions of Poland. Due to the country's history, many of those names have been in actual use locally, and a...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "5206958",
+                  "title": "German exonyms",
+                  "snippet": "Below is a list of German language exonyms for formerly German places and other places in non-German-speaking areas of the world.  Archaic names are in italics.  Algeria  Belarus  Belgium    List of G...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "5465156",
+                  "title": "Lithuanian exonyms",
+                  "snippet": "This is a list of Lithuanian language exonyms for places outside the Republic of Lithuania.  Albania  Austria  Belarus  Belgium  Denmark  Estonia  France  Italy  Latvia  Netherlands  Moldova  Poland...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "5230750",
+                  "title": "English exonyms",
+                  "snippet": "An English exonym is a name in the English language for a place (a toponym), or occasionally other terms, which does not follow the local usage (the endonym). Exonyms and endonyms are features of all...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5363853",
+                  "title": "List of Russian exonyms",
+                  "snippet": "Below is a list of Russian language exonyms for places, mainly in Europe. Note that this list only includes names that are significantly different from the local toponym, some exonyms are marked as hi...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "5217699",
+                  "title": "List of German place names for places in Switzerland",
+                  "snippet": "This is list of German language exonyms for places in multilingual and fully non-German-speaking areas of Switzerland.  Complete list of names  See also   German exonyms  List of European exonyms  Ger...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "5196687",
+                  "title": "List of European exonyms",
+                  "snippet": "Below is a list with links to further Wikipedia-pages containing lists of exonyms of various European languages for villages, towns, and cities in Europe.  Albanian exonyms Basque exonyms Bulgarian ex...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "5245136",
+                  "title": "List of German exonyms for places in Denmark",
+                  "snippet": "Below is list of German language exonyms for places in Denmark. This article does not include spelling changes with the same rough pronunciation, names spelled alike, and the predictable sending chang...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5231145",
+                  "title": "Danish exonyms",
+                  "snippet": "Danish language exonyms for non-Danish speaking locations exist, primarily in Europe, but many of these are no longer commonly used, with a few notable exceptions. Rom (Rome), Lissabon (Lisboa (Lisbon...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "5576273",
+                  "title": "List of German exonyms for places in Estonia",
+                  "snippet": "Below is a list of German language exonyms for settlements and other places in Estonia.  Complete list  See also German exonyms List of European exonyms List of German exonyms for places in Latvia  Re...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5399915"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "wiki_q2",
+              "query_text": "Christ College (Sydney)",
+              "latency_ms": 0.3581047058105469,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "4075594",
+                  "title": "Christ College (Sydney)",
+                  "snippet": "Christ College, formerly known as the Presbyterian Theological Centre, is the theological college of the Presbyterian Church of Australia in New South Wales. It provides theological education for mini...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "4113574",
+                  "title": "Sydney College of Divinity",
+                  "snippet": "The Sydney College of Divinity (SCD) is a consortium of Christian theological educational institutions and Bible colleges based in Sydney, New South Wales, Australia. The college is structured as a fe...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "5597577",
+                  "title": "Marcus Loane",
+                  "snippet": "Sir Marcus Lawrence Loane  (14 October 191114 April 2009) was an Australian Anglican bishop. He was the Anglican Archbishop of Sydney from 1966 to 1982 and Primate of Australia from 1977 to 1982. He w...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4570214",
+                  "title": "Association of Presbyterian Colleges and Universities",
+                  "snippet": "The Association of Presbyterian Colleges and Universities is a private, not-for-profit organization of colleges and universities associated with the Presbyterian Church (USA), a Mainline Protestant Ch...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "4601470",
+                  "title": "Lisa Hensley (actress)",
+                  "snippet": "Lisa Hensley is an Australian actress who first came to prominence with a leading role in the television mini-series Brides of Christ. She went to high school at Brigidine College, St Ives, Sydney, Ne...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4802974",
+                  "title": "Brandon Slay",
+                  "snippet": "Brandon Slay (born October 14, 1975) is an America former freestyle wrestler. He won an Olympic gold medal for the United States in wrestling at the 2000 Summer Olympics. Slay also helped found Dallas...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "4088093",
+                  "title": "St Mary's Cathedral Choir, Sydney",
+                  "snippet": "St Mary's Cathedral Choir in Sydney is the oldest musical institution in Australia. In 1818 a group of choristers was formed to sing Vespers before the Blessed Sacrament in the Dempsey Household, the...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "4188949",
+                  "title": "Santa Sabina College",
+                  "snippet": "Santa Sabina College (abbreviated as Santa, Santa Sabina or SSC) is a multi-campus independent Roman Catholic, single-sex, early learning, primary and secondary day school for girls from Year 5 to Yea...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5125491",
+                  "title": "Richard Bowker (Australian businessman)",
+                  "snippet": "Richard Ryther Steer Bowker (30 August 1815 \u2013 3 April 1903) was an Australian mariner, physician, surgeon and politician.  Early life and education Bowker was the son of Thomas Dawson and Elizabeth St...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4355206",
+                  "title": "Kieran West",
+                  "snippet": "Kieran Martin West  (born 18 September 1977) is a retired English rower and Olympic champion who represented Great Britain.  Education  Born in Kingston upon Thames, West was educated at Dulwich Colle...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "4075594"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "wiki_q3",
+              "query_text": "William Leighton Leitch",
+              "latency_ms": 0.4000663757324219,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "5628821",
+                  "title": "William Leighton Leitch",
+                  "snippet": "William Leighton Leitch (2 Nov 1804 \u2013 25 April 1883) was a master Scottish landscape watercolour painter and illustrator. He was Drawing Master to Queen Victoria for 22 years. He was Vice President of...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "4543801",
+                  "title": "Will Leitch",
+                  "snippet": "William F. Leitch (born October 10, 1975 in Mattoon, Illinois) is an American writer and the founding editor of the Gawker Media former sports blog Deadspin. Leitch is a national correspondent for MLB...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "4690340",
+                  "title": "Peter Leitch (businessman)",
+                  "snippet": "Sir Peter Charles Leitch  (born 8 May 1944), also known as The Mad Butcher, is a New Zealand businessman. Although well known in New Zealand for the chain of butcheries he founded and is currently the...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4798937",
+                  "title": "Scott Leitch",
+                  "snippet": "Donald Scott Leitch  (born 6 October 1969) is a Scottish former football player and coach, who played as a midfielder. He played professionally for Dunfermline Athletic, Heart of Midlothian, Swindon T...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5167932",
+                  "title": "Cecil Leitch",
+                  "snippet": "Charlotte Cecilia Pitcairn Leitch (13 April 1891 \u2013 16 September 1977) was a British amateur golfer. She was born in Silloth, Cumberland, England, the daughter of a local physician and one of three sis...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "5399786",
+                  "title": "Warner E. Leighton",
+                  "snippet": "Warner Elvon Leighton (July 31, 1930 \u2013 March 20, 2005) was an American film, sound, music, effects and supervising editor. An only child, he married Patricia Relyea in the early 1950s. He had two daug...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "5576810",
+                  "title": "Megan Leitch",
+                  "snippet": "Megan Leitch is a Canadian actress probably best known for playing Samantha Mulder on The X-Files.  Filmography  Film  Television  External links  References   1965 births Living people Actresses from...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "4383188",
+                  "title": "St Philip's School",
+                  "snippet": "St Philip's Grammar School, in Hagley Road, Edgbaston, Birmingham, was a Roman Catholic state grammar school for boys. It was closed in 1976, but continued as a Sixth Form College until 1995.  History...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5074510",
+                  "title": "Clare Leighton",
+                  "snippet": "Clare Marie Veronica Leighton, sometimes Clara Ellaline Hope Leighton or Clare Veronica Hope Leighton, (12 April 18984 November 1989) was an English/American artist, writer and illustrator, best known...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4219397",
+                  "title": "Thomas M. Leighton",
+                  "snippet": "Thomas M. \"Tom\" Leighton is an American politician. He served as the mayor of the city of Wilkes-Barre, Pennsylvania from 2004 to 2016. Mayor Leighton was the first mayor under the city's Home Rule Ch...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5628821"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "wiki_q6",
+              "query_text": "Changing Horses (Incredible String Band album)",
+              "latency_ms": 0.32401084899902344,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "4465087",
+                  "title": "I Looked Up",
+                  "snippet": "I Looked Up (Elektra EKS 2469 002 / U.S. LP: EKS-74061) is the sixth album by the Incredible String Band.  Recorded at a time when the band was busy rehearsing for their ambitious upcoming stage show,...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "4465063",
+                  "title": "Changing Horses (Incredible String Band album)",
+                  "snippet": "Changing Horses is the fifth album by the Scottish psychedelic folk group, the Incredible String Band (ISB), and was released in November 1969 on Elektra Records (see 1969 in music). The album saw the...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "4299633",
+                  "title": "U (Incredible String Band album)",
+                  "snippet": "U is a double album, the seventh studio album overall, by the British psychedelic folk group the Incredible String Band (ISB) and was released on Elektra Records in October 1970. The majority of the m...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4402706",
+                  "title": "Mike Heron",
+                  "snippet": "James Michael Heron (born 27 December 1942) is a Scottish singer, songwriter and multi-instrumentalist, best known for his work in the Incredible String Band in the 1960s and 1970s.  Career Heron was...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5272489",
+                  "title": "Robin Williamson",
+                  "snippet": "Robin Duncan Harry Williamson (born 24 November 1943) is a Scottish multi-instrumentalist, singer, songwriter, and storyteller who was a founding member of The Incredible String Band.  Career Williams...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4299672",
+                  "title": "Be Glad for the Song Has No Ending",
+                  "snippet": "Be Glad for the Song Has No Ending is the eighth album by the Scottish psychedelic folk group, the Incredible String Band, featuring Mike Heron, Robin Williamson, Licorice McKechnie and Rose Simpson....",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "4378367",
+                  "title": "Wee Tam and the Big Huge",
+                  "snippet": "Wee Tam and the Big Huge is the fourth album by the Scottish psychedelic folk group, the Incredible String Band, released in Europe as both a double LP and separate single LPs in November 1968 by Elek...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "5301562",
+                  "title": "Hangman's Daughter",
+                  "snippet": "Hangman's Daughter may refer to:  The Hangman's Daughter, a novel by Oliver P\u00f6tzsch  Hangman's Daughter, a former subsidiary of Hangman Records The Hangman's Beautiful Daughter, album by The Incredibl...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "4374551",
+                  "title": "Sophie Trudeau (musician)",
+                  "snippet": "Sophie Trudeau is a Canadian musician. She is best known as a member of Godspeed You! Black Emperor, and co-founder (with Efrim Menuck and Thierry Amar) of Thee Silver Mt. Zion Memorial Orchestra & Tr...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4785963",
+                  "title": "Wild Horses (Rolling Stones song)",
+                  "snippet": "\"Wild Horses\" is a song written by the British rock band the Rolling Stones. It was first released in 1970 by The Flying Burrito Brothers as the Stones didn't think the demo was worth recording fully....",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "4465063"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 63.092975357145754
+            },
+            {
+              "query_id": "wiki_q8",
+              "query_text": "No Limits (Reset album)",
+              "latency_ms": 0.6330013275146484,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "4351001",
+                  "title": "Reset (Canadian band)",
+                  "snippet": "Reset is a Canadian punk rock band formed in 1993 in Montreal, Quebec.  History Reset was formed in 1993 by Pierre Bouvier and Chuck Comeau when they were 13 years old. The original band members were...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "5618253",
+                  "title": "No Limits (Reset album)",
+                  "snippet": "No Limits is the second studio album by Canadian punk rock band Reset. It was released in 1999, and re-released in 2006.  Track listing  \"I Know\" (0:52)  \"Pollution\" (2:53)  \"Planet Earth\" (2:25)  \"My...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "5358268",
+                  "title": "Supervisory circuit",
+                  "snippet": "Supervisory circuits are electronic circuits that monitor one or more parameters of systems such as power supplies and microprocessors which must be maintained within certain limits, and take appropri...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4745365",
+                  "title": "Hits Unlimited",
+                  "snippet": "Hits Unlimited is the fourth album from Dutch/Belgian band 2 Unlimited and the last to feature Ray Slijngaard and Anita Doth. It was a greatest hits package featuring 16 songs: 13 previous singles and...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5444113",
+                  "title": "The Face of Dorian Gray",
+                  "snippet": "\"The Face of Dorian Gray\" is the debut single written and recorded by English singer Robert Marlow, released as both a 7-inch and 12-inch single in 1983 by Reset Records. Produced by Vince Clarke and...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4678192",
+                  "title": "Faces (2 Unlimited song)",
+                  "snippet": "\"Faces\" is a song by Belgian/Dutch Eurodance band 2 Unlimited, released on 23 August 1993 as the third single from their second album, No Limits! (1993). Co-written by band members Ray Slijngaard and...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "4643419",
+                  "title": "Axle counter",
+                  "snippet": "An axle counter is a system used in railway signalling to detect the clear or occupied status of a section of track between two points. The system generally consists of a wheel sensor (one for each en...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "4730293",
+                  "title": "Saturday Teenage Kick",
+                  "snippet": "Saturday Teenage Kick is the first studio album by the Dutch electronic musician Junkie XL, released in 1997.  This album features vocal work by Patrick 'Rude Boy' Tilon from the Dutch group Urban Dan...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5595499",
+                  "title": "Here Come the Choppers",
+                  "snippet": "Here Come the Choppers is a 2005 album by Loudon Wainwright III.  The title track is an acerbic and blackly humorous reference to the Iraq War, reset in southern California's Miracle Mile. \"The inspec...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4251260",
+                  "title": "Macintosh Quadra 605",
+                  "snippet": "The Macintosh Quadra 605 (also sold as the Macintosh LC 475 and Macintosh Performa 475) is a personal computer designed, manufactured, and sold by Apple Computer from October 1993 to July 1996. The mo...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5618253"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 63.092975357145754
+            }
+          ]
+        },
+        {
+          "engine": "vajra-parallel",
+          "build_time_s": 0.0,
+          "index_loaded": true,
+          "avg_latency_ms": 0.4172258335968544,
+          "p50_latency_ms": 0.3935098648071289,
+          "p95_latency_ms": 0.7879734039306641,
+          "recall_at_10": 98.27586206896551,
+          "ndcg_at_10": 92.88285759678145,
+          "mrr": 91.07980979748221,
+          "queries_per_sec": 2396.7835150070136,
+          "batch_latency_ms": 0.4283575148418032,
+          "batch_qps": 2334.498556350319,
+          "sample_queries": [
+            {
+              "query_id": "wiki_q0",
+              "query_text": "List of German names for places in Poland",
+              "latency_ms": 0.7910728454589844,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "5399915",
+                  "title": "List of German names for places in Poland",
+                  "snippet": "Below are links to subpages listing German language names of towns and villages in different regions of Poland. Due to the country's history, many of those names have been in actual use locally, and a...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "5206958",
+                  "title": "German exonyms",
+                  "snippet": "Below is a list of German language exonyms for formerly German places and other places in non-German-speaking areas of the world.  Archaic names are in italics.  Algeria  Belarus  Belgium    List of G...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "5465156",
+                  "title": "Lithuanian exonyms",
+                  "snippet": "This is a list of Lithuanian language exonyms for places outside the Republic of Lithuania.  Albania  Austria  Belarus  Belgium  Denmark  Estonia  France  Italy  Latvia  Netherlands  Moldova  Poland...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "5230750",
+                  "title": "English exonyms",
+                  "snippet": "An English exonym is a name in the English language for a place (a toponym), or occasionally other terms, which does not follow the local usage (the endonym). Exonyms and endonyms are features of all...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5363853",
+                  "title": "List of Russian exonyms",
+                  "snippet": "Below is a list of Russian language exonyms for places, mainly in Europe. Note that this list only includes names that are significantly different from the local toponym, some exonyms are marked as hi...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "5217699",
+                  "title": "List of German place names for places in Switzerland",
+                  "snippet": "This is list of German language exonyms for places in multilingual and fully non-German-speaking areas of Switzerland.  Complete list of names  See also   German exonyms  List of European exonyms  Ger...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "5196687",
+                  "title": "List of European exonyms",
+                  "snippet": "Below is a list with links to further Wikipedia-pages containing lists of exonyms of various European languages for villages, towns, and cities in Europe.  Albanian exonyms Basque exonyms Bulgarian ex...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "5245136",
+                  "title": "List of German exonyms for places in Denmark",
+                  "snippet": "Below is list of German language exonyms for places in Denmark. This article does not include spelling changes with the same rough pronunciation, names spelled alike, and the predictable sending chang...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5231145",
+                  "title": "Danish exonyms",
+                  "snippet": "Danish language exonyms for non-Danish speaking locations exist, primarily in Europe, but many of these are no longer commonly used, with a few notable exceptions. Rom (Rome), Lissabon (Lisboa (Lisbon...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "5576273",
+                  "title": "List of German exonyms for places in Estonia",
+                  "snippet": "Below is a list of German language exonyms for settlements and other places in Estonia.  Complete list  See also German exonyms List of European exonyms List of German exonyms for places in Latvia  Re...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5399915"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "wiki_q2",
+              "query_text": "Christ College (Sydney)",
+              "latency_ms": 0.3650188446044922,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "4075594",
+                  "title": "Christ College (Sydney)",
+                  "snippet": "Christ College, formerly known as the Presbyterian Theological Centre, is the theological college of the Presbyterian Church of Australia in New South Wales. It provides theological education for mini...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "4113574",
+                  "title": "Sydney College of Divinity",
+                  "snippet": "The Sydney College of Divinity (SCD) is a consortium of Christian theological educational institutions and Bible colleges based in Sydney, New South Wales, Australia. The college is structured as a fe...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "5597577",
+                  "title": "Marcus Loane",
+                  "snippet": "Sir Marcus Lawrence Loane  (14 October 191114 April 2009) was an Australian Anglican bishop. He was the Anglican Archbishop of Sydney from 1966 to 1982 and Primate of Australia from 1977 to 1982. He w...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4570214",
+                  "title": "Association of Presbyterian Colleges and Universities",
+                  "snippet": "The Association of Presbyterian Colleges and Universities is a private, not-for-profit organization of colleges and universities associated with the Presbyterian Church (USA), a Mainline Protestant Ch...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "4601470",
+                  "title": "Lisa Hensley (actress)",
+                  "snippet": "Lisa Hensley is an Australian actress who first came to prominence with a leading role in the television mini-series Brides of Christ. She went to high school at Brigidine College, St Ives, Sydney, Ne...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4802974",
+                  "title": "Brandon Slay",
+                  "snippet": "Brandon Slay (born October 14, 1975) is an America former freestyle wrestler. He won an Olympic gold medal for the United States in wrestling at the 2000 Summer Olympics. Slay also helped found Dallas...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "4088093",
+                  "title": "St Mary's Cathedral Choir, Sydney",
+                  "snippet": "St Mary's Cathedral Choir in Sydney is the oldest musical institution in Australia. In 1818 a group of choristers was formed to sing Vespers before the Blessed Sacrament in the Dempsey Household, the...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "4188949",
+                  "title": "Santa Sabina College",
+                  "snippet": "Santa Sabina College (abbreviated as Santa, Santa Sabina or SSC) is a multi-campus independent Roman Catholic, single-sex, early learning, primary and secondary day school for girls from Year 5 to Yea...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5125491",
+                  "title": "Richard Bowker (Australian businessman)",
+                  "snippet": "Richard Ryther Steer Bowker (30 August 1815 \u2013 3 April 1903) was an Australian mariner, physician, surgeon and politician.  Early life and education Bowker was the son of Thomas Dawson and Elizabeth St...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4355206",
+                  "title": "Kieran West",
+                  "snippet": "Kieran Martin West  (born 18 September 1977) is a retired English rower and Olympic champion who represented Great Britain.  Education  Born in Kingston upon Thames, West was educated at Dulwich Colle...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "4075594"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "wiki_q3",
+              "query_text": "William Leighton Leitch",
+              "latency_ms": 0.4050731658935547,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "5628821",
+                  "title": "William Leighton Leitch",
+                  "snippet": "William Leighton Leitch (2 Nov 1804 \u2013 25 April 1883) was a master Scottish landscape watercolour painter and illustrator. He was Drawing Master to Queen Victoria for 22 years. He was Vice President of...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "4543801",
+                  "title": "Will Leitch",
+                  "snippet": "William F. Leitch (born October 10, 1975 in Mattoon, Illinois) is an American writer and the founding editor of the Gawker Media former sports blog Deadspin. Leitch is a national correspondent for MLB...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "4690340",
+                  "title": "Peter Leitch (businessman)",
+                  "snippet": "Sir Peter Charles Leitch  (born 8 May 1944), also known as The Mad Butcher, is a New Zealand businessman. Although well known in New Zealand for the chain of butcheries he founded and is currently the...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4798937",
+                  "title": "Scott Leitch",
+                  "snippet": "Donald Scott Leitch  (born 6 October 1969) is a Scottish former football player and coach, who played as a midfielder. He played professionally for Dunfermline Athletic, Heart of Midlothian, Swindon T...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5167932",
+                  "title": "Cecil Leitch",
+                  "snippet": "Charlotte Cecilia Pitcairn Leitch (13 April 1891 \u2013 16 September 1977) was a British amateur golfer. She was born in Silloth, Cumberland, England, the daughter of a local physician and one of three sis...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "5399786",
+                  "title": "Warner E. Leighton",
+                  "snippet": "Warner Elvon Leighton (July 31, 1930 \u2013 March 20, 2005) was an American film, sound, music, effects and supervising editor. An only child, he married Patricia Relyea in the early 1950s. He had two daug...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "5576810",
+                  "title": "Megan Leitch",
+                  "snippet": "Megan Leitch is a Canadian actress probably best known for playing Samantha Mulder on The X-Files.  Filmography  Film  Television  External links  References   1965 births Living people Actresses from...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "4383188",
+                  "title": "St Philip's School",
+                  "snippet": "St Philip's Grammar School, in Hagley Road, Edgbaston, Birmingham, was a Roman Catholic state grammar school for boys. It was closed in 1976, but continued as a Sixth Form College until 1995.  History...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5074510",
+                  "title": "Clare Leighton",
+                  "snippet": "Clare Marie Veronica Leighton, sometimes Clara Ellaline Hope Leighton or Clare Veronica Hope Leighton, (12 April 18984 November 1989) was an English/American artist, writer and illustrator, best known...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4219397",
+                  "title": "Thomas M. Leighton",
+                  "snippet": "Thomas M. \"Tom\" Leighton is an American politician. He served as the mayor of the city of Wilkes-Barre, Pennsylvania from 2004 to 2016. Mayor Leighton was the first mayor under the city's Home Rule Ch...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5628821"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "wiki_q6",
+              "query_text": "Changing Horses (Incredible String Band album)",
+              "latency_ms": 0.3311634063720703,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "4465087",
+                  "title": "I Looked Up",
+                  "snippet": "I Looked Up (Elektra EKS 2469 002 / U.S. LP: EKS-74061) is the sixth album by the Incredible String Band.  Recorded at a time when the band was busy rehearsing for their ambitious upcoming stage show,...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "4465063",
+                  "title": "Changing Horses (Incredible String Band album)",
+                  "snippet": "Changing Horses is the fifth album by the Scottish psychedelic folk group, the Incredible String Band (ISB), and was released in November 1969 on Elektra Records (see 1969 in music). The album saw the...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "4299633",
+                  "title": "U (Incredible String Band album)",
+                  "snippet": "U is a double album, the seventh studio album overall, by the British psychedelic folk group the Incredible String Band (ISB) and was released on Elektra Records in October 1970. The majority of the m...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4402706",
+                  "title": "Mike Heron",
+                  "snippet": "James Michael Heron (born 27 December 1942) is a Scottish singer, songwriter and multi-instrumentalist, best known for his work in the Incredible String Band in the 1960s and 1970s.  Career Heron was...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5272489",
+                  "title": "Robin Williamson",
+                  "snippet": "Robin Duncan Harry Williamson (born 24 November 1943) is a Scottish multi-instrumentalist, singer, songwriter, and storyteller who was a founding member of The Incredible String Band.  Career Williams...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4299672",
+                  "title": "Be Glad for the Song Has No Ending",
+                  "snippet": "Be Glad for the Song Has No Ending is the eighth album by the Scottish psychedelic folk group, the Incredible String Band, featuring Mike Heron, Robin Williamson, Licorice McKechnie and Rose Simpson....",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "4378367",
+                  "title": "Wee Tam and the Big Huge",
+                  "snippet": "Wee Tam and the Big Huge is the fourth album by the Scottish psychedelic folk group, the Incredible String Band, released in Europe as both a double LP and separate single LPs in November 1968 by Elek...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "5301562",
+                  "title": "Hangman's Daughter",
+                  "snippet": "Hangman's Daughter may refer to:  The Hangman's Daughter, a novel by Oliver P\u00f6tzsch  Hangman's Daughter, a former subsidiary of Hangman Records The Hangman's Beautiful Daughter, album by The Incredibl...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "4374551",
+                  "title": "Sophie Trudeau (musician)",
+                  "snippet": "Sophie Trudeau is a Canadian musician. She is best known as a member of Godspeed You! Black Emperor, and co-founder (with Efrim Menuck and Thierry Amar) of Thee Silver Mt. Zion Memorial Orchestra & Tr...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4785963",
+                  "title": "Wild Horses (Rolling Stones song)",
+                  "snippet": "\"Wild Horses\" is a song written by the British rock band the Rolling Stones. It was first released in 1970 by The Flying Burrito Brothers as the Stones didn't think the demo was worth recording fully....",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "4465063"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 63.092975357145754
+            },
+            {
+              "query_id": "wiki_q8",
+              "query_text": "No Limits (Reset album)",
+              "latency_ms": 0.6320476531982422,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "4351001",
+                  "title": "Reset (Canadian band)",
+                  "snippet": "Reset is a Canadian punk rock band formed in 1993 in Montreal, Quebec.  History Reset was formed in 1993 by Pierre Bouvier and Chuck Comeau when they were 13 years old. The original band members were...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "5618253",
+                  "title": "No Limits (Reset album)",
+                  "snippet": "No Limits is the second studio album by Canadian punk rock band Reset. It was released in 1999, and re-released in 2006.  Track listing  \"I Know\" (0:52)  \"Pollution\" (2:53)  \"Planet Earth\" (2:25)  \"My...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "5358268",
+                  "title": "Supervisory circuit",
+                  "snippet": "Supervisory circuits are electronic circuits that monitor one or more parameters of systems such as power supplies and microprocessors which must be maintained within certain limits, and take appropri...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4745365",
+                  "title": "Hits Unlimited",
+                  "snippet": "Hits Unlimited is the fourth album from Dutch/Belgian band 2 Unlimited and the last to feature Ray Slijngaard and Anita Doth. It was a greatest hits package featuring 16 songs: 13 previous singles and...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5444113",
+                  "title": "The Face of Dorian Gray",
+                  "snippet": "\"The Face of Dorian Gray\" is the debut single written and recorded by English singer Robert Marlow, released as both a 7-inch and 12-inch single in 1983 by Reset Records. Produced by Vince Clarke and...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4678192",
+                  "title": "Faces (2 Unlimited song)",
+                  "snippet": "\"Faces\" is a song by Belgian/Dutch Eurodance band 2 Unlimited, released on 23 August 1993 as the third single from their second album, No Limits! (1993). Co-written by band members Ray Slijngaard and...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "4643419",
+                  "title": "Axle counter",
+                  "snippet": "An axle counter is a system used in railway signalling to detect the clear or occupied status of a section of track between two points. The system generally consists of a wheel sensor (one for each en...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "4730293",
+                  "title": "Saturday Teenage Kick",
+                  "snippet": "Saturday Teenage Kick is the first studio album by the Dutch electronic musician Junkie XL, released in 1997.  This album features vocal work by Patrick 'Rude Boy' Tilon from the Dutch group Urban Dan...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5595499",
+                  "title": "Here Come the Choppers",
+                  "snippet": "Here Come the Choppers is a 2005 album by Loudon Wainwright III.  The title track is an acerbic and blackly humorous reference to the Iraq War, reset in southern California's Miracle Mile. \"The inspec...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4251260",
+                  "title": "Macintosh Quadra 605",
+                  "snippet": "The Macintosh Quadra 605 (also sold as the Macintosh LC 475 and Macintosh Performa 475) is a personal computer designed, manufactured, and sold by Apple Computer from October 1993 to July 1996. The mo...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5618253"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 63.092975357145754
+            }
+          ]
+        },
+        {
+          "engine": "bm25s",
+          "build_time_s": 33.53586196899414,
+          "index_loaded": false,
+          "avg_latency_ms": 0.6313385634586729,
+          "p50_latency_ms": 0.5979537963867188,
+          "p95_latency_ms": 1.0678768157958984,
+          "recall_at_10": 98.27586206896551,
+          "ndcg_at_10": 92.91967465701909,
+          "mrr": 91.13454433497536,
+          "queries_per_sec": 1583.936191893115,
+          "batch_latency_ms": 0.5629458304109244,
+          "batch_qps": 1776.3698494223613,
+          "sample_queries": [
+            {
+              "query_id": "wiki_q0",
+              "query_text": "List of German names for places in Poland",
+              "latency_ms": 1.0900497436523438,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "5399915",
+                  "title": "List of German names for places in Poland",
+                  "snippet": "Below are links to subpages listing German language names of towns and villages in different regions of Poland. Due to the country's history, many of those names have been in actual use locally, and a...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "5206958",
+                  "title": "German exonyms",
+                  "snippet": "Below is a list of German language exonyms for formerly German places and other places in non-German-speaking areas of the world.  Archaic names are in italics.  Algeria  Belarus  Belgium    List of G...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "5465156",
+                  "title": "Lithuanian exonyms",
+                  "snippet": "This is a list of Lithuanian language exonyms for places outside the Republic of Lithuania.  Albania  Austria  Belarus  Belgium  Denmark  Estonia  France  Italy  Latvia  Netherlands  Moldova  Poland...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "5230750",
+                  "title": "English exonyms",
+                  "snippet": "An English exonym is a name in the English language for a place (a toponym), or occasionally other terms, which does not follow the local usage (the endonym). Exonyms and endonyms are features of all...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5363853",
+                  "title": "List of Russian exonyms",
+                  "snippet": "Below is a list of Russian language exonyms for places, mainly in Europe. Note that this list only includes names that are significantly different from the local toponym, some exonyms are marked as hi...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "5217699",
+                  "title": "List of German place names for places in Switzerland",
+                  "snippet": "This is list of German language exonyms for places in multilingual and fully non-German-speaking areas of Switzerland.  Complete list of names  See also   German exonyms  List of European exonyms  Ger...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "5196687",
+                  "title": "List of European exonyms",
+                  "snippet": "Below is a list with links to further Wikipedia-pages containing lists of exonyms of various European languages for villages, towns, and cities in Europe.  Albanian exonyms Basque exonyms Bulgarian ex...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "5245136",
+                  "title": "List of German exonyms for places in Denmark",
+                  "snippet": "Below is list of German language exonyms for places in Denmark. This article does not include spelling changes with the same rough pronunciation, names spelled alike, and the predictable sending chang...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5576273",
+                  "title": "List of German exonyms for places in Estonia",
+                  "snippet": "Below is a list of German language exonyms for settlements and other places in Estonia.  Complete list  See also German exonyms List of European exonyms List of German exonyms for places in Latvia  Re...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "5231145",
+                  "title": "Danish exonyms",
+                  "snippet": "Danish language exonyms for non-Danish speaking locations exist, primarily in Europe, but many of these are no longer commonly used, with a few notable exceptions. Rom (Rome), Lissabon (Lisboa (Lisbon...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5399915"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "wiki_q2",
+              "query_text": "Christ College (Sydney)",
+              "latency_ms": 0.8046627044677734,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "4075594",
+                  "title": "Christ College (Sydney)",
+                  "snippet": "Christ College, formerly known as the Presbyterian Theological Centre, is the theological college of the Presbyterian Church of Australia in New South Wales. It provides theological education for mini...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "4113574",
+                  "title": "Sydney College of Divinity",
+                  "snippet": "The Sydney College of Divinity (SCD) is a consortium of Christian theological educational institutions and Bible colleges based in Sydney, New South Wales, Australia. The college is structured as a fe...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "5597577",
+                  "title": "Marcus Loane",
+                  "snippet": "Sir Marcus Lawrence Loane  (14 October 191114 April 2009) was an Australian Anglican bishop. He was the Anglican Archbishop of Sydney from 1966 to 1982 and Primate of Australia from 1977 to 1982. He w...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4570214",
+                  "title": "Association of Presbyterian Colleges and Universities",
+                  "snippet": "The Association of Presbyterian Colleges and Universities is a private, not-for-profit organization of colleges and universities associated with the Presbyterian Church (USA), a Mainline Protestant Ch...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "4601470",
+                  "title": "Lisa Hensley (actress)",
+                  "snippet": "Lisa Hensley is an Australian actress who first came to prominence with a leading role in the television mini-series Brides of Christ. She went to high school at Brigidine College, St Ives, Sydney, Ne...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4088093",
+                  "title": "St Mary's Cathedral Choir, Sydney",
+                  "snippet": "St Mary's Cathedral Choir in Sydney is the oldest musical institution in Australia. In 1818 a group of choristers was formed to sing Vespers before the Blessed Sacrament in the Dempsey Household, the...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "4802974",
+                  "title": "Brandon Slay",
+                  "snippet": "Brandon Slay (born October 14, 1975) is an America former freestyle wrestler. He won an Olympic gold medal for the United States in wrestling at the 2000 Summer Olympics. Slay also helped found Dallas...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "4188949",
+                  "title": "Santa Sabina College",
+                  "snippet": "Santa Sabina College (abbreviated as Santa, Santa Sabina or SSC) is a multi-campus independent Roman Catholic, single-sex, early learning, primary and secondary day school for girls from Year 5 to Yea...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5109191",
+                  "title": "Oakhill College",
+                  "snippet": "Oakhill College is a fee-paying independent Roman Catholic comprehensive co-educational secondary day school, located in Castle Hill, a suburb in the Hills District of the Greater Western region of Sy...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "5125491",
+                  "title": "Richard Bowker (Australian businessman)",
+                  "snippet": "Richard Ryther Steer Bowker (30 August 1815 \u2013 3 April 1903) was an Australian mariner, physician, surgeon and politician.  Early life and education Bowker was the son of Thomas Dawson and Elizabeth St...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "4075594"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "wiki_q3",
+              "query_text": "William Leighton Leitch",
+              "latency_ms": 0.6458759307861328,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "5628821",
+                  "title": "William Leighton Leitch",
+                  "snippet": "William Leighton Leitch (2 Nov 1804 \u2013 25 April 1883) was a master Scottish landscape watercolour painter and illustrator. He was Drawing Master to Queen Victoria for 22 years. He was Vice President of...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "4543801",
+                  "title": "Will Leitch",
+                  "snippet": "William F. Leitch (born October 10, 1975 in Mattoon, Illinois) is an American writer and the founding editor of the Gawker Media former sports blog Deadspin. Leitch is a national correspondent for MLB...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "4690340",
+                  "title": "Peter Leitch (businessman)",
+                  "snippet": "Sir Peter Charles Leitch  (born 8 May 1944), also known as The Mad Butcher, is a New Zealand businessman. Although well known in New Zealand for the chain of butcheries he founded and is currently the...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4798937",
+                  "title": "Scott Leitch",
+                  "snippet": "Donald Scott Leitch  (born 6 October 1969) is a Scottish former football player and coach, who played as a midfielder. He played professionally for Dunfermline Athletic, Heart of Midlothian, Swindon T...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5167932",
+                  "title": "Cecil Leitch",
+                  "snippet": "Charlotte Cecilia Pitcairn Leitch (13 April 1891 \u2013 16 September 1977) was a British amateur golfer. She was born in Silloth, Cumberland, England, the daughter of a local physician and one of three sis...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "5399786",
+                  "title": "Warner E. Leighton",
+                  "snippet": "Warner Elvon Leighton (July 31, 1930 \u2013 March 20, 2005) was an American film, sound, music, effects and supervising editor. An only child, he married Patricia Relyea in the early 1950s. He had two daug...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "5576810",
+                  "title": "Megan Leitch",
+                  "snippet": "Megan Leitch is a Canadian actress probably best known for playing Samantha Mulder on The X-Files.  Filmography  Film  Television  External links  References   1965 births Living people Actresses from...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "4383188",
+                  "title": "St Philip's School",
+                  "snippet": "St Philip's Grammar School, in Hagley Road, Edgbaston, Birmingham, was a Roman Catholic state grammar school for boys. It was closed in 1976, but continued as a Sixth Form College until 1995.  History...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5074510",
+                  "title": "Clare Leighton",
+                  "snippet": "Clare Marie Veronica Leighton, sometimes Clara Ellaline Hope Leighton or Clare Veronica Hope Leighton, (12 April 18984 November 1989) was an English/American artist, writer and illustrator, best known...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4219397",
+                  "title": "Thomas M. Leighton",
+                  "snippet": "Thomas M. \"Tom\" Leighton is an American politician. He served as the mayor of the city of Wilkes-Barre, Pennsylvania from 2004 to 2016. Mayor Leighton was the first mayor under the city's Home Rule Ch...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5628821"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "wiki_q6",
+              "query_text": "Changing Horses (Incredible String Band album)",
+              "latency_ms": 0.6673336029052734,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "4465087",
+                  "title": "I Looked Up",
+                  "snippet": "I Looked Up (Elektra EKS 2469 002 / U.S. LP: EKS-74061) is the sixth album by the Incredible String Band.  Recorded at a time when the band was busy rehearsing for their ambitious upcoming stage show,...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "4465063",
+                  "title": "Changing Horses (Incredible String Band album)",
+                  "snippet": "Changing Horses is the fifth album by the Scottish psychedelic folk group, the Incredible String Band (ISB), and was released in November 1969 on Elektra Records (see 1969 in music). The album saw the...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "4299633",
+                  "title": "U (Incredible String Band album)",
+                  "snippet": "U is a double album, the seventh studio album overall, by the British psychedelic folk group the Incredible String Band (ISB) and was released on Elektra Records in October 1970. The majority of the m...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4402706",
+                  "title": "Mike Heron",
+                  "snippet": "James Michael Heron (born 27 December 1942) is a Scottish singer, songwriter and multi-instrumentalist, best known for his work in the Incredible String Band in the 1960s and 1970s.  Career Heron was...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5272489",
+                  "title": "Robin Williamson",
+                  "snippet": "Robin Duncan Harry Williamson (born 24 November 1943) is a Scottish multi-instrumentalist, singer, songwriter, and storyteller who was a founding member of The Incredible String Band.  Career Williams...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4299672",
+                  "title": "Be Glad for the Song Has No Ending",
+                  "snippet": "Be Glad for the Song Has No Ending is the eighth album by the Scottish psychedelic folk group, the Incredible String Band, featuring Mike Heron, Robin Williamson, Licorice McKechnie and Rose Simpson....",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "4378367",
+                  "title": "Wee Tam and the Big Huge",
+                  "snippet": "Wee Tam and the Big Huge is the fourth album by the Scottish psychedelic folk group, the Incredible String Band, released in Europe as both a double LP and separate single LPs in November 1968 by Elek...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "5301562",
+                  "title": "Hangman's Daughter",
+                  "snippet": "Hangman's Daughter may refer to:  The Hangman's Daughter, a novel by Oliver P\u00f6tzsch  Hangman's Daughter, a former subsidiary of Hangman Records The Hangman's Beautiful Daughter, album by The Incredibl...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "4374551",
+                  "title": "Sophie Trudeau (musician)",
+                  "snippet": "Sophie Trudeau is a Canadian musician. She is best known as a member of Godspeed You! Black Emperor, and co-founder (with Efrim Menuck and Thierry Amar) of Thee Silver Mt. Zion Memorial Orchestra & Tr...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4785963",
+                  "title": "Wild Horses (Rolling Stones song)",
+                  "snippet": "\"Wild Horses\" is a song written by the British rock band the Rolling Stones. It was first released in 1970 by The Flying Burrito Brothers as the Stones didn't think the demo was worth recording fully....",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "4465063"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 63.092975357145754
+            },
+            {
+              "query_id": "wiki_q8",
+              "query_text": "No Limits (Reset album)",
+              "latency_ms": 0.7479190826416016,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "4351001",
+                  "title": "Reset (Canadian band)",
+                  "snippet": "Reset is a Canadian punk rock band formed in 1993 in Montreal, Quebec.  History Reset was formed in 1993 by Pierre Bouvier and Chuck Comeau when they were 13 years old. The original band members were...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "5618253",
+                  "title": "No Limits (Reset album)",
+                  "snippet": "No Limits is the second studio album by Canadian punk rock band Reset. It was released in 1999, and re-released in 2006.  Track listing  \"I Know\" (0:52)  \"Pollution\" (2:53)  \"Planet Earth\" (2:25)  \"My...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "5358268",
+                  "title": "Supervisory circuit",
+                  "snippet": "Supervisory circuits are electronic circuits that monitor one or more parameters of systems such as power supplies and microprocessors which must be maintained within certain limits, and take appropri...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4848306",
+                  "title": "Golden Nugget Casino DS",
+                  "snippet": "Golden Nugget Casino DS is a 2005 video game developed by American studio Skyworks Interactive and released by Majesco Entertainment for the Nintendo DS.  The game, named for the Las Vegas casino of t...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "4745365",
+                  "title": "Hits Unlimited",
+                  "snippet": "Hits Unlimited is the fourth album from Dutch/Belgian band 2 Unlimited and the last to feature Ray Slijngaard and Anita Doth. It was a greatest hits package featuring 16 songs: 13 previous singles and...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4643419",
+                  "title": "Axle counter",
+                  "snippet": "An axle counter is a system used in railway signalling to detect the clear or occupied status of a section of track between two points. The system generally consists of a wheel sensor (one for each en...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "5444113",
+                  "title": "The Face of Dorian Gray",
+                  "snippet": "\"The Face of Dorian Gray\" is the debut single written and recorded by English singer Robert Marlow, released as both a 7-inch and 12-inch single in 1983 by Reset Records. Produced by Vince Clarke and...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "5067528",
+                  "title": "Active-pixel sensor",
+                  "snippet": "An active-pixel sensor (APS) is an image sensor, which was invented by Peter J.W. Noble in 1968, where each pixel sensor unit cell has a photodetector (typically a pinned photodiode) and one or more a...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5595499",
+                  "title": "Here Come the Choppers",
+                  "snippet": "Here Come the Choppers is a 2005 album by Loudon Wainwright III.  The title track is an acerbic and blackly humorous reference to the Iraq War, reset in southern California's Miracle Mile. \"The inspec...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4113714",
+                  "title": "X.75",
+                  "snippet": "X.75 is an International Telecommunication Union (ITU) (formerly CCITT) standard specifying the interface for interconnecting two X.25 networks. X.75 is almost identical to X.25. The significant diffe...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5618253"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 63.092975357145754
+            }
+          ]
+        },
+        {
+          "engine": "bm25s-parallel",
+          "build_time_s": 0.0,
+          "index_loaded": true,
+          "avg_latency_ms": 0.6325969408298361,
+          "p50_latency_ms": 0.5966424942016602,
+          "p95_latency_ms": 1.0540485382080078,
+          "recall_at_10": 98.27586206896551,
+          "ndcg_at_10": 92.91967465701909,
+          "mrr": 91.13454433497536,
+          "queries_per_sec": 1580.7853871190196,
+          "batch_latency_ms": 0.15363148574171395,
+          "batch_qps": 6509.082400473593,
+          "sample_queries": [
+            {
+              "query_id": "wiki_q0",
+              "query_text": "List of German names for places in Poland",
+              "latency_ms": 1.081228256225586,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "5399915",
+                  "title": "List of German names for places in Poland",
+                  "snippet": "Below are links to subpages listing German language names of towns and villages in different regions of Poland. Due to the country's history, many of those names have been in actual use locally, and a...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "5206958",
+                  "title": "German exonyms",
+                  "snippet": "Below is a list of German language exonyms for formerly German places and other places in non-German-speaking areas of the world.  Archaic names are in italics.  Algeria  Belarus  Belgium    List of G...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "5465156",
+                  "title": "Lithuanian exonyms",
+                  "snippet": "This is a list of Lithuanian language exonyms for places outside the Republic of Lithuania.  Albania  Austria  Belarus  Belgium  Denmark  Estonia  France  Italy  Latvia  Netherlands  Moldova  Poland...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "5230750",
+                  "title": "English exonyms",
+                  "snippet": "An English exonym is a name in the English language for a place (a toponym), or occasionally other terms, which does not follow the local usage (the endonym). Exonyms and endonyms are features of all...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5363853",
+                  "title": "List of Russian exonyms",
+                  "snippet": "Below is a list of Russian language exonyms for places, mainly in Europe. Note that this list only includes names that are significantly different from the local toponym, some exonyms are marked as hi...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "5217699",
+                  "title": "List of German place names for places in Switzerland",
+                  "snippet": "This is list of German language exonyms for places in multilingual and fully non-German-speaking areas of Switzerland.  Complete list of names  See also   German exonyms  List of European exonyms  Ger...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "5196687",
+                  "title": "List of European exonyms",
+                  "snippet": "Below is a list with links to further Wikipedia-pages containing lists of exonyms of various European languages for villages, towns, and cities in Europe.  Albanian exonyms Basque exonyms Bulgarian ex...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "5245136",
+                  "title": "List of German exonyms for places in Denmark",
+                  "snippet": "Below is list of German language exonyms for places in Denmark. This article does not include spelling changes with the same rough pronunciation, names spelled alike, and the predictable sending chang...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5576273",
+                  "title": "List of German exonyms for places in Estonia",
+                  "snippet": "Below is a list of German language exonyms for settlements and other places in Estonia.  Complete list  See also German exonyms List of European exonyms List of German exonyms for places in Latvia  Re...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "5231145",
+                  "title": "Danish exonyms",
+                  "snippet": "Danish language exonyms for non-Danish speaking locations exist, primarily in Europe, but many of these are no longer commonly used, with a few notable exceptions. Rom (Rome), Lissabon (Lisboa (Lisbon...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5399915"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "wiki_q2",
+              "query_text": "Christ College (Sydney)",
+              "latency_ms": 0.8161067962646484,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "4075594",
+                  "title": "Christ College (Sydney)",
+                  "snippet": "Christ College, formerly known as the Presbyterian Theological Centre, is the theological college of the Presbyterian Church of Australia in New South Wales. It provides theological education for mini...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "4113574",
+                  "title": "Sydney College of Divinity",
+                  "snippet": "The Sydney College of Divinity (SCD) is a consortium of Christian theological educational institutions and Bible colleges based in Sydney, New South Wales, Australia. The college is structured as a fe...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "5597577",
+                  "title": "Marcus Loane",
+                  "snippet": "Sir Marcus Lawrence Loane  (14 October 191114 April 2009) was an Australian Anglican bishop. He was the Anglican Archbishop of Sydney from 1966 to 1982 and Primate of Australia from 1977 to 1982. He w...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4570214",
+                  "title": "Association of Presbyterian Colleges and Universities",
+                  "snippet": "The Association of Presbyterian Colleges and Universities is a private, not-for-profit organization of colleges and universities associated with the Presbyterian Church (USA), a Mainline Protestant Ch...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "4601470",
+                  "title": "Lisa Hensley (actress)",
+                  "snippet": "Lisa Hensley is an Australian actress who first came to prominence with a leading role in the television mini-series Brides of Christ. She went to high school at Brigidine College, St Ives, Sydney, Ne...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4088093",
+                  "title": "St Mary's Cathedral Choir, Sydney",
+                  "snippet": "St Mary's Cathedral Choir in Sydney is the oldest musical institution in Australia. In 1818 a group of choristers was formed to sing Vespers before the Blessed Sacrament in the Dempsey Household, the...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "4802974",
+                  "title": "Brandon Slay",
+                  "snippet": "Brandon Slay (born October 14, 1975) is an America former freestyle wrestler. He won an Olympic gold medal for the United States in wrestling at the 2000 Summer Olympics. Slay also helped found Dallas...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "4188949",
+                  "title": "Santa Sabina College",
+                  "snippet": "Santa Sabina College (abbreviated as Santa, Santa Sabina or SSC) is a multi-campus independent Roman Catholic, single-sex, early learning, primary and secondary day school for girls from Year 5 to Yea...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5109191",
+                  "title": "Oakhill College",
+                  "snippet": "Oakhill College is a fee-paying independent Roman Catholic comprehensive co-educational secondary day school, located in Castle Hill, a suburb in the Hills District of the Greater Western region of Sy...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "5125491",
+                  "title": "Richard Bowker (Australian businessman)",
+                  "snippet": "Richard Ryther Steer Bowker (30 August 1815 \u2013 3 April 1903) was an Australian mariner, physician, surgeon and politician.  Early life and education Bowker was the son of Thomas Dawson and Elizabeth St...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "4075594"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "wiki_q3",
+              "query_text": "William Leighton Leitch",
+              "latency_ms": 0.6411075592041016,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "5628821",
+                  "title": "William Leighton Leitch",
+                  "snippet": "William Leighton Leitch (2 Nov 1804 \u2013 25 April 1883) was a master Scottish landscape watercolour painter and illustrator. He was Drawing Master to Queen Victoria for 22 years. He was Vice President of...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "4543801",
+                  "title": "Will Leitch",
+                  "snippet": "William F. Leitch (born October 10, 1975 in Mattoon, Illinois) is an American writer and the founding editor of the Gawker Media former sports blog Deadspin. Leitch is a national correspondent for MLB...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "4690340",
+                  "title": "Peter Leitch (businessman)",
+                  "snippet": "Sir Peter Charles Leitch  (born 8 May 1944), also known as The Mad Butcher, is a New Zealand businessman. Although well known in New Zealand for the chain of butcheries he founded and is currently the...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4798937",
+                  "title": "Scott Leitch",
+                  "snippet": "Donald Scott Leitch  (born 6 October 1969) is a Scottish former football player and coach, who played as a midfielder. He played professionally for Dunfermline Athletic, Heart of Midlothian, Swindon T...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5167932",
+                  "title": "Cecil Leitch",
+                  "snippet": "Charlotte Cecilia Pitcairn Leitch (13 April 1891 \u2013 16 September 1977) was a British amateur golfer. She was born in Silloth, Cumberland, England, the daughter of a local physician and one of three sis...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "5399786",
+                  "title": "Warner E. Leighton",
+                  "snippet": "Warner Elvon Leighton (July 31, 1930 \u2013 March 20, 2005) was an American film, sound, music, effects and supervising editor. An only child, he married Patricia Relyea in the early 1950s. He had two daug...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "5576810",
+                  "title": "Megan Leitch",
+                  "snippet": "Megan Leitch is a Canadian actress probably best known for playing Samantha Mulder on The X-Files.  Filmography  Film  Television  External links  References   1965 births Living people Actresses from...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "4383188",
+                  "title": "St Philip's School",
+                  "snippet": "St Philip's Grammar School, in Hagley Road, Edgbaston, Birmingham, was a Roman Catholic state grammar school for boys. It was closed in 1976, but continued as a Sixth Form College until 1995.  History...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5074510",
+                  "title": "Clare Leighton",
+                  "snippet": "Clare Marie Veronica Leighton, sometimes Clara Ellaline Hope Leighton or Clare Veronica Hope Leighton, (12 April 18984 November 1989) was an English/American artist, writer and illustrator, best known...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4219397",
+                  "title": "Thomas M. Leighton",
+                  "snippet": "Thomas M. \"Tom\" Leighton is an American politician. He served as the mayor of the city of Wilkes-Barre, Pennsylvania from 2004 to 2016. Mayor Leighton was the first mayor under the city's Home Rule Ch...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5628821"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "wiki_q6",
+              "query_text": "Changing Horses (Incredible String Band album)",
+              "latency_ms": 0.6508827209472656,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "4465087",
+                  "title": "I Looked Up",
+                  "snippet": "I Looked Up (Elektra EKS 2469 002 / U.S. LP: EKS-74061) is the sixth album by the Incredible String Band.  Recorded at a time when the band was busy rehearsing for their ambitious upcoming stage show,...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "4465063",
+                  "title": "Changing Horses (Incredible String Band album)",
+                  "snippet": "Changing Horses is the fifth album by the Scottish psychedelic folk group, the Incredible String Band (ISB), and was released in November 1969 on Elektra Records (see 1969 in music). The album saw the...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "4299633",
+                  "title": "U (Incredible String Band album)",
+                  "snippet": "U is a double album, the seventh studio album overall, by the British psychedelic folk group the Incredible String Band (ISB) and was released on Elektra Records in October 1970. The majority of the m...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4402706",
+                  "title": "Mike Heron",
+                  "snippet": "James Michael Heron (born 27 December 1942) is a Scottish singer, songwriter and multi-instrumentalist, best known for his work in the Incredible String Band in the 1960s and 1970s.  Career Heron was...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5272489",
+                  "title": "Robin Williamson",
+                  "snippet": "Robin Duncan Harry Williamson (born 24 November 1943) is a Scottish multi-instrumentalist, singer, songwriter, and storyteller who was a founding member of The Incredible String Band.  Career Williams...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4299672",
+                  "title": "Be Glad for the Song Has No Ending",
+                  "snippet": "Be Glad for the Song Has No Ending is the eighth album by the Scottish psychedelic folk group, the Incredible String Band, featuring Mike Heron, Robin Williamson, Licorice McKechnie and Rose Simpson....",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "4378367",
+                  "title": "Wee Tam and the Big Huge",
+                  "snippet": "Wee Tam and the Big Huge is the fourth album by the Scottish psychedelic folk group, the Incredible String Band, released in Europe as both a double LP and separate single LPs in November 1968 by Elek...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "5301562",
+                  "title": "Hangman's Daughter",
+                  "snippet": "Hangman's Daughter may refer to:  The Hangman's Daughter, a novel by Oliver P\u00f6tzsch  Hangman's Daughter, a former subsidiary of Hangman Records The Hangman's Beautiful Daughter, album by The Incredibl...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "4374551",
+                  "title": "Sophie Trudeau (musician)",
+                  "snippet": "Sophie Trudeau is a Canadian musician. She is best known as a member of Godspeed You! Black Emperor, and co-founder (with Efrim Menuck and Thierry Amar) of Thee Silver Mt. Zion Memorial Orchestra & Tr...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4785963",
+                  "title": "Wild Horses (Rolling Stones song)",
+                  "snippet": "\"Wild Horses\" is a song written by the British rock band the Rolling Stones. It was first released in 1970 by The Flying Burrito Brothers as the Stones didn't think the demo was worth recording fully....",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "4465063"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 63.092975357145754
+            },
+            {
+              "query_id": "wiki_q8",
+              "query_text": "No Limits (Reset album)",
+              "latency_ms": 0.7278919219970703,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "4351001",
+                  "title": "Reset (Canadian band)",
+                  "snippet": "Reset is a Canadian punk rock band formed in 1993 in Montreal, Quebec.  History Reset was formed in 1993 by Pierre Bouvier and Chuck Comeau when they were 13 years old. The original band members were...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "5618253",
+                  "title": "No Limits (Reset album)",
+                  "snippet": "No Limits is the second studio album by Canadian punk rock band Reset. It was released in 1999, and re-released in 2006.  Track listing  \"I Know\" (0:52)  \"Pollution\" (2:53)  \"Planet Earth\" (2:25)  \"My...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "5358268",
+                  "title": "Supervisory circuit",
+                  "snippet": "Supervisory circuits are electronic circuits that monitor one or more parameters of systems such as power supplies and microprocessors which must be maintained within certain limits, and take appropri...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4848306",
+                  "title": "Golden Nugget Casino DS",
+                  "snippet": "Golden Nugget Casino DS is a 2005 video game developed by American studio Skyworks Interactive and released by Majesco Entertainment for the Nintendo DS.  The game, named for the Las Vegas casino of t...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "4745365",
+                  "title": "Hits Unlimited",
+                  "snippet": "Hits Unlimited is the fourth album from Dutch/Belgian band 2 Unlimited and the last to feature Ray Slijngaard and Anita Doth. It was a greatest hits package featuring 16 songs: 13 previous singles and...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4643419",
+                  "title": "Axle counter",
+                  "snippet": "An axle counter is a system used in railway signalling to detect the clear or occupied status of a section of track between two points. The system generally consists of a wheel sensor (one for each en...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "5444113",
+                  "title": "The Face of Dorian Gray",
+                  "snippet": "\"The Face of Dorian Gray\" is the debut single written and recorded by English singer Robert Marlow, released as both a 7-inch and 12-inch single in 1983 by Reset Records. Produced by Vince Clarke and...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "5067528",
+                  "title": "Active-pixel sensor",
+                  "snippet": "An active-pixel sensor (APS) is an image sensor, which was invented by Peter J.W. Noble in 1968, where each pixel sensor unit cell has a photodetector (typically a pinned photodiode) and one or more a...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5595499",
+                  "title": "Here Come the Choppers",
+                  "snippet": "Here Come the Choppers is a 2005 album by Loudon Wainwright III.  The title track is an acerbic and blackly humorous reference to the Iraq War, reset in southern California's Miracle Mile. \"The inspec...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4113714",
+                  "title": "X.75",
+                  "snippet": "X.75 is an International Telecommunication Union (ITU) (formerly CCITT) standard specifying the interface for interconnecting two X.25 networks. X.75 is almost identical to X.25. The significant diffe...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5618253"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 63.092975357145754
+            }
+          ]
+        },
+        {
+          "engine": "tantivy",
+          "build_time_s": 2.1378390789031982,
+          "index_loaded": false,
+          "avg_latency_ms": 2.1281468457189097,
+          "p50_latency_ms": 1.8385648727416992,
+          "p95_latency_ms": 4.528999328613281,
+          "recall_at_10": 94.61206896551724,
+          "ndcg_at_10": 94.07912771329994,
+          "mrr": 93.91249315818281,
+          "queries_per_sec": 469.8923864260832,
+          "batch_latency_ms": 2.3398728206239894,
+          "batch_qps": 427.3736551772601,
+          "sample_queries": [
+            {
+              "query_id": "wiki_q0",
+              "query_text": "List of German names for places in Poland",
+              "latency_ms": 5.789995193481445,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "5399915",
+                  "title": "List of German names for places in Poland",
+                  "snippet": "Below are links to subpages listing German language names of towns and villages in different regions of Poland. Due to the country's history, many of those names have been in actual use locally, and a...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "5217699",
+                  "title": "List of German place names for places in Switzerland",
+                  "snippet": "This is list of German language exonyms for places in multilingual and fully non-German-speaking areas of Switzerland.  Complete list of names  See also   German exonyms  List of European exonyms  Ger...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "5576273",
+                  "title": "List of German exonyms for places in Estonia",
+                  "snippet": "Below is a list of German language exonyms for settlements and other places in Estonia.  Complete list  See also German exonyms List of European exonyms List of German exonyms for places in Latvia  Re...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "5206958",
+                  "title": "German exonyms",
+                  "snippet": "Below is a list of German language exonyms for formerly German places and other places in non-German-speaking areas of the world.  Archaic names are in italics.  Algeria  Belarus  Belgium    List of G...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5245136",
+                  "title": "List of German exonyms for places in Denmark",
+                  "snippet": "Below is list of German language exonyms for places in Denmark. This article does not include spelling changes with the same rough pronunciation, names spelled alike, and the predictable sending chang...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "5195591",
+                  "title": "List of Polish exonyms for places in Germany",
+                  "snippet": "This is a list of Polish exonyms for cities, towns, municipalities, islands, rivers, etc. located in Germany. Names officially used now are written in bold. Note that due to the complex Polish-German...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "5207824",
+                  "title": "List of German exonyms for places in Belgium",
+                  "snippet": "This is a list of German language exonyms for towns in Belgium. German is a minority language in Belgium, being especially used in the region of Arelerland.  Complete list of names  See also  German e...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "5580139",
+                  "title": "List of German exonyms for places in Latvia",
+                  "snippet": "This article contains a list of exonyms in German for geographical places in the current and previous territory of Latvia. A large part of the Latgale region of Latvia was included in the Polish\u2013Lithu...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5391371",
+                  "title": "German place names in Alsace",
+                  "snippet": "Below is a list of the historic German language exonyms for towns and village in the Alsace region of France (German: Elsa\u00df) used prior to the annexation of the region by France during the reign of Ki...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4269016",
+                  "title": "List of flag names",
+                  "snippet": "This is an incomplete list of the names and nicknames of flags, organized in alphabetical order by flag name. Very few flags have any truly official names, but some unofficial names are so widely used...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5399915"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "wiki_q2",
+              "query_text": "Christ College (Sydney)",
+              "latency_ms": 1.9121170043945312,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "4075594",
+                  "title": "Christ College (Sydney)",
+                  "snippet": "Christ College, formerly known as the Presbyterian Theological Centre, is the theological college of the Presbyterian Church of Australia in New South Wales. It provides theological education for mini...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "4113574",
+                  "title": "Sydney College of Divinity",
+                  "snippet": "The Sydney College of Divinity (SCD) is a consortium of Christian theological educational institutions and Bible colleges based in Sydney, New South Wales, Australia. The college is structured as a fe...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "4779615",
+                  "title": "Christ College, Rajkot",
+                  "snippet": "Christ College, located in Rajkot, India, is the first English medium College in Arts and Science in the Saurashtra-Kachchh region. Inaugurated by Dr. APJ Abdul Kalam on 25 December 2001. It is includ...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4818181",
+                  "title": "College Street, Sydney",
+                  "snippet": "College Street is a   major street in the central business district of Sydney in New South Wales, Australia. From north to south, it runs from east of Queens Square and St James station to start at th...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "4774027",
+                  "title": "Christ's College, Guildford",
+                  "snippet": "Christ's College is a grade 11 to 16 Church of England secondary school  that serves the Bellfields neighbourhood of Guildford, Surrey, and  England.  The school was previously called Larch Avenue Sch...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4464068",
+                  "title": "Presbyterian Ladies' College, Sydney",
+                  "snippet": "The Presbyterian Ladies' College, Sydney (PLC Sydney) is an independent Presbyterian single-sex early learning, primary and secondary day and boarding school for girls, located in Croydon, an inner-we...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "5109191",
+                  "title": "Oakhill College",
+                  "snippet": "Oakhill College is a fee-paying independent Roman Catholic comprehensive co-educational secondary day school, located in Castle Hill, a suburb in the Hills District of the Greater Western region of Sy...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "4754010",
+                  "title": "St Augustine's College, Sydney",
+                  "snippet": "St Augustine's College, Sydney is an independent Roman Catholic single-sex primary and secondary day school for boys, located in , on the Northern Beaches of Sydney, New South Wales, Australia.  The s...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "4088093",
+                  "title": "St Mary's Cathedral Choir, Sydney",
+                  "snippet": "St Mary's Cathedral Choir in Sydney is the oldest musical institution in Australia. In 1818 a group of choristers was formed to sing Vespers before the Blessed Sacrament in the Dempsey Household, the...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4188949",
+                  "title": "Santa Sabina College",
+                  "snippet": "Santa Sabina College (abbreviated as Santa, Santa Sabina or SSC) is a multi-campus independent Roman Catholic, single-sex, early learning, primary and secondary day school for girls from Year 5 to Yea...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "4075594"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "wiki_q3",
+              "query_text": "William Leighton Leitch",
+              "latency_ms": 1.4903545379638672,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "5628821",
+                  "title": "William Leighton Leitch",
+                  "snippet": "William Leighton Leitch (2 Nov 1804 \u2013 25 April 1883) was a master Scottish landscape watercolour painter and illustrator. He was Drawing Master to Queen Victoria for 22 years. He was Vice President of...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "4543801",
+                  "title": "Will Leitch",
+                  "snippet": "William F. Leitch (born October 10, 1975 in Mattoon, Illinois) is an American writer and the founding editor of the Gawker Media former sports blog Deadspin. Leitch is a national correspondent for MLB...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "4798937",
+                  "title": "Scott Leitch",
+                  "snippet": "Donald Scott Leitch  (born 6 October 1969) is a Scottish former football player and coach, who played as a midfielder. He played professionally for Dunfermline Athletic, Heart of Midlothian, Swindon T...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "5167932",
+                  "title": "Cecil Leitch",
+                  "snippet": "Charlotte Cecilia Pitcairn Leitch (13 April 1891 \u2013 16 September 1977) was a British amateur golfer. She was born in Silloth, Cumberland, England, the daughter of a local physician and one of three sis...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "4690340",
+                  "title": "Peter Leitch (businessman)",
+                  "snippet": "Sir Peter Charles Leitch  (born 8 May 1944), also known as The Mad Butcher, is a New Zealand businessman. Although well known in New Zealand for the chain of butcheries he founded and is currently the...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "5074510",
+                  "title": "Clare Leighton",
+                  "snippet": "Clare Marie Veronica Leighton, sometimes Clara Ellaline Hope Leighton or Clare Veronica Hope Leighton, (12 April 18984 November 1989) was an English/American artist, writer and illustrator, best known...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "5399786",
+                  "title": "Warner E. Leighton",
+                  "snippet": "Warner Elvon Leighton (July 31, 1930 \u2013 March 20, 2005) was an American film, sound, music, effects and supervising editor. An only child, he married Patricia Relyea in the early 1950s. He had two daug...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "5570481",
+                  "title": "Ron Leighton",
+                  "snippet": "Ronald Leighton (24 January 1930 \u2013 28 February 1994) was a British Labour Party politician.  Political career  Leighton contested Middleton and Prestwich at the 1964 general election, but was beaten b...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "5576810",
+                  "title": "Megan Leitch",
+                  "snippet": "Megan Leitch is a Canadian actress probably best known for playing Samantha Mulder on The X-Files.  Filmography  Film  Television  External links  References   1965 births Living people Actresses from...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4323372",
+                  "title": "Leighton Broadcasting",
+                  "snippet": "Leighton Broadcasting is a radio broadcasting company based in St. Cloud, Minnesota that owns several radio stations in St. Cloud as well as in Detroit Lakes, Minnesota and Grand Forks, North Dakota....",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5628821"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "wiki_q6",
+              "query_text": "Changing Horses (Incredible String Band album)",
+              "latency_ms": 3.442049026489258,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "4465063",
+                  "title": "Changing Horses (Incredible String Band album)",
+                  "snippet": "Changing Horses is the fifth album by the Scottish psychedelic folk group, the Incredible String Band (ISB), and was released in November 1969 on Elektra Records (see 1969 in music). The album saw the...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "4299633",
+                  "title": "U (Incredible String Band album)",
+                  "snippet": "U is a double album, the seventh studio album overall, by the British psychedelic folk group the Incredible String Band (ISB) and was released on Elektra Records in October 1970. The majority of the m...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "4465087",
+                  "title": "I Looked Up",
+                  "snippet": "I Looked Up (Elektra EKS 2469 002 / U.S. LP: EKS-74061) is the sixth album by the Incredible String Band.  Recorded at a time when the band was busy rehearsing for their ambitious upcoming stage show,...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "4785963",
+                  "title": "Wild Horses (Rolling Stones song)",
+                  "snippet": "\"Wild Horses\" is a song written by the British rock band the Rolling Stones. It was first released in 1970 by The Flying Burrito Brothers as the Stones didn't think the demo was worth recording fully....",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "4550514",
+                  "title": "Aqua String Band",
+                  "snippet": "The Aqua String Band is an all-volunteer string band, best known for its participation in Philadelphia's annual Mummers Parade.  The band was founded in 1920, and participated in its first Mummers Par...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4402706",
+                  "title": "Mike Heron",
+                  "snippet": "James Michael Heron (born 27 December 1942) is a Scottish singer, songwriter and multi-instrumentalist, best known for his work in the Incredible String Band in the 1960s and 1970s.  Career Heron was...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "5272489",
+                  "title": "Robin Williamson",
+                  "snippet": "Robin Duncan Harry Williamson (born 24 November 1943) is a Scottish multi-instrumentalist, singer, songwriter, and storyteller who was a founding member of The Incredible String Band.  Career Williams...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "4644959",
+                  "title": "They Shoot Horses, Don't They? (band)",
+                  "snippet": "They Shoot Horses, Don't They? was a post punk band from Vancouver, British Columbia, Canada. The band had an eclectic style, combining horns and keyboards with pop and rock rhythms.  History The band...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "4174472",
+                  "title": "Fresh Wine for the Horses",
+                  "snippet": "Fresh Wine for the Horses is the debut studio album by English singer-songwriter Rob Dickinson. Released in 2005, it features tracks that Dickinson wrote while a member of Catherine Wheel but never ma...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4779357",
+                  "title": "Changing of the Guard",
+                  "snippet": "The Changing of the Guard or The Change of the Guard may refer to:  Guard mounting, a formal ceremony in which sentries providing ceremonial guard duties at important institutions are relieved by a ne...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "4465063"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "wiki_q8",
+              "query_text": "No Limits (Reset album)",
+              "latency_ms": 2.3298263549804688,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "5618253",
+                  "title": "No Limits (Reset album)",
+                  "snippet": "No Limits is the second studio album by Canadian punk rock band Reset. It was released in 1999, and re-released in 2006.  Track listing  \"I Know\" (0:52)  \"Pollution\" (2:53)  \"Planet Earth\" (2:25)  \"My...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "4351001",
+                  "title": "Reset (Canadian band)",
+                  "snippet": "Reset is a Canadian punk rock band formed in 1993 in Montreal, Quebec.  History Reset was formed in 1993 by Pierre Bouvier and Chuck Comeau when they were 13 years old. The original band members were...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "5611588",
+                  "title": "Ramsey RESET test",
+                  "snippet": "In statistics, the Ramsey Regression Equation Specification Error Test (RESET) test is a general specification test for the linear regression model. More specifically, it tests whether non-linear comb...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "5358268",
+                  "title": "Supervisory circuit",
+                  "snippet": "Supervisory circuits are electronic circuits that monitor one or more parameters of systems such as power supplies and microprocessors which must be maintained within certain limits, and take appropri...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "4331089",
+                  "title": "Aku no Hana",
+                  "snippet": "is the fifth studio album by the Japanese rock band Buck-Tick. It was released on cassette and CD on February 1, 1990, through Victor Entertainment. It peaked at number one on the Oricon charts and is...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4296034",
+                  "title": "No Compromise (album)",
+                  "snippet": "No Compromise is the second album release by contemporary Christian music artist Keith Green, released in 1978.  The album's title derives from the song \"Make My Life a Prayer to You\" written by Keith...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "5646277",
+                  "title": "List of limits",
+                  "snippet": "This is a list of limits for common functions such as elementary functions. In this article, the terms a, b and c are constants with respect to x.  Limits for general functions  Definitions of limits...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "4622299",
+                  "title": "U.S. Term Limits",
+                  "snippet": "U.S. Term Limits is a non-profit, non-partisan grassroots organization dedicated to enacting term limits for elected officials at every level of government in the United States. It was founded in 1992...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "4153050",
+                  "title": "The Premonition (The Outer Limits)",
+                  "snippet": "\"The Premonition\" is an episode of the television show The Outer Limits. It first aired on 9 January 1965, during the second season.  Opening narration On the fabulous spawning grounds of Man's ever-i...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "4754270",
+                  "title": "No Mean City (album)",
+                  "snippet": "No Mean City is the tenth studio album by the Scottish hard rock band Nazareth, released in 1979.  The album title comes from the 1935 novel No Mean City and features artwork illustrated by Rodney Mat...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5618253"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

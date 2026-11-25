@@ -1,0 +1,2148 @@
+{
+  "benchmark_run": "2026-11-20T18:04:13.242129",
+  "datasets": [
+    {
+      "dataset": "BEIR/scifact",
+      "corpus_size": 5183,
+      "num_queries": 300,
+      "timestamp": "2026-11-20T18:04:13.238000",
+      "results": [
+        {
+          "engine": "vajra",
+          "build_time_s": 0.4017770290374756,
+          "index_loaded": false,
+          "avg_latency_ms": 0.11531035105387369,
+          "p50_latency_ms": 0.11086463928222656,
+          "p95_latency_ms": 0.17976760864257812,
+          "recall_at_10": 78.89444444444445,
+          "ndcg_at_10": 66.9716606656671,
+          "mrr": 63.9558201058201,
+          "queries_per_sec": 8672.248335561775,
+          "batch_latency_ms": 0.11966307957967122,
+          "batch_qps": 8356.796461470005,
+          "sample_queries": [
+            {
+              "query_id": "1",
+              "query_text": "0-dimensional biomaterials show inductive properties.",
+              "latency_ms": 0.09202957153320312,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "10608397",
+                  "title": "High-performance neuroprosthetic control by an individual with tetraplegia.",
+                  "snippet": "BACKGROUND Paralysis or amputation of an arm results in the loss of the ability to orient the hand and grasp, manipulate, and carry objects, functions that are essential for activities of daily living...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "40212412",
+                  "title": "Periosteal bone formation--a neglected determinant of bone strength.",
+                  "snippet": "Life forms that have low body mass can hunt for food on the undersurface of branches or along shear cliff faces quite unperturbed by gravity. For larger animals, the hunt for dinner and the struggle t...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "43385013",
+                  "title": "Epithelial and mesenchymal subpopulations within normal basal breast cell lines exhibit distinct stem cell/progenitor properties.",
+                  "snippet": "It has been proposed that epithelial-mesenchymal transition (EMT) in mammary epithelial cells and breast cancer cells generates stem cell features, and that the presence of EMT characteristics in clau...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "10931595",
+                  "title": "Geometry, epistasis, and developmental patterning.",
+                  "snippet": "Developmental signaling networks are composed of dozens of components whose interactions are very difficult to quantify in an embryo. Geometric reasoning enumerates a discrete hierarchy of phenotypic...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "27049238",
+                  "title": "Large deformation of red blood cell ghosts in a simple shear flow.",
+                  "snippet": "Red blood cells are known to change shape in response to local flow conditions. Deformability affects red blood cell physiological function and the hydrodynamic properties of blood. The immersed bound...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "10906636",
+                  "title": "The carboxyl terminus of human cytomegalovirus-encoded 7 transmembrane receptor US28 camouflages agonism by mediating constitutive endocytosis.",
+                  "snippet": "US28 is one of four 7 transmembrane (7TM) chemokine receptors encoded by human cytomegalovirus and has been shown to both signal and endocytose in a ligand-independent, constitutively active manner. H...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "803312",
+                  "title": "Cerebral organoids model human brain development and microcephaly",
+                  "snippet": "The complexity of the human brain has made it difficult to study many brain disorders in model organisms, highlighting the need for an in vitro model of human brain development. Here we have developed...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "393001",
+                  "title": "High Km soluble 5'-nucleotidase from human placenta. Properties and allosteric regulation by IMP and ATP.",
+                  "snippet": "A human placental soluble \"high Km\" 5'-nucleotidase has been separated from \"low Km\" 5'-nucleotidase and nonspecific phosphatase by AMP-Sepharose affinity chromatography. The enzyme was purified 8000-...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "10086360",
+                  "title": "High-resolution sperm typing of meiotic recombination in the mouse MHC Ebeta gene.",
+                  "snippet": "Meiotic crossovers detected by pedigree analysis in the mouse MHC cluster into hotspots. To explore the properties of hotspots, we subjected the class II E(beta) gene to high-resolution sperm crossove...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "12824568",
+                  "title": "From Cell Differentiation to Cell Collectives: Bacillus subtilis Uses Division of Labor to Migrate",
+                  "snippet": "The organization of cells, emerging from cell-cell interactions, can give rise to collective properties. These properties are adaptive when together cells can face environmental challenges that they s...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "31715818"
+              ],
+              "recall_at_10": 0.0,
+              "ndcg_at_10": 0.0
+            },
+            {
+              "query_id": "3",
+              "query_text": "1,000 genomes project enables mapping of genetic sequence variation consisting of rare variants with larger penetrance effects than common variants.",
+              "latency_ms": 0.17118453979492188,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "14717500",
+                  "title": "Rare Variants Create Synthetic Genome-Wide Associations",
+                  "snippet": "Genome-wide association studies (GWAS) have now identified at least 2,000 common variants that appear associated with common diseases or related traits (http://www.genome.gov/gwastudies), hundreds of...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "23389795",
+                  "title": "Common and rare variants in multifactorial susceptibility to common diseases",
+                  "snippet": "Here, we give a historical overview of the search for genetic variants that influence the susceptibility of an individual to a chronic disease, from RA Fisher's seminal work to the current excitement...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "2739854",
+                  "title": "Rare and common variants: twenty arguments",
+                  "snippet": "Genome-wide association studies have greatly improved our understanding of the genetic basis of disease risk. The fact that they tend not to identify more than a fraction of the specific causal loci h...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "3672261",
+                  "title": "Natural variation in the parameters of innate immune cells is preferentially driven by genetic factors",
+                  "snippet": "The quantification and characterization of circulating immune cells provide key indicators of human health and disease. To identify the relative effects of environmental and genetic factors on variati...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "4632921",
+                  "title": "Large-Scale Profiling Reveals the Influence of Genetic Variation on Gene Expression in Human Induced Pluripotent Stem Cells.",
+                  "snippet": "In this study, we used whole-genome sequencing and gene expression profiling of 215 human induced pluripotent stem cell (iPSC) lines from different donors to identify genetic variants associated with...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4414547",
+                  "title": "Mosaic PPM1D mutations are associated with predisposition to breast and ovarian cancer",
+                  "snippet": "Improved sequencing technologies offer unprecedented opportunities for investigating the role of rare genetic variation in common disease. However, there are considerable challenges with respect to st...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "13519661",
+                  "title": "Linkage Disequilibrium Mapping of       CHEK2: Common Variation and Breast Cancer Risk     ",
+                  "snippet": "Background Checkpoint kinase 2 (CHEK2) averts cancer development by promoting cell cycle arrest and activating DNA repair in genetically damaged cells. Previous investigation has established a role fo...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "32181055",
+                  "title": "The role of regulatory variation in complex traits and disease",
+                  "snippet": "We are in a phase of unprecedented progress in identifying genetic loci that cause variation in traits ranging from growth and fitness in simple organisms to disease in humans. However, a mechanistic...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "19497526",
+                  "title": "A common missense variant in NUDT15 confers susceptibility to thiopurine-induced leukopenia",
+                  "snippet": "Thiopurine therapy, commonly used in autoimmune conditions, can be complicated by life-threatening leukopenia. This leukopenia is associated with genetic variation in TPMT (encoding thiopurine S-methy...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "14019636",
+                  "title": "Ribosomal DNA copy number loss and sequence variation in cancer",
+                  "snippet": "Ribosomal DNA is one of the most variable regions in the human genome with respect to copy number. Despite the importance of rDNA for cellular function, we know virtually nothing about what governs it...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "14717500"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "5",
+              "query_text": "1/2000 in UK have abnormal PrP positivity.",
+              "latency_ms": 0.07677078247070312,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "13734012",
+                  "title": "Prevalent abnormal prion protein in human appendixes after bovine spongiform encephalopathy epizootic: large scale survey",
+                  "snippet": "OBJECTIVES To carry out a further survey of archived appendix samples to understand better the differences between existing estimates of the prevalence of subclinical infection with prions after the b...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "18617259",
+                  "title": "Research Letters",
+                  "snippet": "We report a case of preclinical variant Creutzfeldt-Jakob disease (vCJD) in a patient who died from a non-neurological disorder 5 years after receiving a blood transfusion from a donor who subsequentl...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "17333231",
+                  "title": "The sheddase ADAM10 is a potent modulator of prion disease",
+                  "snippet": "The prion protein (PrP(C)) is highly expressed in the nervous system and critically involved in prion diseases where it misfolds into pathogenic PrP(Sc). Moreover, it has been suggested as a receptor...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "42240424",
+                  "title": "The effects of prion protein proteolysis and disaggregation on the strain properties of hamster scrapie.",
+                  "snippet": "Native mammalian prions exist in self-propagating strains that exhibit distinctive clinical, pathological and biochemical characteristics. Prion strain diversity is associated with variations in PrP(S...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "695938",
+                  "title": "Grass plants bind, retain, uptake, and transport infectious prions.",
+                  "snippet": "Prions are the protein-based infectious agents responsible for prion diseases. Environmental prion contamination has been implicated in disease transmission. Here, we analyzed the binding and retentio...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "1292369",
+                  "title": "Biochemical Properties of Highly Neuroinvasive Prion Strains",
+                  "snippet": "Infectious prions propagate from peripheral entry sites into the central nervous system (CNS), where they cause progressive neurodegeneration that ultimately leads to death. Yet the pathogenesis of pr...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "16737163",
+                  "title": "Myelin oligodendrocyte glycoprotein antibodies are associated with a non-MS course in children",
+                  "snippet": "OBJECTIVE To determine whether myelin oligodendrocyte glycoprotein antibodies (MOG-Abs) were predictive of a demyelination phenotype in children presenting with acquired demyelinating syndrome (ADS)....",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "52180874",
+                  "title": "Efficacy of PD-1 or PD-L1 inhibitors and PD-L1 expression status in cancer: meta-analysis",
+                  "snippet": "OBJECTIVE To evaluate the relative efficacy of programmed cell death 1 (PD-1) or programmed cell death ligand 1 (PD-L1) inhibitors versus conventional drugs in patients with cancer that were PD-L1 pos...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "11880289",
+                  "title": "Effect of mammographic screening from age 40 years on breast cancer mortality in the UK Age trial at 17 years' follow-up: a randomised controlled trial.",
+                  "snippet": "BACKGROUND Age-specific effects of mammographic screening, and the timing of such effects, are a matter of debate. The results of the UK Age trial, which compared the effect of invitation to annual ma...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "1171121",
+                  "title": "Microvessel Density and Status of p53 Protein as Potential Prognostic Factors for Adjuvant Anthracycline Chemotherapy in Retrospective Analysis of Early Breast Cancer Patients Group",
+                  "snippet": "A considerable subgroup of patients with early breast cancer does not address benefits of anthracycline based chemotherapy. The aim of this retrospective study was to investigate the effect of microve...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "13734012"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "13",
+              "query_text": "5% of perinatal mortality is due to low birth weight.",
+              "latency_ms": 0.08606910705566406,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "1263446",
+                  "title": "Determinants of neonatal mortality in Indonesia",
+                  "snippet": "BACKGROUND Neonatal mortality accounts for almost 40 per cent of under-five child mortality, globally. An understanding of the factors related to neonatal mortality is important to guide the developme...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "7662395",
+                  "title": "Perinatal mortality in rural China: retrospective cohort study.",
+                  "snippet": "OBJECTIVES To explore the use of local civil registration data to assess the perinatal mortality in a typical rural county in a less developed province in China, 1999-2000. DESIGN Retrospective cohort...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "17450673",
+                  "title": "Intrauterine environments and breast cancer risk: meta-analysis and systematic review",
+                  "snippet": "INTRODUCTION Various perinatal factors, including birth weight, birth order, maternal age, gestational age, twin status, and parental smoking, have been postulated to affect breast cancer risk in daug...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "12779444",
+                  "title": "Effect of screening on cervical cancer mortality in England and Wales: analysis of trends with an age period cohort model.",
+                  "snippet": "The number of women dying from cervical cancer in 1997 was 7% lower than in 1996 and has fallen by over 25% since 1992.1 Such rapid change must be at least partly due to cervical screening, although s...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5487448",
+                  "title": "Birth weight and mammographic density among postmenopausal women in Sweden.",
+                  "snippet": "Birth weight is a significant predictor of breast cancer risk in adult life and mammary gland mass could be an intermediate stage in this long process. We have studied the association of birth size me...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "22815457",
+                  "title": "Vaginal progesterone, cerclage or cervical pessary for preventing preterm birth in asymptomatic singleton pregnant women with a history of preterm birth and a sonographic short cervix.",
+                  "snippet": "OBJECTIVE To compare the outcome of pregnancy in cohorts of women with singleton pregnancy and history of preterm birth and sonographic short cervix managed with different treatment protocols, namely...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "12770738",
+                  "title": "Cardiorespiratory fitness and body mass index as predictors of cardiovascular disease mortality among men with diabetes.",
+                  "snippet": "BACKGROUND Questions remain as to whether higher levels of cardiorespiratory fitness, a measure of regular physical activity, are associated with lower risk of cardiovascular disease (CVD) mortality i...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "25182647",
+                  "title": "Maternal and perinatal outcome in severe pregnancy-related liver disease.",
+                  "snippet": "Acute fatty liver of pregnancy (AFLP) and the syndrome of hemolysis, elevated liver enzyme levels, and low platelet count (HELLP) are rare but major disorders of the third trimester of pregnancy. Over...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "8842332",
+                  "title": "Contemporary type 1 diabetes pregnancy outcomes: impact of obesity and glycaemic control.",
+                  "snippet": "OBJECTIVE To compare contemporary pregnancy outcomes in women with and without type 1 diabetes, and to examine the effects of obesity and glycaemic control on these outcomes. DESIGN AND SETTING Histor...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "30786800",
+                  "title": "Lipid-based nutrient supplement increases the birth size of infants of primiparous women in Ghana.",
+                  "snippet": "BACKGROUND The International Lipid-Based Nutrient Supplements Project developed a small-quantity (20 g/d) lipid-based nutrient supplement (LNS) for pregnant and lactating women. OBJECTIVE We evaluated...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "1606628"
+              ],
+              "recall_at_10": 0.0,
+              "ndcg_at_10": 0.0
+            },
+            {
+              "query_id": "36",
+              "query_text": "A deficiency of vitamin B12 increases blood levels of homocysteine.",
+              "latency_ms": 0.08082389831542969,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "42441846",
+                  "title": "Gene--nutrition interactions in coronary artery disease: correlation between the MTHFR C677T polymorphism and folate and homocysteine status in a Korean population.",
+                  "snippet": "INTRODUCTION Elevated plasma total homocysteine is a major risk for coronary artery disease (CAD). Methyltetrahydrofolate reductase (MTHFR) is a main regulatory enzyme in homocysteine metabolism; a co...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "33409100",
+                  "title": "Effect of homocysteine lowering on mortality and vascular disease in advanced chronic kidney disease and end-stage renal disease: a randomized controlled trial.",
+                  "snippet": "CONTEXT High plasma homocysteine levels are a risk factor for mortality and vascular disease in observational studies of patients with chronic kidney disease. Folic acid and B vitamins decrease homocy...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "18557974",
+                  "title": "British Journal of Nutrition (2003), 89, 295\u2013301 q The Authors 2003 DOI: 10.1079/BJN2002776 Plasma homocysteine concentration is decreased by dietary intervention*",
+                  "snippet": "High plasma total homocysteine (tHcy) concentration is reported to be a risk factor for vascular diseases. We investigated the extent to which serum folate and plasma tHcy respond to a high intake of...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "16252863",
+                  "title": "Preventing coronary heart disease: B vitamins and homocysteine.",
+                  "snippet": "The list of preventable and reversible risk factors for atherosclerotic cardiovascular disease continues to grow. Cigarette smoking, high blood pressure, physical inactivity, elevated cholesterol, und...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "37424881",
+                  "title": "The effect of folate fortification on folic acid-based homocysteine-lowering intervention and stroke risk: a meta-analysis.",
+                  "snippet": "OBJECTIVE Folate and vitamin B12 are two vital regulators in the metabolic process of homocysteine, which is a risk factor of atherothrombotic events. Low folate intake or low plasma folate concentrat...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "11705328",
+                  "title": "Randomized trial of folic acid supplementation and serum homocysteine levels.",
+                  "snippet": "BACKGROUND Lowering serum homocysteine levels with folic acid is expected to reduce mortality from ischemic heart disease. Homocysteine reduction is known to be maximal at a folic acid dosage of 1 mg/...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "23267371",
+                  "title": "Vitamin D: The \"sunshine\" vitamin.",
+                  "snippet": "Vitamin D insufficiency affects almost 50% of the population worldwide. An estimated 1 billion people worldwide, across all ethnicities and age groups, have a vitamin D deficiency (VDD). This pandemic...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "21636085",
+                  "title": "The effect of folic acid supplementation on plasma homocysteine in an elderly population.",
+                  "snippet": "BACKGROUND Increased plasma homocysteine is associated with coronary artery disease, peripheral vascular disease and venous thrombosis. Folic acid is the most effective therapy for reducing homocystei...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "19799455",
+                  "title": "Ascorbic-acid transporter Slc23a1 is essential for vitamin C transport into the brain and for perinatal survival",
+                  "snippet": "The only proven requirement for ascorbic acid (vitamin C) is in preventing scurvy, presumably because it is a cofactor for hydroxylases required for post-translational modifications that stabilize col...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "24049225",
+                  "title": "No net renal extraction of homocysteine in fasting humans.",
+                  "snippet": "BACKGROUND The pathophysiological mechanism of hyperhomocysteinemia in chronic renal failure in humans is unknown. The loss of a putative renal homocysteine extraction in chronic renal failure has bee...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5152028",
+                "11705328"
+              ],
+              "recall_at_10": 50.0,
+              "ndcg_at_10": 21.84074368181642
+            }
+          ]
+        },
+        {
+          "engine": "vajra-parallel",
+          "build_time_s": 0.0,
+          "index_loaded": true,
+          "avg_latency_ms": 0.11591355005900066,
+          "p50_latency_ms": 0.11098384857177734,
+          "p95_latency_ms": 0.18310546875,
+          "recall_at_10": 78.89444444444445,
+          "ndcg_at_10": 66.9716606656671,
+          "mrr": 63.9558201058201,
+          "queries_per_sec": 8627.119085654735,
+          "batch_latency_ms": 0.1273496945699056,
+          "batch_qps": 7852.394176344676,
+          "sample_queries": [
+            {
+              "query_id": "1",
+              "query_text": "0-dimensional biomaterials show inductive properties.",
+              "latency_ms": 0.09298324584960938,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "10608397",
+                  "title": "High-performance neuroprosthetic control by an individual with tetraplegia.",
+                  "snippet": "BACKGROUND Paralysis or amputation of an arm results in the loss of the ability to orient the hand and grasp, manipulate, and carry objects, functions that are essential for activities of daily living...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "40212412",
+                  "title": "Periosteal bone formation--a neglected determinant of bone strength.",
+                  "snippet": "Life forms that have low body mass can hunt for food on the undersurface of branches or along shear cliff faces quite unperturbed by gravity. For larger animals, the hunt for dinner and the struggle t...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "43385013",
+                  "title": "Epithelial and mesenchymal subpopulations within normal basal breast cell lines exhibit distinct stem cell/progenitor properties.",
+                  "snippet": "It has been proposed that epithelial-mesenchymal transition (EMT) in mammary epithelial cells and breast cancer cells generates stem cell features, and that the presence of EMT characteristics in clau...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "10931595",
+                  "title": "Geometry, epistasis, and developmental patterning.",
+                  "snippet": "Developmental signaling networks are composed of dozens of components whose interactions are very difficult to quantify in an embryo. Geometric reasoning enumerates a discrete hierarchy of phenotypic...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "27049238",
+                  "title": "Large deformation of red blood cell ghosts in a simple shear flow.",
+                  "snippet": "Red blood cells are known to change shape in response to local flow conditions. Deformability affects red blood cell physiological function and the hydrodynamic properties of blood. The immersed bound...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "10906636",
+                  "title": "The carboxyl terminus of human cytomegalovirus-encoded 7 transmembrane receptor US28 camouflages agonism by mediating constitutive endocytosis.",
+                  "snippet": "US28 is one of four 7 transmembrane (7TM) chemokine receptors encoded by human cytomegalovirus and has been shown to both signal and endocytose in a ligand-independent, constitutively active manner. H...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "803312",
+                  "title": "Cerebral organoids model human brain development and microcephaly",
+                  "snippet": "The complexity of the human brain has made it difficult to study many brain disorders in model organisms, highlighting the need for an in vitro model of human brain development. Here we have developed...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "393001",
+                  "title": "High Km soluble 5'-nucleotidase from human placenta. Properties and allosteric regulation by IMP and ATP.",
+                  "snippet": "A human placental soluble \"high Km\" 5'-nucleotidase has been separated from \"low Km\" 5'-nucleotidase and nonspecific phosphatase by AMP-Sepharose affinity chromatography. The enzyme was purified 8000-...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "10086360",
+                  "title": "High-resolution sperm typing of meiotic recombination in the mouse MHC Ebeta gene.",
+                  "snippet": "Meiotic crossovers detected by pedigree analysis in the mouse MHC cluster into hotspots. To explore the properties of hotspots, we subjected the class II E(beta) gene to high-resolution sperm crossove...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "12824568",
+                  "title": "From Cell Differentiation to Cell Collectives: Bacillus subtilis Uses Division of Labor to Migrate",
+                  "snippet": "The organization of cells, emerging from cell-cell interactions, can give rise to collective properties. These properties are adaptive when together cells can face environmental challenges that they s...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "31715818"
+              ],
+              "recall_at_10": 0.0,
+              "ndcg_at_10": 0.0
+            },
+            {
+              "query_id": "3",
+              "query_text": "1,000 genomes project enables mapping of genetic sequence variation consisting of rare variants with larger penetrance effects than common variants.",
+              "latency_ms": 0.17189979553222656,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "14717500",
+                  "title": "Rare Variants Create Synthetic Genome-Wide Associations",
+                  "snippet": "Genome-wide association studies (GWAS) have now identified at least 2,000 common variants that appear associated with common diseases or related traits (http://www.genome.gov/gwastudies), hundreds of...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "23389795",
+                  "title": "Common and rare variants in multifactorial susceptibility to common diseases",
+                  "snippet": "Here, we give a historical overview of the search for genetic variants that influence the susceptibility of an individual to a chronic disease, from RA Fisher's seminal work to the current excitement...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "2739854",
+                  "title": "Rare and common variants: twenty arguments",
+                  "snippet": "Genome-wide association studies have greatly improved our understanding of the genetic basis of disease risk. The fact that they tend not to identify more than a fraction of the specific causal loci h...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "3672261",
+                  "title": "Natural variation in the parameters of innate immune cells is preferentially driven by genetic factors",
+                  "snippet": "The quantification and characterization of circulating immune cells provide key indicators of human health and disease. To identify the relative effects of environmental and genetic factors on variati...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "4632921",
+                  "title": "Large-Scale Profiling Reveals the Influence of Genetic Variation on Gene Expression in Human Induced Pluripotent Stem Cells.",
+                  "snippet": "In this study, we used whole-genome sequencing and gene expression profiling of 215 human induced pluripotent stem cell (iPSC) lines from different donors to identify genetic variants associated with...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4414547",
+                  "title": "Mosaic PPM1D mutations are associated with predisposition to breast and ovarian cancer",
+                  "snippet": "Improved sequencing technologies offer unprecedented opportunities for investigating the role of rare genetic variation in common disease. However, there are considerable challenges with respect to st...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "13519661",
+                  "title": "Linkage Disequilibrium Mapping of       CHEK2: Common Variation and Breast Cancer Risk     ",
+                  "snippet": "Background Checkpoint kinase 2 (CHEK2) averts cancer development by promoting cell cycle arrest and activating DNA repair in genetically damaged cells. Previous investigation has established a role fo...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "32181055",
+                  "title": "The role of regulatory variation in complex traits and disease",
+                  "snippet": "We are in a phase of unprecedented progress in identifying genetic loci that cause variation in traits ranging from growth and fitness in simple organisms to disease in humans. However, a mechanistic...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "19497526",
+                  "title": "A common missense variant in NUDT15 confers susceptibility to thiopurine-induced leukopenia",
+                  "snippet": "Thiopurine therapy, commonly used in autoimmune conditions, can be complicated by life-threatening leukopenia. This leukopenia is associated with genetic variation in TPMT (encoding thiopurine S-methy...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "14019636",
+                  "title": "Ribosomal DNA copy number loss and sequence variation in cancer",
+                  "snippet": "Ribosomal DNA is one of the most variable regions in the human genome with respect to copy number. Despite the importance of rDNA for cellular function, we know virtually nothing about what governs it...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "14717500"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "5",
+              "query_text": "1/2000 in UK have abnormal PrP positivity.",
+              "latency_ms": 0.07486343383789062,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "13734012",
+                  "title": "Prevalent abnormal prion protein in human appendixes after bovine spongiform encephalopathy epizootic: large scale survey",
+                  "snippet": "OBJECTIVES To carry out a further survey of archived appendix samples to understand better the differences between existing estimates of the prevalence of subclinical infection with prions after the b...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "18617259",
+                  "title": "Research Letters",
+                  "snippet": "We report a case of preclinical variant Creutzfeldt-Jakob disease (vCJD) in a patient who died from a non-neurological disorder 5 years after receiving a blood transfusion from a donor who subsequentl...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "17333231",
+                  "title": "The sheddase ADAM10 is a potent modulator of prion disease",
+                  "snippet": "The prion protein (PrP(C)) is highly expressed in the nervous system and critically involved in prion diseases where it misfolds into pathogenic PrP(Sc). Moreover, it has been suggested as a receptor...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "42240424",
+                  "title": "The effects of prion protein proteolysis and disaggregation on the strain properties of hamster scrapie.",
+                  "snippet": "Native mammalian prions exist in self-propagating strains that exhibit distinctive clinical, pathological and biochemical characteristics. Prion strain diversity is associated with variations in PrP(S...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "695938",
+                  "title": "Grass plants bind, retain, uptake, and transport infectious prions.",
+                  "snippet": "Prions are the protein-based infectious agents responsible for prion diseases. Environmental prion contamination has been implicated in disease transmission. Here, we analyzed the binding and retentio...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "1292369",
+                  "title": "Biochemical Properties of Highly Neuroinvasive Prion Strains",
+                  "snippet": "Infectious prions propagate from peripheral entry sites into the central nervous system (CNS), where they cause progressive neurodegeneration that ultimately leads to death. Yet the pathogenesis of pr...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "16737163",
+                  "title": "Myelin oligodendrocyte glycoprotein antibodies are associated with a non-MS course in children",
+                  "snippet": "OBJECTIVE To determine whether myelin oligodendrocyte glycoprotein antibodies (MOG-Abs) were predictive of a demyelination phenotype in children presenting with acquired demyelinating syndrome (ADS)....",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "52180874",
+                  "title": "Efficacy of PD-1 or PD-L1 inhibitors and PD-L1 expression status in cancer: meta-analysis",
+                  "snippet": "OBJECTIVE To evaluate the relative efficacy of programmed cell death 1 (PD-1) or programmed cell death ligand 1 (PD-L1) inhibitors versus conventional drugs in patients with cancer that were PD-L1 pos...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "11880289",
+                  "title": "Effect of mammographic screening from age 40 years on breast cancer mortality in the UK Age trial at 17 years' follow-up: a randomised controlled trial.",
+                  "snippet": "BACKGROUND Age-specific effects of mammographic screening, and the timing of such effects, are a matter of debate. The results of the UK Age trial, which compared the effect of invitation to annual ma...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "1171121",
+                  "title": "Microvessel Density and Status of p53 Protein as Potential Prognostic Factors for Adjuvant Anthracycline Chemotherapy in Retrospective Analysis of Early Breast Cancer Patients Group",
+                  "snippet": "A considerable subgroup of patients with early breast cancer does not address benefits of anthracycline based chemotherapy. The aim of this retrospective study was to investigate the effect of microve...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "13734012"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "13",
+              "query_text": "5% of perinatal mortality is due to low birth weight.",
+              "latency_ms": 0.08678436279296875,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "1263446",
+                  "title": "Determinants of neonatal mortality in Indonesia",
+                  "snippet": "BACKGROUND Neonatal mortality accounts for almost 40 per cent of under-five child mortality, globally. An understanding of the factors related to neonatal mortality is important to guide the developme...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "7662395",
+                  "title": "Perinatal mortality in rural China: retrospective cohort study.",
+                  "snippet": "OBJECTIVES To explore the use of local civil registration data to assess the perinatal mortality in a typical rural county in a less developed province in China, 1999-2000. DESIGN Retrospective cohort...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "17450673",
+                  "title": "Intrauterine environments and breast cancer risk: meta-analysis and systematic review",
+                  "snippet": "INTRODUCTION Various perinatal factors, including birth weight, birth order, maternal age, gestational age, twin status, and parental smoking, have been postulated to affect breast cancer risk in daug...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "12779444",
+                  "title": "Effect of screening on cervical cancer mortality in England and Wales: analysis of trends with an age period cohort model.",
+                  "snippet": "The number of women dying from cervical cancer in 1997 was 7% lower than in 1996 and has fallen by over 25% since 1992.1 Such rapid change must be at least partly due to cervical screening, although s...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5487448",
+                  "title": "Birth weight and mammographic density among postmenopausal women in Sweden.",
+                  "snippet": "Birth weight is a significant predictor of breast cancer risk in adult life and mammary gland mass could be an intermediate stage in this long process. We have studied the association of birth size me...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "22815457",
+                  "title": "Vaginal progesterone, cerclage or cervical pessary for preventing preterm birth in asymptomatic singleton pregnant women with a history of preterm birth and a sonographic short cervix.",
+                  "snippet": "OBJECTIVE To compare the outcome of pregnancy in cohorts of women with singleton pregnancy and history of preterm birth and sonographic short cervix managed with different treatment protocols, namely...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "12770738",
+                  "title": "Cardiorespiratory fitness and body mass index as predictors of cardiovascular disease mortality among men with diabetes.",
+                  "snippet": "BACKGROUND Questions remain as to whether higher levels of cardiorespiratory fitness, a measure of regular physical activity, are associated with lower risk of cardiovascular disease (CVD) mortality i...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "25182647",
+                  "title": "Maternal and perinatal outcome in severe pregnancy-related liver disease.",
+                  "snippet": "Acute fatty liver of pregnancy (AFLP) and the syndrome of hemolysis, elevated liver enzyme levels, and low platelet count (HELLP) are rare but major disorders of the third trimester of pregnancy. Over...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "8842332",
+                  "title": "Contemporary type 1 diabetes pregnancy outcomes: impact of obesity and glycaemic control.",
+                  "snippet": "OBJECTIVE To compare contemporary pregnancy outcomes in women with and without type 1 diabetes, and to examine the effects of obesity and glycaemic control on these outcomes. DESIGN AND SETTING Histor...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "30786800",
+                  "title": "Lipid-based nutrient supplement increases the birth size of infants of primiparous women in Ghana.",
+                  "snippet": "BACKGROUND The International Lipid-Based Nutrient Supplements Project developed a small-quantity (20 g/d) lipid-based nutrient supplement (LNS) for pregnant and lactating women. OBJECTIVE We evaluated...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "1606628"
+              ],
+              "recall_at_10": 0.0,
+              "ndcg_at_10": 0.0
+            },
+            {
+              "query_id": "36",
+              "query_text": "A deficiency of vitamin B12 increases blood levels of homocysteine.",
+              "latency_ms": 0.0782012939453125,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "42441846",
+                  "title": "Gene--nutrition interactions in coronary artery disease: correlation between the MTHFR C677T polymorphism and folate and homocysteine status in a Korean population.",
+                  "snippet": "INTRODUCTION Elevated plasma total homocysteine is a major risk for coronary artery disease (CAD). Methyltetrahydrofolate reductase (MTHFR) is a main regulatory enzyme in homocysteine metabolism; a co...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "33409100",
+                  "title": "Effect of homocysteine lowering on mortality and vascular disease in advanced chronic kidney disease and end-stage renal disease: a randomized controlled trial.",
+                  "snippet": "CONTEXT High plasma homocysteine levels are a risk factor for mortality and vascular disease in observational studies of patients with chronic kidney disease. Folic acid and B vitamins decrease homocy...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "18557974",
+                  "title": "British Journal of Nutrition (2003), 89, 295\u2013301 q The Authors 2003 DOI: 10.1079/BJN2002776 Plasma homocysteine concentration is decreased by dietary intervention*",
+                  "snippet": "High plasma total homocysteine (tHcy) concentration is reported to be a risk factor for vascular diseases. We investigated the extent to which serum folate and plasma tHcy respond to a high intake of...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "16252863",
+                  "title": "Preventing coronary heart disease: B vitamins and homocysteine.",
+                  "snippet": "The list of preventable and reversible risk factors for atherosclerotic cardiovascular disease continues to grow. Cigarette smoking, high blood pressure, physical inactivity, elevated cholesterol, und...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "37424881",
+                  "title": "The effect of folate fortification on folic acid-based homocysteine-lowering intervention and stroke risk: a meta-analysis.",
+                  "snippet": "OBJECTIVE Folate and vitamin B12 are two vital regulators in the metabolic process of homocysteine, which is a risk factor of atherothrombotic events. Low folate intake or low plasma folate concentrat...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "11705328",
+                  "title": "Randomized trial of folic acid supplementation and serum homocysteine levels.",
+                  "snippet": "BACKGROUND Lowering serum homocysteine levels with folic acid is expected to reduce mortality from ischemic heart disease. Homocysteine reduction is known to be maximal at a folic acid dosage of 1 mg/...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "23267371",
+                  "title": "Vitamin D: The \"sunshine\" vitamin.",
+                  "snippet": "Vitamin D insufficiency affects almost 50% of the population worldwide. An estimated 1 billion people worldwide, across all ethnicities and age groups, have a vitamin D deficiency (VDD). This pandemic...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "21636085",
+                  "title": "The effect of folic acid supplementation on plasma homocysteine in an elderly population.",
+                  "snippet": "BACKGROUND Increased plasma homocysteine is associated with coronary artery disease, peripheral vascular disease and venous thrombosis. Folic acid is the most effective therapy for reducing homocystei...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "19799455",
+                  "title": "Ascorbic-acid transporter Slc23a1 is essential for vitamin C transport into the brain and for perinatal survival",
+                  "snippet": "The only proven requirement for ascorbic acid (vitamin C) is in preventing scurvy, presumably because it is a cofactor for hydroxylases required for post-translational modifications that stabilize col...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "24049225",
+                  "title": "No net renal extraction of homocysteine in fasting humans.",
+                  "snippet": "BACKGROUND The pathophysiological mechanism of hyperhomocysteinemia in chronic renal failure in humans is unknown. The loss of a putative renal homocysteine extraction in chronic renal failure has bee...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5152028",
+                "11705328"
+              ],
+              "recall_at_10": 50.0,
+              "ndcg_at_10": 21.84074368181642
+            }
+          ]
+        },
+        {
+          "engine": "bm25s",
+          "build_time_s": 0.254518985748291,
+          "index_loaded": false,
+          "avg_latency_ms": 0.1301733652750651,
+          "p50_latency_ms": 0.12993812561035156,
+          "p95_latency_ms": 0.15997886657714844,
+          "recall_at_10": 77.39444444444445,
+          "ndcg_at_10": 66.16913885341653,
+          "mrr": 63.12301587301587,
+          "queries_per_sec": 7682.063054042835,
+          "batch_latency_ms": 0.06328344345092773,
+          "batch_qps": 15801.921410541385,
+          "sample_queries": [
+            {
+              "query_id": "1",
+              "query_text": "0-dimensional biomaterials show inductive properties.",
+              "latency_ms": 0.1709461212158203,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "40212412",
+                  "title": "Periosteal bone formation--a neglected determinant of bone strength.",
+                  "snippet": "Life forms that have low body mass can hunt for food on the undersurface of branches or along shear cliff faces quite unperturbed by gravity. For larger animals, the hunt for dinner and the struggle t...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "43385013",
+                  "title": "Epithelial and mesenchymal subpopulations within normal basal breast cell lines exhibit distinct stem cell/progenitor properties.",
+                  "snippet": "It has been proposed that epithelial-mesenchymal transition (EMT) in mammary epithelial cells and breast cancer cells generates stem cell features, and that the presence of EMT characteristics in clau...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "10931595",
+                  "title": "Geometry, epistasis, and developmental patterning.",
+                  "snippet": "Developmental signaling networks are composed of dozens of components whose interactions are very difficult to quantify in an embryo. Geometric reasoning enumerates a discrete hierarchy of phenotypic...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "27049238",
+                  "title": "Large deformation of red blood cell ghosts in a simple shear flow.",
+                  "snippet": "Red blood cells are known to change shape in response to local flow conditions. Deformability affects red blood cell physiological function and the hydrodynamic properties of blood. The immersed bound...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "10906636",
+                  "title": "The carboxyl terminus of human cytomegalovirus-encoded 7 transmembrane receptor US28 camouflages agonism by mediating constitutive endocytosis.",
+                  "snippet": "US28 is one of four 7 transmembrane (7TM) chemokine receptors encoded by human cytomegalovirus and has been shown to both signal and endocytose in a ligand-independent, constitutively active manner. H...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "803312",
+                  "title": "Cerebral organoids model human brain development and microcephaly",
+                  "snippet": "The complexity of the human brain has made it difficult to study many brain disorders in model organisms, highlighting the need for an in vitro model of human brain development. Here we have developed...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "12824568",
+                  "title": "From Cell Differentiation to Cell Collectives: Bacillus subtilis Uses Division of Labor to Migrate",
+                  "snippet": "The organization of cells, emerging from cell-cell interactions, can give rise to collective properties. These properties are adaptive when together cells can face environmental challenges that they s...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "13231899",
+                  "title": "In situ regulation of DC subsets and T cells mediates tumor regression in mice.",
+                  "snippet": "Vaccines are largely ineffective for patients with established cancer, as advanced disease requires potent and sustained activation of CD8(+) cytotoxic T lymphocytes (CTLs) to kill tumor cells and cle...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "42240424",
+                  "title": "The effects of prion protein proteolysis and disaggregation on the strain properties of hamster scrapie.",
+                  "snippet": "Native mammalian prions exist in self-propagating strains that exhibit distinctive clinical, pathological and biochemical characteristics. Prion strain diversity is associated with variations in PrP(S...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "10608397",
+                  "title": "High-performance neuroprosthetic control by an individual with tetraplegia.",
+                  "snippet": "BACKGROUND Paralysis or amputation of an arm results in the loss of the ability to orient the hand and grasp, manipulate, and carry objects, functions that are essential for activities of daily living...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "31715818"
+              ],
+              "recall_at_10": 0.0,
+              "ndcg_at_10": 0.0
+            },
+            {
+              "query_id": "3",
+              "query_text": "1,000 genomes project enables mapping of genetic sequence variation consisting of rare variants with larger penetrance effects than common variants.",
+              "latency_ms": 0.1766681671142578,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "14717500",
+                  "title": "Rare Variants Create Synthetic Genome-Wide Associations",
+                  "snippet": "Genome-wide association studies (GWAS) have now identified at least 2,000 common variants that appear associated with common diseases or related traits (http://www.genome.gov/gwastudies), hundreds of...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "2739854",
+                  "title": "Rare and common variants: twenty arguments",
+                  "snippet": "Genome-wide association studies have greatly improved our understanding of the genetic basis of disease risk. The fact that they tend not to identify more than a fraction of the specific causal loci h...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "23389795",
+                  "title": "Common and rare variants in multifactorial susceptibility to common diseases",
+                  "snippet": "Here, we give a historical overview of the search for genetic variants that influence the susceptibility of an individual to a chronic disease, from RA Fisher's seminal work to the current excitement...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "3672261",
+                  "title": "Natural variation in the parameters of innate immune cells is preferentially driven by genetic factors",
+                  "snippet": "The quantification and characterization of circulating immune cells provide key indicators of human health and disease. To identify the relative effects of environmental and genetic factors on variati...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "4632921",
+                  "title": "Large-Scale Profiling Reveals the Influence of Genetic Variation on Gene Expression in Human Induced Pluripotent Stem Cells.",
+                  "snippet": "In this study, we used whole-genome sequencing and gene expression profiling of 215 human induced pluripotent stem cell (iPSC) lines from different donors to identify genetic variants associated with...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4414547",
+                  "title": "Mosaic PPM1D mutations are associated with predisposition to breast and ovarian cancer",
+                  "snippet": "Improved sequencing technologies offer unprecedented opportunities for investigating the role of rare genetic variation in common disease. However, there are considerable challenges with respect to st...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "13519661",
+                  "title": "Linkage Disequilibrium Mapping of       CHEK2: Common Variation and Breast Cancer Risk     ",
+                  "snippet": "Background Checkpoint kinase 2 (CHEK2) averts cancer development by promoting cell cycle arrest and activating DNA repair in genetically damaged cells. Previous investigation has established a role fo...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "19497526",
+                  "title": "A common missense variant in NUDT15 confers susceptibility to thiopurine-induced leukopenia",
+                  "snippet": "Thiopurine therapy, commonly used in autoimmune conditions, can be complicated by life-threatening leukopenia. This leukopenia is associated with genetic variation in TPMT (encoding thiopurine S-methy...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "14019636",
+                  "title": "Ribosomal DNA copy number loss and sequence variation in cancer",
+                  "snippet": "Ribosomal DNA is one of the most variable regions in the human genome with respect to copy number. Despite the importance of rDNA for cellular function, we know virtually nothing about what governs it...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "32181055",
+                  "title": "The role of regulatory variation in complex traits and disease",
+                  "snippet": "We are in a phase of unprecedented progress in identifying genetic loci that cause variation in traits ranging from growth and fitness in simple organisms to disease in humans. However, a mechanistic...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "14717500"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "5",
+              "query_text": "1/2000 in UK have abnormal PrP positivity.",
+              "latency_ms": 0.14781951904296875,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "13734012",
+                  "title": "Prevalent abnormal prion protein in human appendixes after bovine spongiform encephalopathy epizootic: large scale survey",
+                  "snippet": "OBJECTIVES To carry out a further survey of archived appendix samples to understand better the differences between existing estimates of the prevalence of subclinical infection with prions after the b...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "18617259",
+                  "title": "Research Letters",
+                  "snippet": "We report a case of preclinical variant Creutzfeldt-Jakob disease (vCJD) in a patient who died from a non-neurological disorder 5 years after receiving a blood transfusion from a donor who subsequentl...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "17333231",
+                  "title": "The sheddase ADAM10 is a potent modulator of prion disease",
+                  "snippet": "The prion protein (PrP(C)) is highly expressed in the nervous system and critically involved in prion diseases where it misfolds into pathogenic PrP(Sc). Moreover, it has been suggested as a receptor...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "42240424",
+                  "title": "The effects of prion protein proteolysis and disaggregation on the strain properties of hamster scrapie.",
+                  "snippet": "Native mammalian prions exist in self-propagating strains that exhibit distinctive clinical, pathological and biochemical characteristics. Prion strain diversity is associated with variations in PrP(S...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "695938",
+                  "title": "Grass plants bind, retain, uptake, and transport infectious prions.",
+                  "snippet": "Prions are the protein-based infectious agents responsible for prion diseases. Environmental prion contamination has been implicated in disease transmission. Here, we analyzed the binding and retentio...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "1292369",
+                  "title": "Biochemical Properties of Highly Neuroinvasive Prion Strains",
+                  "snippet": "Infectious prions propagate from peripheral entry sites into the central nervous system (CNS), where they cause progressive neurodegeneration that ultimately leads to death. Yet the pathogenesis of pr...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "103007",
+                  "title": "Cross sectional stature and weight reference curves for the UK, 1990.",
+                  "snippet": "The current reference curves of stature and weight for the UK were first published in 1966 and have been used ever since despite increasing concern that they may not adequately describe the growth of...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "5710820",
+                  "title": "The feasibility of malaria elimination in South Africa",
+                  "snippet": "BACKGROUND Following the last major malaria epidemic in 2000, malaria incidence in South Africa has declined markedly. The decrease has been so emphatic that South Africa now meets the World Health Or...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "1171121",
+                  "title": "Microvessel Density and Status of p53 Protein as Potential Prognostic Factors for Adjuvant Anthracycline Chemotherapy in Retrospective Analysis of Early Breast Cancer Patients Group",
+                  "snippet": "A considerable subgroup of patients with early breast cancer does not address benefits of anthracycline based chemotherapy. The aim of this retrospective study was to investigate the effect of microve...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "16737163",
+                  "title": "Myelin oligodendrocyte glycoprotein antibodies are associated with a non-MS course in children",
+                  "snippet": "OBJECTIVE To determine whether myelin oligodendrocyte glycoprotein antibodies (MOG-Abs) were predictive of a demyelination phenotype in children presenting with acquired demyelinating syndrome (ADS)....",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "13734012"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "13",
+              "query_text": "5% of perinatal mortality is due to low birth weight.",
+              "latency_ms": 0.14019012451171875,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "7662395",
+                  "title": "Perinatal mortality in rural China: retrospective cohort study.",
+                  "snippet": "OBJECTIVES To explore the use of local civil registration data to assess the perinatal mortality in a typical rural county in a less developed province in China, 1999-2000. DESIGN Retrospective cohort...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "17450673",
+                  "title": "Intrauterine environments and breast cancer risk: meta-analysis and systematic review",
+                  "snippet": "INTRODUCTION Various perinatal factors, including birth weight, birth order, maternal age, gestational age, twin status, and parental smoking, have been postulated to affect breast cancer risk in daug...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "1263446",
+                  "title": "Determinants of neonatal mortality in Indonesia",
+                  "snippet": "BACKGROUND Neonatal mortality accounts for almost 40 per cent of under-five child mortality, globally. An understanding of the factors related to neonatal mortality is important to guide the developme...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "30786800",
+                  "title": "Lipid-based nutrient supplement increases the birth size of infants of primiparous women in Ghana.",
+                  "snippet": "BACKGROUND The International Lipid-Based Nutrient Supplements Project developed a small-quantity (20 g/d) lipid-based nutrient supplement (LNS) for pregnant and lactating women. OBJECTIVE We evaluated...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5487448",
+                  "title": "Birth weight and mammographic density among postmenopausal women in Sweden.",
+                  "snippet": "Birth weight is a significant predictor of breast cancer risk in adult life and mammary gland mass could be an intermediate stage in this long process. We have studied the association of birth size me...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "12779444",
+                  "title": "Effect of screening on cervical cancer mortality in England and Wales: analysis of trends with an age period cohort model.",
+                  "snippet": "The number of women dying from cervical cancer in 1997 was 7% lower than in 1996 and has fallen by over 25% since 1992.1 Such rapid change must be at least partly due to cervical screening, although s...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "22815457",
+                  "title": "Vaginal progesterone, cerclage or cervical pessary for preventing preterm birth in asymptomatic singleton pregnant women with a history of preterm birth and a sonographic short cervix.",
+                  "snippet": "OBJECTIVE To compare the outcome of pregnancy in cohorts of women with singleton pregnancy and history of preterm birth and sonographic short cervix managed with different treatment protocols, namely...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "8842332",
+                  "title": "Contemporary type 1 diabetes pregnancy outcomes: impact of obesity and glycaemic control.",
+                  "snippet": "OBJECTIVE To compare contemporary pregnancy outcomes in women with and without type 1 diabetes, and to examine the effects of obesity and glycaemic control on these outcomes. DESIGN AND SETTING Histor...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "25182647",
+                  "title": "Maternal and perinatal outcome in severe pregnancy-related liver disease.",
+                  "snippet": "Acute fatty liver of pregnancy (AFLP) and the syndrome of hemolysis, elevated liver enzyme levels, and low platelet count (HELLP) are rare but major disorders of the third trimester of pregnancy. Over...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "37118634",
+                  "title": "Topical application of chlorhexidine to neonatal umbilical cords for prevention of omphalitis and neonatal mortality in a rural district of Pakistan: a community-based, cluster-randomised trial.",
+                  "snippet": "BACKGROUND Umbilical cord infection (omphalitis) is a risk factor for neonatal sepsis and mortality in low-resource settings where home deliveries are common. We aimed to assess the effect of umbilica...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "1606628"
+              ],
+              "recall_at_10": 0.0,
+              "ndcg_at_10": 0.0
+            },
+            {
+              "query_id": "36",
+              "query_text": "A deficiency of vitamin B12 increases blood levels of homocysteine.",
+              "latency_ms": 0.1277923583984375,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "42441846",
+                  "title": "Gene--nutrition interactions in coronary artery disease: correlation between the MTHFR C677T polymorphism and folate and homocysteine status in a Korean population.",
+                  "snippet": "INTRODUCTION Elevated plasma total homocysteine is a major risk for coronary artery disease (CAD). Methyltetrahydrofolate reductase (MTHFR) is a main regulatory enzyme in homocysteine metabolism; a co...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "33409100",
+                  "title": "Effect of homocysteine lowering on mortality and vascular disease in advanced chronic kidney disease and end-stage renal disease: a randomized controlled trial.",
+                  "snippet": "CONTEXT High plasma homocysteine levels are a risk factor for mortality and vascular disease in observational studies of patients with chronic kidney disease. Folic acid and B vitamins decrease homocy...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "18557974",
+                  "title": "British Journal of Nutrition (2003), 89, 295\u2013301 q The Authors 2003 DOI: 10.1079/BJN2002776 Plasma homocysteine concentration is decreased by dietary intervention*",
+                  "snippet": "High plasma total homocysteine (tHcy) concentration is reported to be a risk factor for vascular diseases. We investigated the extent to which serum folate and plasma tHcy respond to a high intake of...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "16252863",
+                  "title": "Preventing coronary heart disease: B vitamins and homocysteine.",
+                  "snippet": "The list of preventable and reversible risk factors for atherosclerotic cardiovascular disease continues to grow. Cigarette smoking, high blood pressure, physical inactivity, elevated cholesterol, und...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "37424881",
+                  "title": "The effect of folate fortification on folic acid-based homocysteine-lowering intervention and stroke risk: a meta-analysis.",
+                  "snippet": "OBJECTIVE Folate and vitamin B12 are two vital regulators in the metabolic process of homocysteine, which is a risk factor of atherothrombotic events. Low folate intake or low plasma folate concentrat...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "11705328",
+                  "title": "Randomized trial of folic acid supplementation and serum homocysteine levels.",
+                  "snippet": "BACKGROUND Lowering serum homocysteine levels with folic acid is expected to reduce mortality from ischemic heart disease. Homocysteine reduction is known to be maximal at a folic acid dosage of 1 mg/...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "23267371",
+                  "title": "Vitamin D: The \"sunshine\" vitamin.",
+                  "snippet": "Vitamin D insufficiency affects almost 50% of the population worldwide. An estimated 1 billion people worldwide, across all ethnicities and age groups, have a vitamin D deficiency (VDD). This pandemic...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "21636085",
+                  "title": "The effect of folic acid supplementation on plasma homocysteine in an elderly population.",
+                  "snippet": "BACKGROUND Increased plasma homocysteine is associated with coronary artery disease, peripheral vascular disease and venous thrombosis. Folic acid is the most effective therapy for reducing homocystei...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "19799455",
+                  "title": "Ascorbic-acid transporter Slc23a1 is essential for vitamin C transport into the brain and for perinatal survival",
+                  "snippet": "The only proven requirement for ascorbic acid (vitamin C) is in preventing scurvy, presumably because it is a cofactor for hydroxylases required for post-translational modifications that stabilize col...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "24049225",
+                  "title": "No net renal extraction of homocysteine in fasting humans.",
+                  "snippet": "BACKGROUND The pathophysiological mechanism of hyperhomocysteinemia in chronic renal failure in humans is unknown. The loss of a putative renal homocysteine extraction in chronic renal failure has bee...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5152028",
+                "11705328"
+              ],
+              "recall_at_10": 50.0,
+              "ndcg_at_10": 21.84074368181642
+            }
+          ]
+        },
+        {
+          "engine": "bm25s-parallel",
+          "build_time_s": 0.0,
+          "index_loaded": true,
+          "avg_latency_ms": 0.12489636739095053,
+          "p50_latency_ms": 0.12385845184326172,
+          "p95_latency_ms": 0.15211105346679688,
+          "recall_at_10": 77.39444444444445,
+          "ndcg_at_10": 66.16913885341653,
+          "mrr": 63.12301587301587,
+          "queries_per_sec": 8006.637990277176,
+          "batch_latency_ms": 0.08786360422770181,
+          "batch_qps": 11381.27679588994,
+          "sample_queries": [
+            {
+              "query_id": "1",
+              "query_text": "0-dimensional biomaterials show inductive properties.",
+              "latency_ms": 0.1239776611328125,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "40212412",
+                  "title": "Periosteal bone formation--a neglected determinant of bone strength.",
+                  "snippet": "Life forms that have low body mass can hunt for food on the undersurface of branches or along shear cliff faces quite unperturbed by gravity. For larger animals, the hunt for dinner and the struggle t...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "43385013",
+                  "title": "Epithelial and mesenchymal subpopulations within normal basal breast cell lines exhibit distinct stem cell/progenitor properties.",
+                  "snippet": "It has been proposed that epithelial-mesenchymal transition (EMT) in mammary epithelial cells and breast cancer cells generates stem cell features, and that the presence of EMT characteristics in clau...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "10931595",
+                  "title": "Geometry, epistasis, and developmental patterning.",
+                  "snippet": "Developmental signaling networks are composed of dozens of components whose interactions are very difficult to quantify in an embryo. Geometric reasoning enumerates a discrete hierarchy of phenotypic...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "27049238",
+                  "title": "Large deformation of red blood cell ghosts in a simple shear flow.",
+                  "snippet": "Red blood cells are known to change shape in response to local flow conditions. Deformability affects red blood cell physiological function and the hydrodynamic properties of blood. The immersed bound...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "10906636",
+                  "title": "The carboxyl terminus of human cytomegalovirus-encoded 7 transmembrane receptor US28 camouflages agonism by mediating constitutive endocytosis.",
+                  "snippet": "US28 is one of four 7 transmembrane (7TM) chemokine receptors encoded by human cytomegalovirus and has been shown to both signal and endocytose in a ligand-independent, constitutively active manner. H...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "803312",
+                  "title": "Cerebral organoids model human brain development and microcephaly",
+                  "snippet": "The complexity of the human brain has made it difficult to study many brain disorders in model organisms, highlighting the need for an in vitro model of human brain development. Here we have developed...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "12824568",
+                  "title": "From Cell Differentiation to Cell Collectives: Bacillus subtilis Uses Division of Labor to Migrate",
+                  "snippet": "The organization of cells, emerging from cell-cell interactions, can give rise to collective properties. These properties are adaptive when together cells can face environmental challenges that they s...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "13231899",
+                  "title": "In situ regulation of DC subsets and T cells mediates tumor regression in mice.",
+                  "snippet": "Vaccines are largely ineffective for patients with established cancer, as advanced disease requires potent and sustained activation of CD8(+) cytotoxic T lymphocytes (CTLs) to kill tumor cells and cle...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "42240424",
+                  "title": "The effects of prion protein proteolysis and disaggregation on the strain properties of hamster scrapie.",
+                  "snippet": "Native mammalian prions exist in self-propagating strains that exhibit distinctive clinical, pathological and biochemical characteristics. Prion strain diversity is associated with variations in PrP(S...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "10608397",
+                  "title": "High-performance neuroprosthetic control by an individual with tetraplegia.",
+                  "snippet": "BACKGROUND Paralysis or amputation of an arm results in the loss of the ability to orient the hand and grasp, manipulate, and carry objects, functions that are essential for activities of daily living...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "31715818"
+              ],
+              "recall_at_10": 0.0,
+              "ndcg_at_10": 0.0
+            },
+            {
+              "query_id": "3",
+              "query_text": "1,000 genomes project enables mapping of genetic sequence variation consisting of rare variants with larger penetrance effects than common variants.",
+              "latency_ms": 0.164031982421875,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "14717500",
+                  "title": "Rare Variants Create Synthetic Genome-Wide Associations",
+                  "snippet": "Genome-wide association studies (GWAS) have now identified at least 2,000 common variants that appear associated with common diseases or related traits (http://www.genome.gov/gwastudies), hundreds of...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "2739854",
+                  "title": "Rare and common variants: twenty arguments",
+                  "snippet": "Genome-wide association studies have greatly improved our understanding of the genetic basis of disease risk. The fact that they tend not to identify more than a fraction of the specific causal loci h...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "23389795",
+                  "title": "Common and rare variants in multifactorial susceptibility to common diseases",
+                  "snippet": "Here, we give a historical overview of the search for genetic variants that influence the susceptibility of an individual to a chronic disease, from RA Fisher's seminal work to the current excitement...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "3672261",
+                  "title": "Natural variation in the parameters of innate immune cells is preferentially driven by genetic factors",
+                  "snippet": "The quantification and characterization of circulating immune cells provide key indicators of human health and disease. To identify the relative effects of environmental and genetic factors on variati...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "4632921",
+                  "title": "Large-Scale Profiling Reveals the Influence of Genetic Variation on Gene Expression in Human Induced Pluripotent Stem Cells.",
+                  "snippet": "In this study, we used whole-genome sequencing and gene expression profiling of 215 human induced pluripotent stem cell (iPSC) lines from different donors to identify genetic variants associated with...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4414547",
+                  "title": "Mosaic PPM1D mutations are associated with predisposition to breast and ovarian cancer",
+                  "snippet": "Improved sequencing technologies offer unprecedented opportunities for investigating the role of rare genetic variation in common disease. However, there are considerable challenges with respect to st...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "13519661",
+                  "title": "Linkage Disequilibrium Mapping of       CHEK2: Common Variation and Breast Cancer Risk     ",
+                  "snippet": "Background Checkpoint kinase 2 (CHEK2) averts cancer development by promoting cell cycle arrest and activating DNA repair in genetically damaged cells. Previous investigation has established a role fo...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "19497526",
+                  "title": "A common missense variant in NUDT15 confers susceptibility to thiopurine-induced leukopenia",
+                  "snippet": "Thiopurine therapy, commonly used in autoimmune conditions, can be complicated by life-threatening leukopenia. This leukopenia is associated with genetic variation in TPMT (encoding thiopurine S-methy...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "14019636",
+                  "title": "Ribosomal DNA copy number loss and sequence variation in cancer",
+                  "snippet": "Ribosomal DNA is one of the most variable regions in the human genome with respect to copy number. Despite the importance of rDNA for cellular function, we know virtually nothing about what governs it...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "32181055",
+                  "title": "The role of regulatory variation in complex traits and disease",
+                  "snippet": "We are in a phase of unprecedented progress in identifying genetic loci that cause variation in traits ranging from growth and fitness in simple organisms to disease in humans. However, a mechanistic...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "14717500"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "5",
+              "query_text": "1/2000 in UK have abnormal PrP positivity.",
+              "latency_ms": 0.1380443572998047,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "13734012",
+                  "title": "Prevalent abnormal prion protein in human appendixes after bovine spongiform encephalopathy epizootic: large scale survey",
+                  "snippet": "OBJECTIVES To carry out a further survey of archived appendix samples to understand better the differences between existing estimates of the prevalence of subclinical infection with prions after the b...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "18617259",
+                  "title": "Research Letters",
+                  "snippet": "We report a case of preclinical variant Creutzfeldt-Jakob disease (vCJD) in a patient who died from a non-neurological disorder 5 years after receiving a blood transfusion from a donor who subsequentl...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "17333231",
+                  "title": "The sheddase ADAM10 is a potent modulator of prion disease",
+                  "snippet": "The prion protein (PrP(C)) is highly expressed in the nervous system and critically involved in prion diseases where it misfolds into pathogenic PrP(Sc). Moreover, it has been suggested as a receptor...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "42240424",
+                  "title": "The effects of prion protein proteolysis and disaggregation on the strain properties of hamster scrapie.",
+                  "snippet": "Native mammalian prions exist in self-propagating strains that exhibit distinctive clinical, pathological and biochemical characteristics. Prion strain diversity is associated with variations in PrP(S...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "695938",
+                  "title": "Grass plants bind, retain, uptake, and transport infectious prions.",
+                  "snippet": "Prions are the protein-based infectious agents responsible for prion diseases. Environmental prion contamination has been implicated in disease transmission. Here, we analyzed the binding and retentio...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "1292369",
+                  "title": "Biochemical Properties of Highly Neuroinvasive Prion Strains",
+                  "snippet": "Infectious prions propagate from peripheral entry sites into the central nervous system (CNS), where they cause progressive neurodegeneration that ultimately leads to death. Yet the pathogenesis of pr...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "103007",
+                  "title": "Cross sectional stature and weight reference curves for the UK, 1990.",
+                  "snippet": "The current reference curves of stature and weight for the UK were first published in 1966 and have been used ever since despite increasing concern that they may not adequately describe the growth of...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "5710820",
+                  "title": "The feasibility of malaria elimination in South Africa",
+                  "snippet": "BACKGROUND Following the last major malaria epidemic in 2000, malaria incidence in South Africa has declined markedly. The decrease has been so emphatic that South Africa now meets the World Health Or...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "1171121",
+                  "title": "Microvessel Density and Status of p53 Protein as Potential Prognostic Factors for Adjuvant Anthracycline Chemotherapy in Retrospective Analysis of Early Breast Cancer Patients Group",
+                  "snippet": "A considerable subgroup of patients with early breast cancer does not address benefits of anthracycline based chemotherapy. The aim of this retrospective study was to investigate the effect of microve...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "16737163",
+                  "title": "Myelin oligodendrocyte glycoprotein antibodies are associated with a non-MS course in children",
+                  "snippet": "OBJECTIVE To determine whether myelin oligodendrocyte glycoprotein antibodies (MOG-Abs) were predictive of a demyelination phenotype in children presenting with acquired demyelinating syndrome (ADS)....",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "13734012"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "13",
+              "query_text": "5% of perinatal mortality is due to low birth weight.",
+              "latency_ms": 0.11992454528808594,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "7662395",
+                  "title": "Perinatal mortality in rural China: retrospective cohort study.",
+                  "snippet": "OBJECTIVES To explore the use of local civil registration data to assess the perinatal mortality in a typical rural county in a less developed province in China, 1999-2000. DESIGN Retrospective cohort...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "17450673",
+                  "title": "Intrauterine environments and breast cancer risk: meta-analysis and systematic review",
+                  "snippet": "INTRODUCTION Various perinatal factors, including birth weight, birth order, maternal age, gestational age, twin status, and parental smoking, have been postulated to affect breast cancer risk in daug...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "1263446",
+                  "title": "Determinants of neonatal mortality in Indonesia",
+                  "snippet": "BACKGROUND Neonatal mortality accounts for almost 40 per cent of under-five child mortality, globally. An understanding of the factors related to neonatal mortality is important to guide the developme...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "30786800",
+                  "title": "Lipid-based nutrient supplement increases the birth size of infants of primiparous women in Ghana.",
+                  "snippet": "BACKGROUND The International Lipid-Based Nutrient Supplements Project developed a small-quantity (20 g/d) lipid-based nutrient supplement (LNS) for pregnant and lactating women. OBJECTIVE We evaluated...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "5487448",
+                  "title": "Birth weight and mammographic density among postmenopausal women in Sweden.",
+                  "snippet": "Birth weight is a significant predictor of breast cancer risk in adult life and mammary gland mass could be an intermediate stage in this long process. We have studied the association of birth size me...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "12779444",
+                  "title": "Effect of screening on cervical cancer mortality in England and Wales: analysis of trends with an age period cohort model.",
+                  "snippet": "The number of women dying from cervical cancer in 1997 was 7% lower than in 1996 and has fallen by over 25% since 1992.1 Such rapid change must be at least partly due to cervical screening, although s...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "22815457",
+                  "title": "Vaginal progesterone, cerclage or cervical pessary for preventing preterm birth in asymptomatic singleton pregnant women with a history of preterm birth and a sonographic short cervix.",
+                  "snippet": "OBJECTIVE To compare the outcome of pregnancy in cohorts of women with singleton pregnancy and history of preterm birth and sonographic short cervix managed with different treatment protocols, namely...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "8842332",
+                  "title": "Contemporary type 1 diabetes pregnancy outcomes: impact of obesity and glycaemic control.",
+                  "snippet": "OBJECTIVE To compare contemporary pregnancy outcomes in women with and without type 1 diabetes, and to examine the effects of obesity and glycaemic control on these outcomes. DESIGN AND SETTING Histor...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "25182647",
+                  "title": "Maternal and perinatal outcome in severe pregnancy-related liver disease.",
+                  "snippet": "Acute fatty liver of pregnancy (AFLP) and the syndrome of hemolysis, elevated liver enzyme levels, and low platelet count (HELLP) are rare but major disorders of the third trimester of pregnancy. Over...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "37118634",
+                  "title": "Topical application of chlorhexidine to neonatal umbilical cords for prevention of omphalitis and neonatal mortality in a rural district of Pakistan: a community-based, cluster-randomised trial.",
+                  "snippet": "BACKGROUND Umbilical cord infection (omphalitis) is a risk factor for neonatal sepsis and mortality in low-resource settings where home deliveries are common. We aimed to assess the effect of umbilica...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "1606628"
+              ],
+              "recall_at_10": 0.0,
+              "ndcg_at_10": 0.0
+            },
+            {
+              "query_id": "36",
+              "query_text": "A deficiency of vitamin B12 increases blood levels of homocysteine.",
+              "latency_ms": 0.12421607971191406,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "42441846",
+                  "title": "Gene--nutrition interactions in coronary artery disease: correlation between the MTHFR C677T polymorphism and folate and homocysteine status in a Korean population.",
+                  "snippet": "INTRODUCTION Elevated plasma total homocysteine is a major risk for coronary artery disease (CAD). Methyltetrahydrofolate reductase (MTHFR) is a main regulatory enzyme in homocysteine metabolism; a co...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "33409100",
+                  "title": "Effect of homocysteine lowering on mortality and vascular disease in advanced chronic kidney disease and end-stage renal disease: a randomized controlled trial.",
+                  "snippet": "CONTEXT High plasma homocysteine levels are a risk factor for mortality and vascular disease in observational studies of patients with chronic kidney disease. Folic acid and B vitamins decrease homocy...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "18557974",
+                  "title": "British Journal of Nutrition (2003), 89, 295\u2013301 q The Authors 2003 DOI: 10.1079/BJN2002776 Plasma homocysteine concentration is decreased by dietary intervention*",
+                  "snippet": "High plasma total homocysteine (tHcy) concentration is reported to be a risk factor for vascular diseases. We investigated the extent to which serum folate and plasma tHcy respond to a high intake of...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "16252863",
+                  "title": "Preventing coronary heart disease: B vitamins and homocysteine.",
+                  "snippet": "The list of preventable and reversible risk factors for atherosclerotic cardiovascular disease continues to grow. Cigarette smoking, high blood pressure, physical inactivity, elevated cholesterol, und...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "37424881",
+                  "title": "The effect of folate fortification on folic acid-based homocysteine-lowering intervention and stroke risk: a meta-analysis.",
+                  "snippet": "OBJECTIVE Folate and vitamin B12 are two vital regulators in the metabolic process of homocysteine, which is a risk factor of atherothrombotic events. Low folate intake or low plasma folate concentrat...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "11705328",
+                  "title": "Randomized trial of folic acid supplementation and serum homocysteine levels.",
+                  "snippet": "BACKGROUND Lowering serum homocysteine levels with folic acid is expected to reduce mortality from ischemic heart disease. Homocysteine reduction is known to be maximal at a folic acid dosage of 1 mg/...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "23267371",
+                  "title": "Vitamin D: The \"sunshine\" vitamin.",
+                  "snippet": "Vitamin D insufficiency affects almost 50% of the population worldwide. An estimated 1 billion people worldwide, across all ethnicities and age groups, have a vitamin D deficiency (VDD). This pandemic...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "21636085",
+                  "title": "The effect of folic acid supplementation on plasma homocysteine in an elderly population.",
+                  "snippet": "BACKGROUND Increased plasma homocysteine is associated with coronary artery disease, peripheral vascular disease and venous thrombosis. Folic acid is the most effective therapy for reducing homocystei...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "19799455",
+                  "title": "Ascorbic-acid transporter Slc23a1 is essential for vitamin C transport into the brain and for perinatal survival",
+                  "snippet": "The only proven requirement for ascorbic acid (vitamin C) is in preventing scurvy, presumably because it is a cofactor for hydroxylases required for post-translational modifications that stabilize col...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "24049225",
+                  "title": "No net renal extraction of homocysteine in fasting humans.",
+                  "snippet": "BACKGROUND The pathophysiological mechanism of hyperhomocysteinemia in chronic renal failure in humans is unknown. The loss of a putative renal homocysteine extraction in chronic renal failure has bee...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5152028",
+                "11705328"
+              ],
+              "recall_at_10": 50.0,
+              "ndcg_at_10": 21.84074368181642
+            }
+          ]
+        },
+        {
+          "engine": "tantivy",
+          "build_time_s": 0.022533893585205078,
+          "index_loaded": false,
+          "avg_latency_ms": 0.1871045430501302,
+          "p50_latency_ms": 0.1804828643798828,
+          "p95_latency_ms": 0.33473968505859375,
+          "recall_at_10": 73.07777777777777,
+          "ndcg_at_10": 60.443453781745426,
+          "mrr": 57.021957671957665,
+          "queries_per_sec": 5344.605661082606,
+          "batch_latency_ms": 0.20332972208658856,
+          "batch_qps": 4918.120133829461,
+          "sample_queries": [
+            {
+              "query_id": "1",
+              "query_text": "0-dimensional biomaterials show inductive properties.",
+              "latency_ms": 0.0858306884765625,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "42240424",
+                  "title": "The effects of prion protein proteolysis and disaggregation on the strain properties of hamster scrapie.",
+                  "snippet": "Native mammalian prions exist in self-propagating strains that exhibit distinctive clinical, pathological and biochemical characteristics. Prion strain diversity is associated with variations in PrP(S...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "18953920",
+                  "title": "The Epithelial-Mesenchymal Transition Generates Cells with Properties of Stem Cells",
+                  "snippet": "The epithelial-mesenchymal transition (EMT) is a key developmental program that is often activated during cancer invasion and metastasis. We here report that the induction of an EMT in immortalized hu...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "43385013",
+                  "title": "Epithelial and mesenchymal subpopulations within normal basal breast cell lines exhibit distinct stem cell/progenitor properties.",
+                  "snippet": "It has been proposed that epithelial-mesenchymal transition (EMT) in mammary epithelial cells and breast cancer cells generates stem cell features, and that the presence of EMT characteristics in clau...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "36233757",
+                  "title": "Purification and activation properties of UreD-UreF-urease apoprotein complexes.",
+                  "snippet": "In vivo assembly of the Klebsiella aerogenes urease nickel metallocenter requires the presence of UreD, UreF, and UreG accessory proteins and is further facilitated by UreE. Prior studies had shown th...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "3845894",
+                  "title": "Computational and Statistical Analyses of Amino Acid Usage and Physico-Chemical Properties of the Twelve Late Embryogenesis Abundant Protein Classes",
+                  "snippet": "Late Embryogenesis Abundant Proteins (LEAPs) are ubiquitous proteins expected to play major roles in desiccation tolerance. Little is known about their structure - function relationships because of th...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "39851630",
+                  "title": "Reserves, functional, immunoregulatory, and cytogenetic properties of bone marrow mesenchymal stem cells in patients with myelodysplastic syndromes.",
+                  "snippet": "Defective hematopoiesis supporting capacity of bone marrow (BM) stroma has been implicated in the pathophysiology of myelodysplastic syndromes (MDS). The aim of this study is to explore whether the BM...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "40584205",
+                  "title": "Biological properties of herpes simplex virus 2 replication-defective mutant strains in a murine nasal infection model.",
+                  "snippet": "We used a mouse nasal model of herpes simplex virus 2 (HSV-2) infection to examine the biological properties of HSV-2 wild-type (wt), TK-negative, and replication-defective strains in vivo. Nasal sept...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "10931595",
+                  "title": "Geometry, epistasis, and developmental patterning.",
+                  "snippet": "Developmental signaling networks are composed of dozens of components whose interactions are very difficult to quantify in an embryo. Geometric reasoning enumerates a discrete hierarchy of phenotypic...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "393001",
+                  "title": "High Km soluble 5'-nucleotidase from human placenta. Properties and allosteric regulation by IMP and ATP.",
+                  "snippet": "A human placental soluble \"high Km\" 5'-nucleotidase has been separated from \"low Km\" 5'-nucleotidase and nonspecific phosphatase by AMP-Sepharose affinity chromatography. The enzyme was purified 8000-...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "21271817",
+                  "title": "Directly reprogrammed fibroblasts show global epigenetic remodeling and widespread tissue contribution.",
+                  "snippet": "Ectopic expression of the four transcription factors Oct4, Sox2, c-Myc, and Klf4 is sufficient to confer a pluripotent state upon the fibroblast genome, generating induced pluripotent stem (iPS) cells...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "31715818"
+              ],
+              "recall_at_10": 0.0,
+              "ndcg_at_10": 0.0
+            },
+            {
+              "query_id": "3",
+              "query_text": "1,000 genomes project enables mapping of genetic sequence variation consisting of rare variants with larger penetrance effects than common variants.",
+              "latency_ms": 0.26106834411621094,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "2739854",
+                  "title": "Rare and common variants: twenty arguments",
+                  "snippet": "Genome-wide association studies have greatly improved our understanding of the genetic basis of disease risk. The fact that they tend not to identify more than a fraction of the specific causal loci h...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "23389795",
+                  "title": "Common and rare variants in multifactorial susceptibility to common diseases",
+                  "snippet": "Here, we give a historical overview of the search for genetic variants that influence the susceptibility of an individual to a chronic disease, from RA Fisher's seminal work to the current excitement...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "14717500",
+                  "title": "Rare Variants Create Synthetic Genome-Wide Associations",
+                  "snippet": "Genome-wide association studies (GWAS) have now identified at least 2,000 common variants that appear associated with common diseases or related traits (http://www.genome.gov/gwastudies), hundreds of...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "3672261",
+                  "title": "Natural variation in the parameters of innate immune cells is preferentially driven by genetic factors",
+                  "snippet": "The quantification and characterization of circulating immune cells provide key indicators of human health and disease. To identify the relative effects of environmental and genetic factors on variati...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "13519661",
+                  "title": "Linkage Disequilibrium Mapping of       CHEK2: Common Variation and Breast Cancer Risk     ",
+                  "snippet": "Background Checkpoint kinase 2 (CHEK2) averts cancer development by promoting cell cycle arrest and activating DNA repair in genetically damaged cells. Previous investigation has established a role fo...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "4632921",
+                  "title": "Large-Scale Profiling Reveals the Influence of Genetic Variation on Gene Expression in Human Induced Pluripotent Stem Cells.",
+                  "snippet": "In this study, we used whole-genome sequencing and gene expression profiling of 215 human induced pluripotent stem cell (iPSC) lines from different donors to identify genetic variants associated with...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "14019636",
+                  "title": "Ribosomal DNA copy number loss and sequence variation in cancer",
+                  "snippet": "Ribosomal DNA is one of the most variable regions in the human genome with respect to copy number. Despite the importance of rDNA for cellular function, we know virtually nothing about what governs it...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "13373629",
+                  "title": "Genetic Variants at Newly Identified Lipid Loci Are Associated with Coronary Heart Disease in a Chinese Han Population",
+                  "snippet": "BACKGROUND Recent genome-wide association studies (GWAS) have mapped several novel loci influencing blood lipid levels in Caucasians. We sought to explore whether the genetic variants at newly identif...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "3222187",
+                  "title": "Genetic variants and non-genetic factors predict circulating vitamin D levels in Hispanic and non-Hispanic White women: the Breast Cancer Health Disparities Study.",
+                  "snippet": "Genome-wide association studies (GWAS) have identified common polymorphisms in or near GC, CYP2R1, CYP24A1, and NADSYN1/DHCR7 genes to be associated with circulating levels of 25-hydroxyvitamin D [25(...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "17088791",
+                  "title": "Common BRCA1 variants and susceptibility to breast and ovarian cancer in the general population.",
+                  "snippet": "Most multiple case families of young onset breast cancer and ovarian cancer are thought to be due to highly penetrant mutations in the predisposing genes BRCA1 and BRCA2. However, these mutations are...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "14717500"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 50.0
+            },
+            {
+              "query_id": "5",
+              "query_text": "1/2000 in UK have abnormal PrP positivity.",
+              "latency_ms": 0.1289844512939453,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "13734012",
+                  "title": "Prevalent abnormal prion protein in human appendixes after bovine spongiform encephalopathy epizootic: large scale survey",
+                  "snippet": "OBJECTIVES To carry out a further survey of archived appendix samples to understand better the differences between existing estimates of the prevalence of subclinical infection with prions after the b...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "103007",
+                  "title": "Cross sectional stature and weight reference curves for the UK, 1990.",
+                  "snippet": "The current reference curves of stature and weight for the UK were first published in 1966 and have been used ever since despite increasing concern that they may not adequately describe the growth of...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "18617259",
+                  "title": "Research Letters",
+                  "snippet": "We report a case of preclinical variant Creutzfeldt-Jakob disease (vCJD) in a patient who died from a non-neurological disorder 5 years after receiving a blood transfusion from a donor who subsequentl...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "11880289",
+                  "title": "Effect of mammographic screening from age 40 years on breast cancer mortality in the UK Age trial at 17 years' follow-up: a randomised controlled trial.",
+                  "snippet": "BACKGROUND Age-specific effects of mammographic screening, and the timing of such effects, are a matter of debate. The results of the UK Age trial, which compared the effect of invitation to annual ma...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "32481310",
+                  "title": "Abnormal hemoglobins in a quarter million people.",
+                  "snippet": "Hemolysates of erythrocytes from more than a quarter million people in Alabama were electrophoresed on cellulose acetate, pH 8.4, and those samples exhibiting an abnormality were also electrophoresed...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "14188138",
+                  "title": "Abnormal Spine Morphology and Enhanced LTP in LIMK-1 Knockout Mice",
+                  "snippet": "In vitro studies indicate a role for the LIM kinase family in the regulation of cofilin phosphorylation and actin dynamics. In addition, abnormal expression of LIMK-1 is associated with Williams syndr...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "42240424",
+                  "title": "The effects of prion protein proteolysis and disaggregation on the strain properties of hamster scrapie.",
+                  "snippet": "Native mammalian prions exist in self-propagating strains that exhibit distinctive clinical, pathological and biochemical characteristics. Prion strain diversity is associated with variations in PrP(S...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "17333231",
+                  "title": "The sheddase ADAM10 is a potent modulator of prion disease",
+                  "snippet": "The prion protein (PrP(C)) is highly expressed in the nervous system and critically involved in prion diseases where it misfolds into pathogenic PrP(Sc). Moreover, it has been suggested as a receptor...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "33796570",
+                  "title": "Ablation of NF1 function in neurons induces abnormal development of cerebral cortex and reactive gliosis in the brain.",
+                  "snippet": "Neurofibromatosis type 1 (NF1) is a prevalent genetic disorder that affects growth properties of neural-crest-derived cell populations. In addition, approximately one-half of NF1 patients exhibit lear...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "13883546",
+                  "title": "Do Antidepressants Cure or Create Abnormal Brain States?",
+                  "snippet": "The term antidepressant refers to a drug that helps to rectify specific biological abnormalities that give rise to the symptoms of depression. This exemplifies what we have called the \u201cdisease-centred...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "13734012"
+              ],
+              "recall_at_10": 100.0,
+              "ndcg_at_10": 100.0
+            },
+            {
+              "query_id": "13",
+              "query_text": "5% of perinatal mortality is due to low birth weight.",
+              "latency_ms": 0.1659393310546875,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "7662395",
+                  "title": "Perinatal mortality in rural China: retrospective cohort study.",
+                  "snippet": "OBJECTIVES To explore the use of local civil registration data to assess the perinatal mortality in a typical rural county in a less developed province in China, 1999-2000. DESIGN Retrospective cohort...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "5487448",
+                  "title": "Birth weight and mammographic density among postmenopausal women in Sweden.",
+                  "snippet": "Birth weight is a significant predictor of breast cancer risk in adult life and mammary gland mass could be an intermediate stage in this long process. We have studied the association of birth size me...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "1263446",
+                  "title": "Determinants of neonatal mortality in Indonesia",
+                  "snippet": "BACKGROUND Neonatal mortality accounts for almost 40 per cent of under-five child mortality, globally. An understanding of the factors related to neonatal mortality is important to guide the developme...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "26611834",
+                  "title": "A meta-analysis of depression during pregnancy and the risk of preterm birth, low birth weight, and intrauterine growth restriction.",
+                  "snippet": "CONTEXT Maternal depressive symptoms during pregnancy have been reported in some, but not all, studies to be associated with an increased risk of preterm birth (PTB), low birth weight (LBW), and intra...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "34544514",
+                  "title": "Ibuprofen for the treatment of patent ductus arteriosus in preterm or low birth weight (or both) infants.",
+                  "snippet": "BACKGROUND Indomethacin is used as standard therapy to close a patent ductus arteriosus (PDA) but is associated with reduced blood flow to several organs. Ibuprofen, another cyclo-oxygenase inhibitor,...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "25182647",
+                  "title": "Maternal and perinatal outcome in severe pregnancy-related liver disease.",
+                  "snippet": "Acute fatty liver of pregnancy (AFLP) and the syndrome of hemolysis, elevated liver enzyme levels, and low platelet count (HELLP) are rare but major disorders of the third trimester of pregnancy. Over...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "19799455",
+                  "title": "Ascorbic-acid transporter Slc23a1 is essential for vitamin C transport into the brain and for perinatal survival",
+                  "snippet": "The only proven requirement for ascorbic acid (vitamin C) is in preventing scurvy, presumably because it is a cofactor for hydroxylases required for post-translational modifications that stabilize col...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "22815457",
+                  "title": "Vaginal progesterone, cerclage or cervical pessary for preventing preterm birth in asymptomatic singleton pregnant women with a history of preterm birth and a sonographic short cervix.",
+                  "snippet": "OBJECTIVE To compare the outcome of pregnancy in cohorts of women with singleton pregnancy and history of preterm birth and sonographic short cervix managed with different treatment protocols, namely...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "30786800",
+                  "title": "Lipid-based nutrient supplement increases the birth size of infants of primiparous women in Ghana.",
+                  "snippet": "BACKGROUND The International Lipid-Based Nutrient Supplements Project developed a small-quantity (20 g/d) lipid-based nutrient supplement (LNS) for pregnant and lactating women. OBJECTIVE We evaluated...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "12779444",
+                  "title": "Effect of screening on cervical cancer mortality in England and Wales: analysis of trends with an age period cohort model.",
+                  "snippet": "The number of women dying from cervical cancer in 1997 was 7% lower than in 1996 and has fallen by over 25% since 1992.1 Such rapid change must be at least partly due to cervical screening, although s...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "1606628"
+              ],
+              "recall_at_10": 0.0,
+              "ndcg_at_10": 0.0
+            },
+            {
+              "query_id": "36",
+              "query_text": "A deficiency of vitamin B12 increases blood levels of homocysteine.",
+              "latency_ms": 0.15115737915039062,
+              "results": [
+                {
+                  "rank": 1,
+                  "doc_id": "42441846",
+                  "title": "Gene--nutrition interactions in coronary artery disease: correlation between the MTHFR C677T polymorphism and folate and homocysteine status in a Korean population.",
+                  "snippet": "INTRODUCTION Elevated plasma total homocysteine is a major risk for coronary artery disease (CAD). Methyltetrahydrofolate reductase (MTHFR) is a main regulatory enzyme in homocysteine metabolism; a co...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 2,
+                  "doc_id": "33409100",
+                  "title": "Effect of homocysteine lowering on mortality and vascular disease in advanced chronic kidney disease and end-stage renal disease: a randomized controlled trial.",
+                  "snippet": "CONTEXT High plasma homocysteine levels are a risk factor for mortality and vascular disease in observational studies of patients with chronic kidney disease. Folic acid and B vitamins decrease homocy...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 3,
+                  "doc_id": "11705328",
+                  "title": "Randomized trial of folic acid supplementation and serum homocysteine levels.",
+                  "snippet": "BACKGROUND Lowering serum homocysteine levels with folic acid is expected to reduce mortality from ischemic heart disease. Homocysteine reduction is known to be maximal at a folic acid dosage of 1 mg/...",
+                  "is_relevant": true
+                },
+                {
+                  "rank": 4,
+                  "doc_id": "18557974",
+                  "title": "British Journal of Nutrition (2003), 89, 295\u2013301 q The Authors 2003 DOI: 10.1079/BJN2002776 Plasma homocysteine concentration is decreased by dietary intervention*",
+                  "snippet": "High plasma total homocysteine (tHcy) concentration is reported to be a risk factor for vascular diseases. We investigated the extent to which serum folate and plasma tHcy respond to a high intake of...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 5,
+                  "doc_id": "16252863",
+                  "title": "Preventing coronary heart disease: B vitamins and homocysteine.",
+                  "snippet": "The list of preventable and reversible risk factors for atherosclerotic cardiovascular disease continues to grow. Cigarette smoking, high blood pressure, physical inactivity, elevated cholesterol, und...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 6,
+                  "doc_id": "37424881",
+                  "title": "The effect of folate fortification on folic acid-based homocysteine-lowering intervention and stroke risk: a meta-analysis.",
+                  "snippet": "OBJECTIVE Folate and vitamin B12 are two vital regulators in the metabolic process of homocysteine, which is a risk factor of atherothrombotic events. Low folate intake or low plasma folate concentrat...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 7,
+                  "doc_id": "23267371",
+                  "title": "Vitamin D: The \"sunshine\" vitamin.",
+                  "snippet": "Vitamin D insufficiency affects almost 50% of the population worldwide. An estimated 1 billion people worldwide, across all ethnicities and age groups, have a vitamin D deficiency (VDD). This pandemic...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 8,
+                  "doc_id": "9555784",
+                  "title": "Vitamin d deficiency in postmenopausal women - biological correlates.",
+                  "snippet": "INTRODUCTION Low vitamin D (VD) is associated with secondary hyperparathyroidism and both contribute to deleterious consequences (reduced bone mineral density (BMD), risk of fractures and falls). OBJE...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 9,
+                  "doc_id": "13312471",
+                  "title": "Vitamin D insufficiency and the blunted PTH response in established osteoporosis: the role of magnesium deficiency",
+                  "snippet": "Vitamin D insufficiency is common, however within individuals, not all manifest the biochemical effects of PTH excess. This further extends to patients with established osteoporosis. The mechanism und...",
+                  "is_relevant": false
+                },
+                {
+                  "rank": 10,
+                  "doc_id": "3150030",
+                  "title": "Global vitamin D levels in relation to age, gender, skin pigmentation and latitude: an ecologic meta-regression analysis",
+                  "snippet": "We performed a meta-analysis of cross-sectional studies on serum 25(OH)D status globally. Serum 25(OH)D levels on average were 54 nmol/l, were higher in women than men, and higher in Caucasians than i...",
+                  "is_relevant": false
+                }
+              ],
+              "relevant_docs": [
+                "5152028",
+                "11705328"
+              ],
+              "recall_at_10": 50.0,
+              "ndcg_at_10": 30.65735963827292
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

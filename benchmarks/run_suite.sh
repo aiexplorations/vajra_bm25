@@ -67,6 +67,14 @@ for ds in "${DATASETS[@]}"; do
     continue
   fi
 
+  # latency-wiki-<n>k: Vajra latency under each query protocol (bench_latency_protocols.py)
+  if [[ "$ds" == latency-wiki-* ]]; then
+    n="${ds#latency-wiki-}"; n="${n/k/000}"; n="${n/m/000000}"
+    echo "=== $ds  [$TAG] ==="
+    python benchmarks/bench_latency_protocols.py --n-docs "$n" --output "$OUT/$ds.json"
+    continue
+  fi
+
   # Pyserini goes last: the JVM does not survive a later fork() from vajra's index build.
   # Pyserini indexes single-threaded, so it only runs up to 1M docs; 5M also drops the
   # parallel variants to keep memory and time in check.

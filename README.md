@@ -503,7 +503,7 @@ pytest --cov=vajra_bm25 --cov-report=html
 
 ## What's New in v0.5.1
 
-Fixes reported by the Verity backend team; see [CHANGELOG.md](CHANGELOG.md).
+Fixes reported by a downstream user; see [CHANGELOG.md](CHANGELOG.md).
 
 ## What's New in v0.4.0
 

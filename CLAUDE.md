@@ -230,10 +230,10 @@ vajra-search --stats  # Show index statistics
 - Eager scoring tests verify equivalence with traditional scoring
 - Vector search tests cover embeddings, HNSW, flat index, hybrid fusion
 - Index persistence tests verify save/load roundtrip (BM25 + eager scorer)
-- Test suite: 360 tests passing (including 40 vector search tests and 48 for the 0.5.1 fixes in `tests/test_v051.py`)
+- Test suite: 367 tests passing (including 40 vector search tests, 48 for the 0.5.1 fixes in `tests/test_v051.py` and 7 release checks in `tests/test_release_0_5_1.py`)
 - All tests should pass with just `pytest tests/ -v`
 
-## 0.5.1 changes (Verity findings)
+## 0.5.1 changes (downstream-reported findings)
 
 - `VajraSearchOptimized._build_index()` / `_build_scorers()` are the single place scorers are created
   (`__init__`, `load_index`, `add_document(s)`, `remove_document`); never rebuild only `self.scorer`
