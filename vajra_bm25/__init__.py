@@ -48,16 +48,6 @@ try:
 except _metadata.PackageNotFoundError:  # running from a source tree that was never installed
     __version__ = "0+unknown"
 
-import warnings
-
-warnings.warn(
-    f"vajra-bm25 is feature-complete at v{__version__} and is no longer actively developed. "
-    "Active development has moved to vajra-search (pip install vajra-search), which "
-    "provides a Rust-backed HNSW engine and the same search API.",
-    DeprecationWarning,
-    stacklevel=2,
-)
-
 # Core document types
 from vajra_bm25.documents import (
     Document,

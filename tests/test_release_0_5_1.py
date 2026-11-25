@@ -1,9 +1,8 @@
 """
-Pre-release checks for vajra-bm25 0.5.1 (deprecation release).
+Pre-release checks for vajra-bm25 0.5.1.
 
-0.5.1 adds a DeprecationWarning on import that points users to vajra-search.
-These tests check the version metadata, the warning, and that the public API
-still works. They fail until the version bump and the warning text are final.
+These tests check the version metadata, that importing the package emits no
+warning, and that the public API still works.
 
 Run: pytest tests/test_release_0_5_1.py -v
 """
@@ -19,12 +18,12 @@ import pytest
 
 import vajra_bm25
 
-TARGET_VERSION = "0.5.1rc1"
+TARGET_VERSION = "0.5.1"
 ROOT = Path(__file__).resolve().parent.parent
 
 
 def _import_in_fresh_interpreter(*flags: str) -> subprocess.CompletedProcess[str]:
-    """Import vajra_bm25 in a new process so the import-time warning fires."""
+    """Import vajra_bm25 in a new process, with the given interpreter flags."""
     return subprocess.run(
         [sys.executable, *flags, "-c", "import vajra_bm25"],
         capture_output=True,
@@ -48,40 +47,18 @@ class TestVersion:
         data = tomllib.loads((ROOT / "pyproject.toml").read_text())
         assert vajra_bm25.__version__ == data["project"]["version"]
 
-    def test_warning_text_names_current_version(self):
-        """The warning text must not quote an older version than __version__."""
-        proc = _import_in_fresh_interpreter("-W", "always::DeprecationWarning")
-        assert f"v{vajra_bm25.__version__}" in proc.stderr
-
 
 # ============================================================================
-# Deprecation warning
+# Import is silent
 # ============================================================================
 
 
-class TestDeprecationWarning:
-    def test_import_emits_deprecation_warning(self):
-        proc = _import_in_fresh_interpreter("-W", "always::DeprecationWarning")
+class TestImportIsSilent:
+    def test_import_emits_no_warning(self):
+        """0.5.1 must import cleanly, also when warnings are errors."""
+        proc = _import_in_fresh_interpreter("-W", "error")
         assert proc.returncode == 0, proc.stderr
-        assert "DeprecationWarning" in proc.stderr
-
-    def test_warning_points_to_vajra_search(self):
-        proc = _import_in_fresh_interpreter("-W", "always::DeprecationWarning")
-        assert "vajra-search" in proc.stderr
-
-    def test_warning_is_attributed_to_caller(self):
-        """stacklevel must blame the importing code, not importlib internals."""
-        proc = _import_in_fresh_interpreter("-W", "always::DeprecationWarning")
-        assert "importlib" not in proc.stderr
-
-    def test_warning_is_not_fatal_under_error_filter_for_other_categories(self):
-        proc = _import_in_fresh_interpreter("-W", "error::UserWarning")
-        assert proc.returncode == 0, proc.stderr
-
-    def test_warning_can_be_silenced(self):
-        proc = _import_in_fresh_interpreter("-W", "ignore::DeprecationWarning")
-        assert proc.returncode == 0
-        assert "DeprecationWarning" not in proc.stderr
+        assert "Warning" not in proc.stderr
 
 
 # ============================================================================
